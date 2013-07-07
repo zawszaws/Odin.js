@@ -74,6 +74,8 @@ define([
 	    
 	    this.extents.fromJSON( json.extents );
 	    
+	    this.calculateBox();
+	    
 	    return this;
         };
 	

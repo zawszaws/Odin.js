@@ -5788,17 +5788,23 @@ define("core/components/renderable2d", [ "base/class", "base/utils", "core/compo
     Class.extend(Renderable2D, Component);
     Renderable2D.prototype.calculateSprite = function() {
         var data = this._data, w = .5 * this.width, h = .5 * this.height, uvs = data.uvs || [], vertices = data.vertices, indices = data.indices;
+        vertices.length = indices.length = uvs.length = 0;
+        data.vertexBuffer = data.indexBuffer = data.uvBuffer = void 0;
         vertices.push(w, h, -w, h, -w, -h, w, -h);
         indices.push(0, 1, 2, 0, 2, 3);
         uvs.push(1, 0, 0, 0, 0, 1, 1, 1);
     };
     Renderable2D.prototype.calculateBox = function() {
         var data = this._data, extents = this.extents, w = extents.x, h = extents.y, vertices = data.vertices, indices = data.indices;
+        vertices.length = indices.length = data.uvs.length = 0;
+        data.vertexBuffer = data.indexBuffer = data.uvBuffer = void 0;
         vertices.push(w, h, -w, h, -w, -h, w, -h);
         indices.push(0, 1, 2, 0, 2, 3);
     };
     Renderable2D.prototype.calculateCircle = function() {
         var segment, i, data = this._data, radius = this.radius, vertices = data.vertices, indices = data.indices, segments = ceil(sqrt(1024 * radius * radius));
+        vertices.length = indices.length = data.uvs.length = 0;
+        data.vertexBuffer = data.indexBuffer = data.uvBuffer = void 0;
         vertices.push(0, 0);
         for (i = 0; segments >= i; i++) {
             segment = i / segments * TWO_PI;
@@ -5808,6 +5814,8 @@ define("core/components/renderable2d", [ "base/class", "base/utils", "core/compo
     };
     Renderable2D.prototype.calculatePoly = function() {
         var vertex, i, data = this._data, tvertices = this.vertices, vertices = data.vertices, indices = data.indices;
+        vertices.length = indices.length = data.uvs.length = 0;
+        data.vertexBuffer = data.indexBuffer = data.uvBuffer = void 0;
         vertices.push(0, 0);
         for (i = 0, il = tvertices.length; il > i; i++) {
             vertex = tvertices[i];
@@ -5896,6 +5904,7 @@ define("core/components/box2d", [ "base/class", "math/vec2", "core/components/re
         this.lineColor.fromJSON(json.lineColor);
         this.lineWidth = json.lineWidth;
         this.extents.fromJSON(json.extents);
+        this.calculateBox();
         return this;
     };
     return Box2D;
@@ -5943,6 +5952,7 @@ define("core/components/circle2d", [ "base/class", "core/components/renderable2d
         this.lineColor.fromJSON(json.lineColor);
         this.lineWidth = json.lineWidth;
         this.radius = json.radius;
+        this.calculateCircle();
         return this;
     };
     return Circle2D;
@@ -5999,6 +6009,7 @@ define("core/components/poly2d", [ "base/class", "math/vec2", "core/components/r
             vertex || (vertex = this.vertices[i] = new Vec2());
             vertex.fromJSON(vertices[i]);
         }
+        this.calculatePoly();
         return this;
     };
     return Poly2D;
@@ -6114,6 +6125,9 @@ define("core/components/rigidbody2d", [ "base/class", "base/time", "core/compone
         this.lineColor.fromJSON(json.lineColor);
         this.lineWidth = json.lineWidth;
         this.body.fromJSON(json.body);
+        json.body.radius && this.calculateCircle();
+        json.body.extents && this.calculateBox();
+        json.body.vertices && this.calculatePoly();
         return this;
     };
     RigidBody2D.DYNAMIC = PBody2D.DYNAMIC;
@@ -6264,6 +6278,7 @@ define("core/components/sprite2d", [ "base/class", "base/time", "core/components
         this.mode = json.mode;
         this._last = json._last;
         this._from = json._frame;
+        this.calculateSprite();
         return this;
     };
     Sprite2D.ONCE = 0;

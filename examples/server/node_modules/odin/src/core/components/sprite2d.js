@@ -41,6 +41,7 @@ define([
 	    this._frame = 0
 	    
 	    this.playing = this.animations[ this.animation ] !== undefined ? true : false;
+	    
 	    this.calculateSprite();
         }
         
@@ -246,6 +247,8 @@ define([
 	    this.mode = json.mode;
 	    this._last = json._last;
 	    this._from = json._frame;
+	    
+	    this.calculateSprite();
 	    
 	    return this;
         };

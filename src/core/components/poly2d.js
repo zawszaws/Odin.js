@@ -97,6 +97,8 @@ define([
 		vertex.fromJSON( vertices[i] );
 	    }
 	    
+	    this.calculatePoly();
+	    
 	    return this;
         };
 	

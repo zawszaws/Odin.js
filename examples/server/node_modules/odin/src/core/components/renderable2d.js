@@ -59,6 +59,9 @@ define([
 		vertices = data.vertices,
 		indices = data.indices;
 	    
+	    vertices.length = indices.length = uvs.length = 0;
+	    data.vertexBuffer = data.indexBuffer = data.uvBuffer = undefined;
+	    
 	    vertices.push(
 		w, h,
 		-w, h,
@@ -85,6 +88,9 @@ define([
 		vertices = data.vertices,
 		indices = data.indices;
 	    
+	    vertices.length = indices.length = data.uvs.length = 0;
+	    data.vertexBuffer = data.indexBuffer = data.uvBuffer = undefined;
+	    
 	    vertices.push(
 		w, h,
 		-w, h,
@@ -106,6 +112,9 @@ define([
 		segments = ceil( sqrt( radius * radius * 1024 ) ),
 		segment, i, il;
 	    
+	    vertices.length = indices.length = data.uvs.length = 0;
+	    data.vertexBuffer = data.indexBuffer = data.uvBuffer = undefined;
+	    
 	    vertices.push( 0, 0 );
 	    
 	    for( i = 0; i <= segments; i++ ){
@@ -125,6 +134,9 @@ define([
 		vertices = data.vertices,
 		indices = data.indices,
 		vertex, i;
+	    
+	    vertices.length = indices.length = data.uvs.length = 0;
+	    data.vertexBuffer = data.indexBuffer = data.uvBuffer = undefined;
 	    
 	    vertices.push( 0, 0 );
 	    

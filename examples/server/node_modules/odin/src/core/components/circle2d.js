@@ -79,6 +79,8 @@ define([
 	    
 	    this.radius = json.radius;
 	    
+	    this.calculateCircle();
+	    
 	    return this;
         };
 	

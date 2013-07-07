@@ -181,6 +181,16 @@ define([
 	    
 	    this.body.fromJSON( json.body );
 	    
+	    if( json.body.radius ){
+		this.calculateCircle();
+	    }
+	    if( json.body.extents ){
+		this.calculateBox();
+	    }
+	    if( json.body.vertices ){
+		this.calculatePoly();
+	    }
+	    
 	    return this;
         };
 	
