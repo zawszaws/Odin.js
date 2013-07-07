@@ -1,6 +1,3 @@
-var player = new Image;
-player.src = "../content/images/player.png";
-
 require(
     {
 	baseUrl: "../../src/"
@@ -13,8 +10,7 @@ require(
 	Odin.globalize();
 	
 	game = new Game({
-	    debug: true,
-	    forceCanvas: true
+	    debug: true
 	});
 	
 	game.on("init", function(){
@@ -65,7 +61,7 @@ require(
 		position: new Vec2( 0, 2 ),
 		components: [
 		    new Sprite2D({
-			image: player,
+			image: "../content/images/player.png",
 			x: 0,
 			y: 0,
 			w: 64,

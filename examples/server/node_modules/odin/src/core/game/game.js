@@ -16,7 +16,8 @@ define([
     function( Class, Utils, Device, Dom, Time, Input, Scene2D, Canvas, CanvasRenderer2D, WebGLRenderer2D ){
 	"use strict";
 	
-	var floor = Math.floor,
+	var requestAnimFrame = Dom.requestAnimFrame,
+	    floor = Math.floor,
 	    addEvent = Dom.addEvent;
 	
 	
@@ -91,8 +92,8 @@ define([
 		    scenes.push( scene );
 		    scene.game = this;
 		    
-		    scene.trigger("addtogame");
-		    this.trigger("addscene", scene );
+		    scene.trigger("addToGame");
+		    this.trigger("addScene", scene );
                 }
 		else{
 		    console.warn("Game.add: "+ scene.name +" is already added to game");
@@ -113,8 +114,8 @@ define([
                     scenes.splice( index, 1 );
 		    scene.game = undefined;
                     
-                    scene.trigger("removefromgame");
-                    this.trigger("removescene", scene );
+                    scene.trigger("removeFromGame");
+                    this.trigger("removeScene", scene );
                 }
 		else{
 		    console.warn("Game.remove: "+ scene.name +" is not in game");
@@ -124,10 +125,17 @@ define([
 	
 	
 	Game.prototype.setScene = function( scene ){
-	    if( typeof scene === "string" ){
+	    var type = typeof scene,
+		index;
+	    
+	    if( type === "string" ){
 		scene = this.findSceneByName( scene );
 	    }
-            var index = this.scenes.indexOf( scene );
+	    else if( type === "number" ){
+		scene = this.findSceneById( scene );
+	    }
+	    
+	    index = this.scenes.indexOf( scene );
 	    
 	    if( index === -1 ){
 		console.warn("Game.setScene: scene not added to Game, adding it...");
@@ -146,15 +154,20 @@ define([
 	
 	
 	Game.prototype.setCamera = function( camera ){
-            var index, scene = this.scene;
+            var type = typeof camera,
+		scene = this.scene,
+		index;
 	    
 	    if( !scene ){
 		console.warn("Game.setCamera: no active scene for camera.");
 		return;
 	    }
 	    
-	    if( typeof camera === "string" ){
+	    if( type === "string" ){
 		this.camera = scene.findByName( camera );
+	    }
+	    else if( type === "number" ){
+		camera = scene.findById( camera );
 	    }
 	    else{
 		index = scene.children.indexOf( camera );
@@ -188,6 +201,34 @@ define([
             
             return undefined;
         };
+        
+        
+        Game.prototype.findSceneById = function( id ){
+            var scenes = this.scenes,
+                scene, i;
+            
+            for( i = scenes.length; i--; ){
+                scene = scenes[i];
+                
+                if( scene._id === id ) return scene;
+            }
+            
+            return undefined;
+        };
+        
+        
+        Game.prototype.findSceneByServerId = function( id ){
+            var scenes = this.scenes,
+                scene, i;
+            
+            for( i = scenes.length; i--; ){
+                scene = scenes[i];
+                
+                if( scene._SERVER_ID === id ) return scene;
+            }
+            
+            return undefined;
+        };
 	
 	
 	Game.prototype.update = function(){
@@ -205,7 +246,7 @@ define([
 		    scene.update();
 		}
 		
-		this.trigger("lateupdate");
+		this.trigger("lateUpdate");
 	    }
 	};
 	
@@ -247,7 +288,7 @@ define([
 		this.update();
 		this.render();
 		
-		Dom.requestAnimFrame( this.animate.bind( this ) );
+		requestAnimFrame( this.animate.bind( this ) );
 	    };
 	}();
         

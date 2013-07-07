@@ -10,9 +10,8 @@ require(
         Odin.globalize();
         
         game = new ClientGame({
-            host: "192.168.1.181",
+            host: "192.168.1.191",
             port: 3000,
-            forceCanvas: true,
             debug: true
         });
         
