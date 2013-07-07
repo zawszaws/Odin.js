@@ -271,7 +271,13 @@ define([
 		"margin: 0px;",
 		"padding: 0px;",
 		"color: #ddd;",
-		"text-shadow: 1px 1px #333"
+		"text-shadow: 1px 1px #333",
+		"-webkit-touch-callout: none;",
+		"-webkit-user-select: none;",
+		"-khtml-user-select: none;",
+		"-moz-user-select: moz-none;",
+		"-ms-user-select: none;",
+		"user-select: none;"
 	    ].join("\n");
 	    
 	    document.body.appendChild( fpsDisplay );

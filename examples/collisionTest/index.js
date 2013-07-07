@@ -85,12 +85,12 @@ require(
 	    }
 	    
 	    Mouse.on("wheel", function(){
-		camera.zoomBy( -this.wheel*Time.delta*4 );
+		camera.zoomBy( -this.wheel*Time.delta*8 );
 	    });
 	    Mouse.on("move", function(){
 		
 		if( this.left ){
-		    camera.translate( vec2_1.set( this.delta.x, this.delta.y ).smul( -Time.delta*0.5 ) );
+		    camera.translate( vec2_1.set( this.delta.x, this.delta.y ).smul( -Time.delta ) );
 		}
 	    });
 	    

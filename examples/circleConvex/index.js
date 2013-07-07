@@ -83,7 +83,7 @@ require(
 	    Mouse.on("move", function(){
 		
 		if( this.left ){
-		    camera.translate( vec2_1.set( this.delta.x, this.delta.y ).smul( -0.05 ) );
+		    camera.translate( vec2_1.set( this.delta.x, this.delta.y ).smul( -Time.delta*0.5 ) );
 		}
 	    });
 	    
