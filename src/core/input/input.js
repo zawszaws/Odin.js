@@ -17,11 +17,29 @@ define([
 	var addEvent = Dom.addEvent,
 	    removeEvent = Dom.removeEvent;
 	
-	
+	/**
+	 * @class Input
+	 * @extends Class
+	 * @brief Input helper
+	 * @event hold called when a touch or the mouse is holding on the screen
+	 * @event tap called when a touch or the mouse taps the screen
+	 * @event doubletap called when a touch or the mouse double taps the screen
+	 * @event swipe called when a touch or the mouse swipes the screen
+	 * @event dragstart called when a touch or the mouse starts dragging
+	 * @event dragend called when a touch or the mouse ends dragging
+	 * @event transformstart called when two touches start a transform
+	 * @event transform called while two touches are transforming
+	 * @event transformend called when two touches end transform
+	 */
 	function Input(){
 	    
 	    Class.call( this );
-            
+	    
+            /**
+	    * @property Element element
+	    * @brief element events are attached to
+	    * @memberof Input
+	    */
             this.element = undefined;
 	}
         
@@ -64,7 +82,12 @@ define([
             Touches.update();
         };
         
-        
+        /**
+	 * @method key
+	 * @memberof Input
+	 * @brief checks if any key in arguments is down
+	 * @return Boolean
+	 */
         Input.prototype.key = function(){
             var keys = Keyboard.keys,
                 key, i, il;
@@ -80,7 +103,12 @@ define([
             return false;
         };
         
-        
+        /**
+	 * @method keyDown
+	 * @memberof Input
+	 * @brief checks if any key in arguments is down this frame
+	 * @return Boolean
+	 */
         Input.prototype.keyDown = function(){
             var keys = Keyboard.keys,
                 key, i, il;
@@ -96,7 +124,12 @@ define([
             return false;
         };
         
-        
+        /**
+	 * @method keyUp
+	 * @memberof Input
+	 * @brief checks if any key in arguments is up this frame
+	 * @return Boolean
+	 */
         Input.prototype.keyUp = function(){
             var keys = Keyboard.keys,
                 key, i, il;
@@ -112,7 +145,13 @@ define([
             return false;
         };
         
-        
+        /**
+	 * @method mouseButton
+	 * @memberof Input
+	 * @brief checks if any mouse button is down
+	 * @param Number index mouse index, 0 - left, 1 - middle, 2 - right
+	 * @return Boolean
+	 */
         Input.prototype.mouseButton = function( index ){
             
             if( Mouse.left && index == 0 ){
@@ -128,19 +167,37 @@ define([
             return false;
         };
         
-        
+        /**
+	 * @method mouseButtonDown
+	 * @memberof Input
+	 * @brief checks if any mouse button is down this frame
+	 * @param Number index mouse index, 0 - left, 1 - middle, 2 - right
+	 * @return Boolean
+	 */
         Input.prototype.mouseButtonDown = function( index ){
             
             return this.mouseButton( index ) && Mouse._downFrame === ( Time.frame - 1 );
         };
         
-        
+        /**
+	 * @method mouseButtonUp
+	 * @memberof Input
+	 * @brief checks if any mouse button is up this frame
+	 * @param Number index mouse index, 0 - left, 1 - middle, 2 - right
+	 * @return Boolean
+	 */
         Input.prototype.mouseButtonUp = function( index ){
             
             return !this.mouseButton( index ) && Mouse._upFrame === ( Time.frame - 1 );
         };
         
-        
+        /**
+	 * @method getTouch
+	 * @memberof Input
+	 * @brief gets touch from touches by index if touch is active
+	 * @param Number index the touch's index to get
+	 * @return Touch
+	 */
         Input.prototype.getTouch = function( index ){
             var touch = Touches.array[ index ];
             
@@ -163,7 +220,7 @@ define([
         
         
         var holdTimer, holdTimeout = 500, holdThreshold = 1;
-        
+	
         Input.prototype._hold = function( type ){
 	    var scope = this;
 	    
@@ -346,7 +403,7 @@ define([
             if( type === "touchend" || type === "mouseup" ){
                 
                 if( transformTriggered ){
-                    inst.trigger( "onTransformend", scale, rotation );
+                    this.trigger( "transformend", scale, rotation );
                 }
                 
                 transformTriggered = false;

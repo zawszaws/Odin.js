@@ -18,21 +18,60 @@ define([
 	    io = require("socket.io"),
 	    scenesList = [];
 	
-	
+	/**
+	 * @class ServerGame
+	 * @extends Class
+	 * @brief used for server side game
+	 * @param Object opts sets Class properties from passed Object
+	 * @event update called before update
+	 * @event lateUpdate called after update
+	 */
 	function ServerGame( opts ){
 	    opts || ( opts = {} );
 	    
 	    Class.call( this, opts );
 	    
+	    /**
+	    * @property Array scenes
+	    * @brief list of scenes
+	    * @memberof ServerGame
+	    */
 	    this.scenes = [];
+	    
+	    /**
+	    * @property Object clients
+	    * @brief list of clients
+	    * @memberof ServerGame
+	    */
 	    this.clients = {};
 	    
+	    /**
+	    * @property String host
+	    * @brief host address of game
+	    * @memberof ServerGame
+	    */
 	    this.host = opts.host || "127.0.0.1";
+	    
+	    /**
+	    * @property String port
+	    * @brief port of game
+	    * @memberof ServerGame
+	    */
 	    this.port = opts.port || 3000;
 	    
+	    /**
+	    * @property Object server
+	    * @brief reference to http server
+	    * @memberof ServerGame
+	    */
 	    this.server = http.createServer( this._onRequest.bind( this ) );
 	    this.server.listen( this.port, this.host );
 	    
+	    /**
+	    * @property Object io
+	    * @brief reference to socket.io
+	    * @memberof ServerGame
+	    */
 	    this.io = io.listen( this.server );
 	    this.io.set("log level", opts.logLevel || 2 );
 	    
@@ -43,7 +82,9 @@ define([
 			id: socket.id,
 			socket: socket,
 			connectTime: Time.stamp()
-		    }), i;
+		    }),
+		    id = socket.id,
+		    i;
 		
 		scenesList.length = 0;
 		
@@ -51,31 +92,36 @@ define([
 		    scenesList[i] = scenes[i].toJSON();
 		}
 		
-		self.clients[ socket.id ] = client;
+		self.clients[ id ] = client;
 		
-		socket.emit("connection", socket.id, scenesList );
-		self.trigger("connection", socket.id );
-		
-		console.log("ServerGame: new Client id is "+ socket.id );
+		socket.emit("connection", id, scenesList );
 		
 		socket.on("disconnect", function(){
-		    self.trigger("disconnect", socket.id );
-		    console.log("ServerGame: Client id "+ socket.id +" disconnected");
+		    self.trigger("disconnect", id );
+		    console.log("ServerGame: Client id: "+ id +" disconnected");
+		});
+		socket.on("error", function( error ){
+		    console.log("ServerGame: Client id: "+ id +" to error: "+ error );
 		});
 		
-		socket.on("device", function( device ){ client.device = device; });
+		socket.on("device", function( device ){
+		    client.device = device;
+		    self.trigger("connection", id );
+		    console.log("ServerGame: new Client id: "+ id +" "+ device.userAgent );
+		});
 		
 		socket.on("clientOffset", function( offset ){
 		    client.offset = offset;
 		    
 		    if( offset > 10 ){
-			console.log("ServerGame: disconnected Client with id "+ socket.id +" due to slow connection");
-			self.trigger("disconnect", socket.id );
+			console.log("ServerGame: disconnected Client with id "+ id +" due to slow connection");
+			self.trigger("disconnect", id );
 			socket.disconnect();
 		    }
 		});
 		
-		socket.on("accelerometerchange", function( Accelerometer ){ client.trigger("accelerometerchange", Accelerometer ); });
+		socket.on("accelerometer", function( accelerometer ){ client.trigger("accelerometer", accelerometer ); });
+		socket.on("orientation", function( orientation ){ client.trigger("orientation", orientation ); });
 		socket.on("orientationchange", function( mode, orientation ){ client.trigger("orientationchange", mode, orientation ); });
 		
 		socket.on("keydown", function( key ){ client.trigger("keydown", key ); });
@@ -95,7 +141,11 @@ define([
         
 	Class.extend( ServerGame, Class );
 	
-	
+	/**
+	 * @method init
+	 * @memberof ServerGame
+	 * @brief call this to start game
+	 */
 	ServerGame.prototype.init = function(){
 	    
 	    this.trigger("init");
@@ -104,7 +154,11 @@ define([
 	    console.log("Game started at "+ this.host +":"+ this.port );
 	};
 	
-	
+	/**
+	 * @method addScene
+	 * @memberof ServerGame
+	 * @brief adds all scenes in arguments to game
+	 */
 	ServerGame.prototype.addScene = function(){
             var scenes = this.scenes,
 		sockets = this.io.sockets,
@@ -137,6 +191,9 @@ define([
 			    }
 			});
 			
+			gameObject.on("zoom", function(){
+			    sockets.emit("cameraZoom", this.scene._id, this._id, this.zoom );
+			});
 			gameObject.on("moved", function(){
 			    sockets.emit("gameObjectMoved", this.scene._id, this._id, this.position );
 			});
@@ -158,7 +215,11 @@ define([
             }
         };
         
-        
+        /**
+	 * @method addScene
+	 * @memberof ServerGame
+	 * @brief removes all scenes in arguments from game
+	 */
         ServerGame.prototype.removeScene = function(){
             var scenes = this.scenes,
 		sockets = this.io.sockets,
@@ -182,7 +243,13 @@ define([
             }
         };
         
-        
+        /**
+	 * @method setScene
+	 * @memberof ServerGame
+	 * @brief sets client's active scene
+	 * @param Client client
+	 * @param Scene scene
+	 */
         ServerGame.prototype.setScene = function( client, scene ){
             var index = this.scenes.indexOf( scene ),
 		socket = this.io.sockets.sockets[ client.id ];
@@ -200,7 +267,13 @@ define([
 	    }
         };
         
-        
+        /**
+	 * @method setCamera
+	 * @memberof ServerGame
+	 * @brief sets client's active camera
+	 * @param Client client
+	 * @param Camera camera
+	 */
         ServerGame.prototype.setCamera = function( client, camera ){
             var scene = client.scene,
 		index = scene.children.indexOf( camera ),
@@ -219,7 +292,12 @@ define([
 	    }
         };
 	
-	
+	/**
+	 * @method findSceneByName
+	 * @memberof ServerGame
+	 * @brief find scene by name
+	 * @param String name
+	 */
 	ServerGame.prototype.findSceneByName = function( name ){
             var scenes = this.scenes,
                 scene, i;
@@ -233,7 +311,12 @@ define([
             return undefined;
         };
         
-        
+        /**
+	 * @method findSceneById
+	 * @memberof ServerGame
+	 * @brief find scene by id
+	 * @param Number id
+	 */
         ServerGame.prototype.findSceneById = function( id ){
             var scenes = this.scenes,
                 scene, i;
@@ -247,7 +330,11 @@ define([
             return undefined;
         };
 	
-	
+	/**
+	 * @method update
+	 * @memberof ServerGame
+	 * @brief updates scenes and Time
+	 */
 	ServerGame.prototype.update = function(){
 	    var scenes = this.scenes, scene, i;
 	    
@@ -259,7 +346,11 @@ define([
 	    this.io.sockets.emit("sync", Time.stamp() );
 	};
 	
-	
+	/**
+	 * @method animate
+	 * @memberof ServerGame
+	 * @brief starts the game called in ServerGame.init
+	 */
 	ServerGame.prototype.animate = function(){
 	    
 	    this.update();

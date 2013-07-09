@@ -17,11 +17,38 @@ define([
 	    clamp = Mathf.clamp,
 	    equals= Mathf.equals;
 	
-	
+	/**
+	 * @class Vec4
+	 * @brief 4D vector
+	 * @param Number x
+	 * @param Number y
+	 * @param Number z
+	 * @param Number w
+	 */
 	function Vec4( x, y, z, w ){
+	    
+	    /**
+	    * @property Number x
+	    * @memberof Vec4
+	    */
 	    this.x = x || 0;
+	    
+	    /**
+	    * @property Number y
+	    * @memberof Vec4
+	    */
 	    this.y = y || 0;
+	    
+	    /**
+	    * @property Number z
+	    * @memberof Vec4
+	    */
 	    this.z = z || 0;
+	    
+	    /**
+	    * @property Number w
+	    * @memberof Vec4
+	    */
             this.w = w !== undefined ? w : 1;
 	}
         
@@ -31,13 +58,24 @@ define([
 	    this.copy( json );
 	};
         
-        
+        /**
+	 * @method clone
+	 * @memberof Vec4
+	 * @brief returns new copy of this
+	 * @return Vec4
+	 */
         Vec4.prototype.clone = function(){
             
             return new Vec4( this.x, this.y, this.z, this.w );
         };
         
-        
+        /**
+	 * @method copy
+	 * @memberof Vec4
+	 * @brief copies other vector
+	 * @param Vec4 other vector to be copied
+	 * @return Vec4
+	 */
         Vec4.prototype.copy = function( other ){
             
             this.x = other.x;
@@ -48,7 +86,14 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method set
+	 * @memberof Vec4
+	 * @brief sets x and y of this vector
+	 * @param Number x
+	 * @param Number y
+	 * @return Vec4
+	 */
         Vec4.prototype.set = function( x, y, z, w ){
             
             this.x = x;
@@ -59,7 +104,14 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method vadd
+	 * @memberof Vec4
+	 * @brief adds a + b saves it in this
+	 * @param Vec4 a
+	 * @param Vec4 b
+	 * @return Vec4
+	 */
         Vec4.prototype.vadd = function( a, b ){
             
             this.x = a.x + b.x;
@@ -70,7 +122,13 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method add
+	 * @memberof Vec4
+	 * @brief adds this + other
+	 * @param Vec4 other
+	 * @return Vec4
+	 */
         Vec4.prototype.add = function( other ){
             
             this.x += other.x;
@@ -81,7 +139,13 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method sadd
+	 * @memberof Vec4
+	 * @brief adds this + scalar
+	 * @param Number s
+	 * @return Vec4
+	 */
         Vec4.prototype.sadd = function( s ){
             
             this.x += s;
@@ -92,7 +156,14 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method vsub
+	 * @memberof Vec4
+	 * @brief subtracts a - b saves it in this
+	 * @param Vec4 a
+	 * @param Vec4 b
+	 * @return Vec4
+	 */
         Vec4.prototype.vsub = function( a, b ){
             
             this.x = a.x - b.x;
@@ -103,7 +174,13 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method sub
+	 * @memberof Vec4
+	 * @brief subtracts this - other
+	 * @param Vec4 other
+	 * @return Vec4
+	 */
         Vec4.prototype.sub = function( other ){
             
             this.x -= other.x;
@@ -114,7 +191,13 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method ssub
+	 * @memberof Vec4
+	 * @brief subtracts this - scalar
+	 * @param Number s
+	 * @return Vec4
+	 */
         Vec4.prototype.ssub = function( s ){
             
             this.x -= s;
@@ -125,7 +208,14 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method vmul
+	 * @memberof Vec4
+	 * @brief multiples a * b saves it in this
+	 * @param Vec4 a
+	 * @param Vec4 b
+	 * @return Vec4
+	 */
         Vec4.prototype.vmul = function( a, b ){
             
             this.x = a.x * b.x;
@@ -136,7 +226,13 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method mul
+	 * @memberof Vec4
+	 * @brief multiples this * other
+	 * @param Vec4 other
+	 * @return Vec4
+	 */
         Vec4.prototype.mul = function( other ){
             
             this.x *= other.x;
@@ -147,7 +243,13 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method smul
+	 * @memberof Vec4
+	 * @brief multiples this * scalar
+	 * @param Number s
+	 * @return Vec4
+	 */
         Vec4.prototype.smul = function( s ){
             
             this.x *= s;
@@ -158,7 +260,14 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method vdiv
+	 * @memberof Vec4
+	 * @brief divides a / b saves it in this
+	 * @param Vec4 a
+	 * @param Vec4 b
+	 * @return Vec4
+	 */
         Vec4.prototype.vdiv = function( a, b ){
             var x = b.x, y = b.y, z = b.z, w = b.w;
             
@@ -170,7 +279,13 @@ define([
             return this;
         };
         
-        
+	/**
+	 * @method div
+	 * @memberof Vec4
+	 * @brief divides this / other
+	 * @param Vec4 other
+	 * @return Vec4
+	 */
         Vec4.prototype.div = function( other ){
             var x = other.x, y = other.y, z = other.z, w = other.w;
             
@@ -182,7 +297,13 @@ define([
             return this;
         };
         
-        
+	/**
+	 * @method sdiv
+	 * @memberof Vec4
+	 * @brief divides this / scalar
+	 * @param Number s
+	 * @return Vec4
+	 */
         Vec4.prototype.sdiv = function( s ){
 	    s = s !== 0 ? 1 / s : 0;
 	    
@@ -194,19 +315,40 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method vdot
+	 * @memberof Vec4
+	 * @brief gets dot product of a vector and b vector
+	 * @param Vec4 a
+	 * @param Vec4 b
+	 * @return Number
+	 */
         Vec4.vdot = Vec4.prototype.vdot = function( a, b ){
             
             return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
         };
         
-        
+        /**
+	 * @method dot
+	 * @memberof Vec4
+	 * @brief gets dot product of this vector and other vector
+	 * @param Vec4 other
+	 * @return Number
+	 */
         Vec4.prototype.dot = function( other ){
             
 	    return this.x * other.x + this.y * other.y + this.z * other.z + this.w * other.w;
         };
         
-        
+        /**
+	 * @method vlerp
+	 * @memberof Vec4
+	 * @brief linear interpolation between a vector and b vector by t
+	 * @param Vec4 a
+	 * @param Vec4 b
+	 * @param Number t between 0 and 1
+	 * @return Vec4
+	 */
         Vec4.prototype.vlerp = function( a, b, t ){
             
             this.x = lerp( a.x, b.x, t );
@@ -217,7 +359,14 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method lerp
+	 * @memberof Vec4
+	 * @brief linear interpolation between this vector and other vector by t
+	 * @param Vec4 other
+	 * @param Number t between 0 and 1
+	 * @return Vec4
+	 */
         Vec4.prototype.lerp = function( other, t ){
             
             this.x = lerp( this.x, other.x, t );
@@ -228,7 +377,15 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method vslerp
+	 * @memberof Vec4
+	 * @brief angular interpolation between a vector and b vector by t
+	 * @param Vec4 a
+	 * @param Vec4 b
+	 * @param Number t between 0 and 1
+	 * @return Vec4
+	 */
         Vec4.prototype.vslerp = function(){
 	    var start = new Vec4(),
 		end = new Vec4(),
@@ -254,7 +411,14 @@ define([
 	    };
 	}();
         
-        
+        /**
+	 * @method slerp
+	 * @memberof Vec4
+	 * @brief angular interpolation between this vector and other vector by t
+	 * @param Vec4 other
+	 * @param Number t between 0 and 1
+	 * @return Vec4
+	 */
         Vec4.prototype.slerp = function(){
 	    var start = new Vec4(),
 		end = new Vec4(),
@@ -280,7 +444,13 @@ define([
 	    };
 	}();
         
-        
+        /**
+	 * @method applyMat4
+	 * @memberof Vec4
+	 * @brief multiply this vector by Mat4
+	 * @param Mat4 m
+	 * @return Vec4
+	 */
         Vec4.prototype.applyMat4 = function( m ){
             var me = m.elements,
 		x = this.x, y = this.y, z = this.z, w = this.w;
@@ -293,7 +463,13 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method applyProj
+	 * @memberof Vec4
+	 * @brief multiply this vector by projection matrix
+	 * @param Mat4 m
+	 * @return Vec4
+	 */
         Vec4.prototype.applyProj = function( m ){
             var me = m.elements,
 		x = this.x, y = this.y, z = this.z, w = this.w
@@ -307,14 +483,24 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method lenSq
+	 * @memberof Vec4
+	 * @brief gets squared length of this
+	 * @return Number
+	 */
         Vec4.prototype.lenSq = function(){
             var x = this.x, y = this.y, z = this.z, w = this.w;
 	    
             return x * x + y * y + z * z + w * w;
         };
         
-        
+        /**
+	 * @method len
+	 * @memberof Vec4
+	 * @brief gets length of this
+	 * @return Number
+	 */
         Vec4.prototype.len = function(){
             var x = this.x, y = this.y, z = this.z, w = this.w,
 		l = x * x + y * y + z * z + w * w;
@@ -322,7 +508,12 @@ define([
             return sqrt( x * x + y * y + z * z + w * w );
         };
         
-        
+        /**
+	 * @method norm
+	 * @memberof Vec4
+	 * @brief normalizes this vector so length is equal to 1
+	 * @return Vec4
+	 */
         Vec4.prototype.norm = function(){
             var x = this.x, y = this.y, z = this.z, w = this.w,
 		l = x * x + y * y + z * z + w * w;
@@ -336,7 +527,12 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method negate
+	 * @memberof Vec4
+	 * @brief negates x and y values
+	 * @return Vec4
+	 */
         Vec4.prototype.negate = function(){
             
 	    this.x = -this.x;
@@ -347,7 +543,12 @@ define([
             return this;
         };
 	
-        
+        /**
+	 * @method abs
+	 * @memberof Vec4
+	 * @brief gets absolute values of vector
+	 * @return Vec4
+	 */
         Vec4.prototype.abs = function(){
 	    
 	    this.x = abs( this.x );
@@ -358,7 +559,13 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method min
+	 * @memberof Vec4
+	 * @brief returns min values from this and other vector
+	 * @param Vec4 other
+	 * @return Vec4
+	 */
         Vec4.prototype.min = function( other ){
             var x = other.x, y = other.y, z = other.z, w = other.w;
             
@@ -370,7 +577,13 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method max
+	 * @memberof Vec4
+	 * @brief returns max values from this and other vector
+	 * @param Vec4 other
+	 * @return Vec4
+	 */
         Vec4.prototype.max = function( other ){
             var x = other.x, y = other.y, z = other.z, w = other.w;
             
@@ -382,7 +595,14 @@ define([
             return this;
         };
 	
-        
+        /**
+	 * @method clamp
+	 * @memberof Vec4
+	 * @brief clamps this vector between min and max vector's values
+	 * @param Vec4 min
+	 * @param Vec4 max
+	 * @return Vec4
+	 */
         Vec4.prototype.clamp = function( min, max ){
             
             this.x = clamp( this.x, min.x, max.x );
@@ -393,34 +613,25 @@ define([
             return this;
         };
         
-        
-        Vec4.distSq = Vec4.prototype.distSq = function( a, b ){
-	    var x = b.x - a.x,
-		y = b.y - a.y,
-		z = b.z - a.z,
-		w = b.w - a.w;
-	    
-	    return x * x + y * y + z * z + w * w;
-	};
-        
-        
-        Vec4.dist = Vec4.prototype.dist = function( a, b ){
-            var x = b.x - a.x,
-		y = b.y - a.y,
-		z = b.z - a.z,
-		w = b.w - a.w,
-		d = x * x + y * y + z * z + w * w;
-	    
-	    return d !== 0 ? sqrt( d ) : 0;
-        };
-        
-        
+        /**
+	 * @method toString
+	 * @memberof Vec4
+	 * @brief returns string of this vector - "Vec4( 0, 0, 0, 1 )"
+	 * @return String
+	 */
         Vec4.prototype.toString = function(){
             
             return "Vec4( "+ this.x +", "+ this.y +", "+ this.z +", "+ this.w +" )";
         };
 	
-        
+        /**
+	 * @method equals
+	 * @memberof Vec4
+	 * @brief checks if this vector equals other vector
+	 * @param Vec4 other
+	 * @param Number epsilon defaults to 0.000001
+	 * @return String
+	 */
         Vec4.prototype.equals = function( other, e ){
             
             return !(
@@ -431,7 +642,15 @@ define([
             );
         };
         
-        
+        /**
+	 * @method Vec4.equals
+	 * @memberof Vec4
+	 * @brief checks if a vector equals b vector
+	 * @param Vec4 a
+	 * @param Vec4 b
+	 * @param Number epsilon defaults to 0.000001
+	 * @return String
+	 */
         Vec4.equals = function( a, b, e ){
 	    
             return !(

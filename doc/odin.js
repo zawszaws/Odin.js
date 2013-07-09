@@ -42,7 +42,7 @@ define("base/class", [], function() {
 	 * @method clone
 	 * @memberof Class
 	 * @brief return a copy of this Object
-	 * @return this
+	 * @return Class
 	 */
     Class.prototype.clone = function() {
         var clone = new this.constructor();
@@ -54,7 +54,7 @@ define("base/class", [], function() {
 	 * @memberof Class
 	 * @brief copies other object
 	 * @param Class other object to be copied
-	 * @return this
+	 * @return Class
 	 */
     Class.prototype.copy = function() {
         return this;
@@ -66,7 +66,7 @@ define("base/class", [], function() {
 	 * @param String name name of the event
 	 * @param Function callback function to call on event
 	 * @param Object context context of function
-	 * @return this
+	 * @return Class
 	 */
     Class.prototype.on = function(name, callback, context) {
         var events = this._events[name] || (this._events[name] = []);
@@ -82,7 +82,7 @@ define("base/class", [], function() {
 	 * @memberof Class
 	 * @brief clears functions assigned to event name
 	 * @param string name name of the event
-	 * @return this
+	 * @return Class
 	 */
     Class.prototype.off = function(name) {
         var events = this._events[name];
@@ -94,7 +94,7 @@ define("base/class", [], function() {
 	 * @memberof Class
 	 * @brief triggers event
 	 * @param String name name of the event
-	 * @return this
+	 * @return Class
 	 */
     Class.prototype.trigger = function(name) {
         var events = this._events[name];
@@ -111,7 +111,7 @@ define("base/class", [], function() {
 	 * @param String name name of the event
 	 * @param Function callback function to call on event
 	 * @param Object ctx context of the function
-	 * @return this
+	 * @return Class
 	 */
     Class.prototype.listenTo = function(obj, name, callback, ctx) {
         if (!obj) return this;
@@ -149,7 +149,7 @@ define("base/class", [], function() {
 	 * @method fromJSON
 	 * @memberof Class
 	 * @brief copies json version of object to properties
-	 * @return this
+	 * @return Class
 	 */
     Class.prototype.fromJSON = function() {
         return this;
@@ -466,6 +466,7 @@ define("base/objectpool", [], function() {
 	 * @method set
 	 * @memberof ObjectPool
 	 * @brief sets constuctor of Object to create
+	 * @param Constuctor constuctor
 	 */
     ObjectPool.prototype.set = function(constuctor) {
         this.object = constuctor;
@@ -483,8 +484,7 @@ define("base/objectpool", [], function() {
     /**
 	 * @method release
 	 * @memberof ObjectPool
-	 * @brief removes objects and pools them
-	 * @param Arguments arguments all arguments passed are removed if created through create method
+	 * @brief all arguments passed are removed, if created through create method they are pooled
 	 */
     ObjectPool.prototype.release = function() {
         var object, index, i, objects = this.objects;
@@ -6783,11 +6783,32 @@ define("math/vec4", [ "math/mathf" ], function(Mathf) {
 if ("function" != typeof define) var define = require("amdefine")(module);
 
 define("physics2d/body/pbody2d", [ "base/class" ], function(Class) {
+    /**
+	 * @class PBody2D
+	 * @extends Class
+	 * @brief Base for 2D Physics Bodies
+	 * @param Object opts sets Class properties from passed Object
+	 */
     function PBody2D(opts) {
         opts || (opts = {});
         Class.call(this, opts);
+        /**
+	    * @property Number filterGroup
+	    * @brief only bodies with the same filter group collide
+	    * @memberof PBody2D
+	    */
         this.filterGroup = void 0 !== opts.filterGroup ? opts.filterGroup : 0;
+        /**
+	    * @property PWorld2D world
+	    * @brief reference to world this body is attached to
+	    * @memberof PBody2D
+	    */
         this.world = void 0;
+        /**
+	    * @property undefined userData
+	    * @brief custom user data, when adding to a GameObject thourgh RigidBody2D component this is set to the RigidBody2D
+	    * @memberof PBody2D
+	    */
         this.userData = void 0;
     }
     Class.extend(PBody2D, Class);
@@ -6812,20 +6833,79 @@ define("physics2d/body/pbody2d", [ "base/class" ], function(Class) {
 if ("function" != typeof define) var define = require("amdefine")(module);
 
 define("physics2d/body/pparticle2d", [ "base/class", "math/vec2", "physics2d/body/pbody2d" ], function(Class, Vec2, PBody2D) {
+    /**
+	 * @class PParticle2D
+	 * @extends PBody2D
+	 * @brief Body consisting of one point mass, does not have orientation
+	 * @param Object opts sets Class properties from passed Object
+	 */
     function PParticle2D(opts) {
         opts || (opts = {});
         PBody2D.call(this, opts);
+        /**
+	    * @property Vec2 position
+	    * @brief position of body
+	    * @memberof PParticle2D
+	    */
         this.position = opts.position instanceof Vec2 ? opts.position : new Vec2();
+        /**
+	    * @property Vec2 velocity
+	    * @brief velocity of body
+	    * @memberof PParticle2D
+	    */
         this.velocity = opts.velocity instanceof Vec2 ? opts.velocity : new Vec2();
+        /**
+	    * @property Vec2 linearDamping
+	    * @brief linear damping of body
+	    * @memberof PParticle2D
+	    */
         this.linearDamping = opts.linearDamping instanceof Vec2 ? opts.linearDamping : new Vec2(.01, .01);
+        /**
+	    * @property Number mass
+	    * @brief mass of body, a mass of zero makes the bodt static
+	    * @memberof PParticle2D
+	    */
         this.mass = void 0 !== opts.mass ? opts.mass : 1;
+        /**
+	    * @property Number mass
+	    * @brief inverse mass of body, 1 / mass
+	    * @memberof PParticle2D
+	    */
         this.invMass = this.mass > 0 ? 1 / this.mass : 0;
+        /**
+	    * @property Enum type
+	    * @brief type of body, 1 - DYNAMIC, 2 - STATIC, 3 - KINEMATIC
+	    * @memberof PParticle2D
+	    */
         this.type = void 0 !== opts.type ? opts.type : this.mass > 0 ? DYNAMIC : STATIC;
+        /**
+	    * @property Number elasticity
+	    * @brief the elasticity of the body
+	    * @memberof PParticle2D
+	    */
         this.elasticity = void 0 !== opts.elasticity ? opts.elasticity : .5;
+        /**
+	    * @property Number friction
+	    * @brief the friction of the body
+	    * @memberof PParticle2D
+	    */
         this.friction = void 0 !== opts.friction ? opts.friction : .25;
+        /**
+	    * @property Vec2 force
+	    * @memberof PParticle2D
+	    */
         this.force = new Vec2();
         this.vlambda = new Vec2();
+        /**
+	    * @property Boolean allowSleep
+	    * @memberof PParticle2D
+	    */
         this.allowSleep = void 0 !== opts.allowSleep ? opts.allowSleep : !0;
+        /**
+	    * @property Enum sleepState
+	    * @brief type of body, 1 - AWAKE, 2 - SLEEPY, 3 - SLEEPING
+	    * @memberof PParticle2D
+	    */
         this.sleepState = AWAKE;
         this._sleepVelocity = 1e-4;
         this._sleepTimeLimit = 3;
@@ -6834,23 +6914,54 @@ define("physics2d/body/pparticle2d", [ "base/class", "math/vec2", "physics2d/bod
     var AWAKE, SLEEPY, SLEEPING, DYNAMIC = PBody2D.DYNAMIC, STATIC = PBody2D.STATIC;
     PBody2D.KINEMATIC;
     Class.extend(PParticle2D, PBody2D);
+    /**
+	 * @method isAwake
+	 * @memberof PParticle2D
+	 * @return Boolean
+	 */
     PParticle2D.prototype.isAwake = function() {
         return this.sleepState === AWAKE;
     };
+    /**
+	 * @method isSleepy
+	 * @memberof PParticle2D
+	 * @return Boolean
+	 */
     PParticle2D.prototype.isSleepy = function() {
         return this.sleepState === SLEEPY;
     };
+    /**
+	 * @method isSleeping
+	 * @memberof PParticle2D
+	 * @return Boolean
+	 */
     PParticle2D.prototype.isSleeping = function() {
         return this.sleepState === SLEEPING;
     };
+    /**
+	 * @method wake
+	 * @memberof PParticle2D
+	 * @brief wakes body if sleeping
+	 */
     PParticle2D.prototype.wake = function() {
         this.sleepState === SLEEPING && this.trigger("wake");
         this.sleepState = AWAKE;
     };
+    /**
+	 * @method sleep
+	 * @memberof PParticle2D
+	 * @brief makes body sleep
+	 */
     PParticle2D.prototype.sleep = function() {
         (this.sleepState === AWAKE || this.sleepState === SLEEPY) && this.trigger("sleep");
         this.sleepState = SLEEPING;
     };
+    /**
+	 * @method sleepTick
+	 * @memberof PParticle2D
+	 * @brief if allowSleep is true checks if can sleep, called in PWorld2D.step
+	 * @param Number time
+	 */
     PParticle2D.prototype.sleepTick = function(time) {
         if (this.allowSleep) {
             var sleepState = this.sleepState, velSq = this.velocity.lenSq(), sleepVel = this._sleepVelocity, sleepVelSq = sleepVel * sleepVel;
@@ -6900,27 +7011,90 @@ define("physics2d/body/pparticle2d", [ "base/class", "math/vec2", "physics2d/bod
 if ("function" != typeof define) var define = require("amdefine")(module);
 
 define("physics2d/shape/pshape2d", [ "base/class", "math/vec2", "math/aabb2" ], function(Class, Vec2, AABB2) {
+    /**
+	 * @class PShape2D
+	 * @extends Class
+	 * @brief Base class for shapes
+	 */
     function PShape2D() {
         Class.call(this);
+        /**
+	    * @property PBody2D body
+	    * @brief reference to body this shape is attached to
+	    * @memberof PShape2D
+	    */
         this.body = void 0;
+        /**
+	    * @property Enum type
+	    * @brief shape type, 1 - BOX, 2 - CIRCLE, 3 - CONVEX
+	    * @memberof PShape2D
+	    */
         this.type = 0;
+        /**
+	    * @property AABB2 aabb
+	    * @brief aabb of this shape
+	    * @memberof PShape2D
+	    */
         this.aabb = new AABB2();
+        /**
+	    * @property Number volume
+	    * @brief volume of this shape
+	    * @memberof PShape2D
+	    */
         this.volume = 0;
+        /**
+	    * @property Number boundingRadius
+	    * @brief the bounding radius of this shape
+	    * @memberof PShape2D
+	    */
         this.boundingRadius = 0;
     }
+    PShape2D.BOX = 1;
+    PShape2D.CIRCLE = 2;
+    PShape2D.CONVEX = 3;
     Class.extend(PShape2D, Class);
+    /**
+	 * @method calculateAABB
+	 * @memberof PShape2D
+	 * @brief calculates aabb of this shape
+	 */
     PShape2D.prototype.calculateAABB = function() {
         throw Error("calculateAABB not implemented for shape type " + this.type);
     };
+    /**
+	 * @method calculateWorldAABB
+	 * @memberof PShape2D
+	 * @brief calculates world aabb
+	 * @param Vec2 position
+	 * @param Array R
+	 * @param AABB2 aabb
+	 */
     PShape2D.prototype.calculateWorldAABB = function() {
         throw Error("calculateWorldAABB not implemented for shape type " + this.type);
     };
+    /**
+	 * @method calculateInertia
+	 * @memberof PShape2D
+	 * @brief calculates inertia
+	 * @param Number mass
+	 * @returns Number
+	 */
     PShape2D.prototype.calculateInertia = function() {
         throw Error("calculateInertia not implemented for shape type " + this.type);
     };
+    /**
+	 * @method calculateBoundingRadius
+	 * @memberof PShape2D
+	 * @brief calculates bounding radius
+	 */
     PShape2D.prototype.calculateBoundingRadius = function() {
         throw Error("calculateBoundingRadius not implemented for shape type " + this.type);
     };
+    /**
+	 * @method calculateVolume
+	 * @memberof PShape2D
+	 * @brief calculates volume of shape
+	 */
     PShape2D.prototype.calculateVolume = function() {
         throw Error("calculateVolume not implemented for shape type " + this.type);
     };
@@ -6951,11 +7125,25 @@ define("physics2d/shape/pshape2d", [ "base/class", "math/vec2", "math/aabb2" ], 
 if ("function" != typeof define) var define = require("amdefine")(module);
 
 define("physics2d/shape/pconvex2d", [ "base/class", "math/vec2", "physics2d/shape/pshape2d" ], function(Class, Vec2, PShape2D) {
+    /**
+	 * @class PConvex2D
+	 * @extends PShape2D
+	 * @brief Convex shape class
+	 * @param Array vertices
+	 */
     function PConvex2D(vertices) {
         var v1, v2, verts, normals, i, il;
         PShape2D.call(this);
         this.type = PShape2D.CONVEX;
+        /**
+	    * @property Array vertices
+	    * @memberof PConvex2D
+	    */
         this.vertices = verts = vertices instanceof Array ? vertices : [ new Vec2(.5, .5), new Vec2(-.5, .5), new Vec2(-.5, -.5), new Vec2(.5, -.5) ];
+        /**
+	    * @property Array normals
+	    * @memberof PConvex2D
+	    */
         this.normals = normals = [];
         for (i = 0, il = verts.length; il > i; i++) {
             v1 = verts[i];
@@ -7081,7 +7269,18 @@ define("physics2d/shape/pconvex2d", [ "base/class", "math/vec2", "physics2d/shap
 if ("function" != typeof define) var define = require("amdefine")(module);
 
 define("physics2d/shape/pbox2d", [ "base/class", "math/vec2", "physics2d/shape/pshape2d", "physics2d/shape/pconvex2d" ], function(Class, Vec2, PShape2D, PConvex2D) {
+    /**
+	 * @class PBox2D
+	 * @extends PConvex2D
+	 * @brief Box shape class
+	 * @param Vec2 extents
+	 */
     function PBox2D(extents) {
+        /**
+	    * @property Vec2 extents
+	    * @memberof PShape2D
+	    * @brief the half extents of box
+	    */
         this.extents = extents instanceof Vec2 ? extents : new Vec2(.5, .5);
         var x = this.extents.x, y = this.extents.y, vertices = [ new Vec2(x, y), new Vec2(-x, y), new Vec2(-x, -y), new Vec2(x, -y) ];
         PConvex2D.call(this, vertices);
@@ -7144,9 +7343,19 @@ define("physics2d/shape/pbox2d", [ "base/class", "math/vec2", "physics2d/shape/p
 if ("function" != typeof define) var define = require("amdefine")(module);
 
 define("physics2d/shape/pcircle2d", [ "base/class", "math/vec2", "physics2d/shape/pshape2d" ], function(Class, Vec2, PShape2D) {
+    /**
+	 * @class PCircle2D
+	 * @extends PShape2D
+	 * @brief Circle shape class
+	 * @param Number radius
+	 */
     function PCircle2D(radius) {
         PShape2D.call(this);
         this.type = PShape2D.CIRCLE;
+        /**
+	    * @property Number radius
+	    * @memberof PCircle2D
+	    */
         this.radius = void 0 !== radius ? radius : .5;
         this.calculateAABB();
         this.calculateBoundingRadius();
@@ -7159,7 +7368,7 @@ define("physics2d/shape/pcircle2d", [ "base/class", "math/vec2", "physics2d/shap
         min.x = min.y = -r;
         max.x = max.y = r;
     };
-    PCircle2D.prototype.calculateWorldAABB = function(position, rotation, aabb) {
+    PCircle2D.prototype.calculateWorldAABB = function(position, R, aabb) {
         var r = this.radius, min = aabb.min, max = aabb.max, x = position.x, y = position.y;
         min.x = x - r;
         min.y = y - r;
@@ -7203,23 +7412,83 @@ define("physics2d/shape/pcircle2d", [ "base/class", "math/vec2", "physics2d/shap
 if ("function" != typeof define) var define = require("amdefine")(module);
 
 define("physics2d/body/prigidbody2d", [ "base/class", "math/vec2", "math/mat2", "math/aabb2", "physics2d/body/pbody2d", "physics2d/body/pparticle2d", "physics2d/shape/pbox2d", "physics2d/shape/pcircle2d", "physics2d/shape/pconvex2d", "physics2d/shape/pshape2d" ], function(Class, Vec2, Mat2, AABB2, PBody2D, PParticle2D, PBox2D, PCircle2D, PConvex2D, PShape2D) {
+    /**
+	 * @class PRigidBody2D
+	 * @extends PParticle2D
+	 * @brief 2D Rigid Body
+	 * @param Object opts sets Class properties from passed Object
+	 */
     function PRigidBody2D(opts) {
         opts || (opts = {});
         PParticle2D.call(this, opts);
+        /**
+	    * @property PShape2D shape
+	    * @brief the shape of the body
+	    * @memberof PRigidBody2D
+	    */
         this.shape = opts.shape instanceof PShape2D ? opts.shape : new PBox2D();
         this.shape.body = this;
+        /**
+	    * @property Number rotation
+	    * @brief rotation of the body
+	    * @memberof PRigidBody2D
+	    */
         this.rotation = void 0 !== opts.rotation ? opts.rotation : 0;
+        /**
+	    * @property Mat2 R
+	    * @brief rotation martix of the body
+	    * @memberof PRigidBody2D
+	    */
         this.R = new Mat2();
+        /**
+	    * @property Number angularVelocity
+	    * @brief angular velocity of the body
+	    * @memberof PRigidBody2D
+	    */
         this.angularVelocity = void 0 !== opts.angularVelocity ? opts.angularVelocity : 0;
+        /**
+	    * @property Number angularDamping
+	    * @brief angular damping of the body
+	    * @memberof PRigidBody2D
+	    */
         this.angularDamping = void 0 !== opts.angularDamping ? opts.angularDamping : .1;
+        /**
+	    * @property AABB2 aabb
+	    * @brief min and max vectors of the body
+	    * @memberof PRigidBody2D
+	    */
         this.aabb = new AABB2();
+        /**
+	    * @property Boolean aabbNeedsUpdate
+	    * @memberof PRigidBody2D
+	    */
         this.aabbNeedsUpdate = !0;
+        /**
+	    * @property Number torque
+	    * @brief torque of the body
+	    * @memberof PRigidBody2D
+	    */
         this.torque = 0;
+        /**
+	    * @property Number inertia
+	    * @brief the inertia of the body's mass with its shape
+	    * @memberof PRigidBody2D
+	    */
         this.inertia = this.shape.calculateInertia(this.mass);
+        /**
+	    * @property Number invInertia
+	    * @brief inverse inertia of the body
+	    * @memberof PRigidBody2D
+	    */
         this.invInertia = this.inertia > 0 ? 1 / this.inertia : 0;
+        /**
+	    * @property Number density
+	    * @brief density of the body
+	    * @memberof PRigidBody2D
+	    */
         this.density = this.mass / this.shape.volume;
         this.wlambda = 0;
-        this._sleepAngularVelocity = 1e-4;
+        this._sleepAngularVelocity = .001;
     }
     var objectTypes = {
         PBox2D: PBox2D,
@@ -7230,6 +7499,12 @@ define("physics2d/body/prigidbody2d", [ "base/class", "math/vec2", "math/mat2", 
     PBody2D.STATIC);
     PBody2D.KINEMATIC;
     Class.extend(PRigidBody2D, PParticle2D);
+    /**
+	 * @method sleepTick
+	 * @memberof PRigidBody2D
+	 * @brief if allowSleep is true checks if can sleep, called in PWorld2D.step
+	 * @param Number time
+	 */
     PRigidBody2D.prototype.sleepTick = function(time) {
         if (this.allowSleep) {
             var sleepState = this.sleepState, velSq = this.velocity.lenSq(), aVel = this.angularVelocity, aVelSq = aVel * aVel, sleepVel = this._sleepVelocity, sleepVelSq = sleepVel * sleepVel, sleepAVel = this._sleepAngularVelocity, sleepAVelSq = sleepAVel * sleepAVel;
@@ -7240,10 +7515,22 @@ define("physics2d/body/prigidbody2d", [ "base/class", "math/vec2", "math/mat2", 
             } else sleepState === SLEEPY && (velSq > sleepVelSq || aVelSq > sleepAVelSq) ? this.wake() : sleepState === SLEEPY && time - this._sleepLastSleepy > this._sleepTimeLimit && this.sleep();
         }
     };
+    /**
+	 * @method calculateAABB
+	 * @memberof PRigidBody2D
+	 * @brief calculates aabb based on shape, position, and rotation
+	 */
     PRigidBody2D.prototype.calculateAABB = function() {
         this.shape.calculateWorldAABB(this.position, this.R.elements, this.aabb);
         this.aabbNeedsUpdate = !1;
     };
+    /**
+	 * @method applyForce
+	 * @memberof PRigidBody2D
+	 * @param Vec2 force
+	 * @param Vec2 worldPoint
+	 * @param Boolean wake
+	 */
     PRigidBody2D.prototype.applyForce = function(addForce, worldPoint, wake) {
         var px, py, pos = this.position, force = this.force, fx = addForce.x, fy = addForce.y;
         worldPoint = worldPoint || pos;
@@ -7256,12 +7543,25 @@ define("physics2d/body/prigidbody2d", [ "base/class", "math/vec2", "math/mat2", 
             this.torque += px * fy - py * fx;
         }
     };
+    /**
+	 * @method applyTorque
+	 * @memberof PRigidBody2D
+	 * @param Number torque
+	 * @param Boolean wake
+	 */
     PRigidBody2D.prototype.applyTorque = function(torque, wake) {
         if (this.type !== STATIC) {
             wake && this.sleepState === SLEEPING && this.wake();
             this.torque += torque;
         }
     };
+    /**
+	 * @method applyImpulse
+	 * @memberof PRigidBody2D
+	 * @param Vec2 impulse
+	 * @param Vec2 worldPoint
+	 * @param Boolean wake
+	 */
     PRigidBody2D.prototype.applyImpulse = function(impulse, worldPoint, wake) {
         var px, py, pos = this.position, invMass = this.invMass, velocity = this.velocity, ix = impulse.x, iy = impulse.y;
         worldPoint = worldPoint || pos;
@@ -7332,16 +7632,41 @@ define("physics2d/body/prigidbody2d", [ "base/class", "math/vec2", "math/mat2", 
 if ("function" != typeof define) var define = require("amdefine")(module);
 
 define("physics2d/collision/pbroadphase2d", [ "base/class", "math/aabb2", "physics2d/body/pbody2d" ], function(Class, AABB2, PBody2D) {
+    /**
+	 * @class PBroadphase2D
+	 * @extends Class
+	 * @brief World broad phase
+	 * @param Object opts sets Class properties from passed Object
+	 */
     function PBroadphase2D(opts) {
         opts || (opts = {});
         Class.call(this);
+        /**
+	    * @property Boolean useBoundingRadius
+	    * @brief use bounding radius for broad phase instead of aabb, defaults to false
+	    * @memberof PBroadphase2D
+	    */
         this.useBoundingRadius = void 0 !== opts.useBoundingRadius ? opts.useBoundingRadius : !1;
     }
     var intersects = AABB2.intersects, STATIC = PBody2D.STATIC, KINEMATIC = PBody2D.KINEMATIC;
     Class.extend(PBroadphase2D, Class);
+    /**
+	 * @method needBroadphaseTest
+	 * @memberof PBroadphase2D
+	 * @brief checks if bodyi needs to be checked against bodyj
+	 * @return Boolean
+	 */
     PBroadphase2D.prototype.needBroadphaseTest = function(bi, bj) {
         return !(bi.filterGroup !== bj.filterGroup || (bi.type === KINEMATIC || bi.type === STATIC || bi.isSleeping()) && (bj.type === KINEMATIC || bj.type === STATIC || bj.isSleeping()) || !bi.shape && !bj.shape);
     };
+    /**
+	 * @method collisionPairs
+	 * @memberof PBroadphase2D
+	 * @brief gets all collisions to be checked by near phase
+	 * @param PWorld2D world
+	 * @param Array pairsi
+	 * @param Array pairsj
+	 */
     PBroadphase2D.prototype.collisionPairs = function(world, pairsi, pairsj) {
         var bi, bj, i, j, bodies = world.bodies, count = bodies.length;
         pairsi.length = pairsj.length = 0;
@@ -7355,6 +7680,15 @@ define("physics2d/collision/pbroadphase2d", [ "base/class", "math/aabb2", "physi
             this.needBroadphaseTest(bi, bj) && this.AABBBroadphase(bi, bj, bi.aabb, bj.aabb, pairsi, pairsj);
         }
     };
+    /**
+	 * @method boundingRadiusBroadphase
+	 * @memberof PBroadphase2D
+	 * @brief does bounding radius broad phase
+	 * @param PBody2D bi
+	 * @param PBody2D bj
+	 * @param Array pairsi
+	 * @param Array pairsj
+	 */
     PBroadphase2D.prototype.boundingRadiusBroadphase = function(bi, bj, pairsi, pairsj) {
         var si = bi.shape, sj = bj.shape, r = si.boundingRadius + sj.boundingRadius, xi = bi.position, xj = bj.position, dx = xj.x - xi.x, dy = xj.y - xi.y, d = dx * dx + dy * dy;
         if (r * r >= d) {
@@ -7362,6 +7696,17 @@ define("physics2d/collision/pbroadphase2d", [ "base/class", "math/aabb2", "physi
             pairsj.push(bj);
         }
     };
+    /**
+	 * @method AABBBroadphase
+	 * @memberof PBroadphase2D
+	 * @brief does aabb broad phase
+	 * @param PBody2D bi
+	 * @param PBody2D bj
+	 * @param AABB2 biAABB
+	 * @param AABB2 bjAABB
+	 * @param Array pairsi
+	 * @param Array pairsj
+	 */
     PBroadphase2D.prototype.AABBBroadphase = function(bi, bj, biAABB, bjAABB, pairsi, pairsj) {
         bi.aabbNeedsUpdate && bi.calculateAABB();
         bj.aabbNeedsUpdate && bj.calculateAABB();
@@ -7471,12 +7816,26 @@ define("physics2d/collision/pnearphase2d", [ "base/class", "math/mathf", "math/v
         edge.start.set(v1x, v1y);
         edge.end.set(v2x, v2y);
     }
+    /**
+	 * @class PNearphase2D
+	 * @extends Class
+	 * @brief World near phase
+	 */
     function PNearphase2D() {
         Class.call(this);
     }
     var EPSILON = Mathf.EPSILON, clamp01 = Mathf.clamp01, sqrt = (Mathf.equals, Math.abs, 
     Math.sqrt), BOX = (Math.min, Math.max, PShape2D.BOX), CIRCLE = PShape2D.CIRCLE, CONVEX = PShape2D.CONVEX, contactPool = [];
     Class.extend(PNearphase2D, Class);
+    /**
+	 * @method collisions
+	 * @memberof PNearphase2D
+	 * @brief gets all contacts from world pairs
+	 * @param PWorld2D world
+	 * @param Array pairsi
+	 * @param Array pairsj
+	 * @param Array contacts
+	 */
     PNearphase2D.prototype.collisions = function(world, pairsi, pairsj, contacts) {
         var bi, bj, i;
         for (i = contacts.length; i--; ) contactPool.push(contacts[i]);
@@ -7487,6 +7846,19 @@ define("physics2d/collision/pnearphase2d", [ "base/class", "math/mathf", "math/v
             this.nearphase(bi, bj, bi.shape, bj.shape, bi.position, bj.position, bi.R.elements, bj.R.elements, contacts);
         }
     };
+    /**
+	 * @method convexConvex
+	 * @memberof PNearphase2D
+	 * @brief convex vs convex collision detection
+	 * @param PBody2D bi
+	 * @param PBody2D bj
+	 * @param PShape2D si
+	 * @param PShape2D sj
+	 * @param Vec2 xi
+	 * @param Vec2 xj
+	 * @param Array Ri
+	 * @param Array Rj
+	 */
     PNearphase2D.prototype.convexConvex = function() {
         var edgei = new Line2(), edgej = new Line2(), edgeOuti = [ 0 ], edgeOutj = [ 0 ], relativeTol = .98, absoluteTol = .001, axis = new Vec2(), vec = new Vec2();
         return function(bi, bj, si, sj, xi, xj, Ri, Rj, contacts) {
@@ -7563,6 +7935,18 @@ define("physics2d/collision/pnearphase2d", [ "base/class", "math/mathf", "math/v
             }
         };
     }();
+    /**
+	 * @method convexCircle
+	 * @memberof PNearphase2D
+	 * @brief convex vs circle collision detection
+	 * @param PBody2D bi
+	 * @param PBody2D bj
+	 * @param PShape2D si
+	 * @param PShape2D sj
+	 * @param Vec2 xi
+	 * @param Vec2 xj
+	 * @param Array Ri
+	 */
     PNearphase2D.prototype.convexCircle = function(bi, bj, si, sj, xi, xj, Ri, contacts) {
         var x, y, vertex, vx, vy, normal, nx, ny, s, v1x, v1y, v2x, v2y, ex, ey, u, px, py, dx, dy, c, n, nx, ny, ri, rj, i, vertices = si.vertices, normals = si.normals, count = vertices.length, radius = sj.radius, Ri11 = Ri[0], Ri12 = Ri[2], Ri21 = Ri[1], Ri22 = Ri[3], xix = xi.x, xiy = xi.y, xjx = xj.x, xjy = xj.y, separation = -1/0, normalIndex = 0;
         for (i = count; i--; ) {
@@ -7620,6 +8004,17 @@ define("physics2d/collision/pnearphase2d", [ "base/class", "math/mathf", "math/v
         bi.trigger("collide", bj);
         bj.trigger("collide", bi);
     };
+    /**
+	 * @method circleCircle
+	 * @memberof PNearphase2D
+	 * @brief circle vs circle collision detection
+	 * @param PBody2D bi
+	 * @param PBody2D bj
+	 * @param PShape2D si
+	 * @param PShape2D sj
+	 * @param Vec2 xi
+	 * @param Vec2 xj
+	 */
     PNearphase2D.prototype.circleCircle = function(bi, bj, si, sj, xi, xj, contacts) {
         var invDist, c, n, nx, ny, ri, rj, dx = xj.x - xi.x, dy = xj.y - xi.y, dist = dx * dx + dy * dy, radiusi = si.radius, radiusj = sj.radius, r = radiusi + radiusj;
         if (!(dist > r * r)) {
@@ -7648,6 +8043,20 @@ define("physics2d/collision/pnearphase2d", [ "base/class", "math/mathf", "math/v
             bj.trigger("collide", bi);
         }
     };
+    /**
+	 * @method nearphase
+	 * @memberof PNearphase2D
+	 * @brief does near phase, calls detection function based on bodies type
+	 * @param PBody2D bi
+	 * @param PBody2D bj
+	 * @param PShape2D si
+	 * @param PShape2D sj
+	 * @param Vec2 xi
+	 * @param Vec2 xj
+	 * @param Array Ri
+	 * @param Array Rj
+	 * @param Array contacts
+	 */
     PNearphase2D.prototype.nearphase = function(bi, bj, si, sj, xi, xj, Ri, Rj, contacts) {
         if (si && sj) if (si.type === CIRCLE) switch (sj.type) {
           case CIRCLE:
@@ -7673,13 +8082,37 @@ define("physics2d/collision/pnearphase2d", [ "base/class", "math/mathf", "math/v
 if ("function" != typeof define) var define = require("amdefine")(module);
 
 define("physics2d/constraints/pconstraint2d", [ "base/class" ], function(Class) {
+    /**
+	 * @class PConstraint2D
+	 * @extends Class
+	 * @brief 2d constraint
+	 * @param PBody2D bi
+	 * @param PBody2D bj
+	 */
     function PConstraint2D(bi, bj) {
         Class.call(this);
+        /**
+	    * @property PBody2D bi
+	    * @memberof PConstraint2D
+	    */
         this.bi = bi;
+        /**
+	    * @property PBody2D bj
+	    * @memberof PConstraint2D
+	    */
         this.bj = bj;
+        /**
+	    * @property Array equations
+	    * @memberof PConstraint2D
+	    */
         this.equations = [];
     }
     Class.extend(PConstraint2D, Class);
+    /**
+	 * @method update
+	 * @memberof PConstraint2D
+	 * @brief updates equations, called in PWorld2D.step
+	 */
     PConstraint2D.prototype.update = function() {};
     return PConstraint2D;
 });
@@ -7687,19 +8120,74 @@ define("physics2d/constraints/pconstraint2d", [ "base/class" ], function(Class) 
 if ("function" != typeof define) var define = require("amdefine")(module);
 
 define("physics2d/constraints/pequation2d", [ "base/class" ], function(Class) {
+    /**
+	 * @class PEquation2D
+	 * @extends Class
+	 * @brief 2d equation
+	 * @param PBody2D bi
+	 * @param PBody2D bj
+	 * @param Number minForce
+	 * @param Number maxForce
+	 */
     function PEquation2D(bi, bj, minForce, maxForce) {
         Class.call(this);
+        /**
+	    * @property PBody2D bi
+	    * @memberof PEquation2D
+	    */
         this.bi = bi;
+        /**
+	    * @property PBody2D bj
+	    * @memberof PEquation2D
+	    */
         this.bj = bj;
+        /**
+	    * @property Number minForce
+	    * @brief min force of equation, used in solver
+	    * @memberof PEquation2D
+	    */
         this.minForce = void 0 !== minForce ? minForce : -1e6;
+        /**
+	    * @property Number maxForce
+	    * @brief max force of equation, used in solver
+	    * @memberof PEquation2D
+	    */
         this.maxForce = void 0 !== maxForce ? maxForce : 1e6;
+        /**
+	    * @property Number stiffness
+	    * @brief stiffness of the equation
+	    * @memberof PEquation2D
+	    */
         this.stiffness = 1e7;
+        /**
+	    * @property Number relaxation
+	    * @brief number of steps to relax this equation
+	    * @memberof PEquation2D
+	    */
         this.relaxation = 5;
+        /**
+	    * @property Number a
+	    * @memberof PEquation2D
+	    */
         this.a = 0;
+        /**
+	    * @property Number b
+	    * @memberof PEquation2D
+	    */
         this.b = 0;
+        /**
+	    * @property Number eps
+	    * @memberof PEquation2D
+	    */
         this.eps = 0;
     }
     Class.extend(PEquation2D, Class);
+    /**
+	 * @method calculateConstants
+	 * @memberof PEquation2D
+	 * @brief calculates a, b, and eps based on delta time
+	 * @param Number h
+	 */
     PEquation2D.prototype.calculateConstants = function(h) {
         var d = this.relaxation, k = this.stiffness;
         this.a = 4 / (h * (1 + 4 * d));
@@ -7712,10 +8200,32 @@ define("physics2d/constraints/pequation2d", [ "base/class" ], function(Class) {
 if ("function" != typeof define) var define = require("amdefine")(module);
 
 define("physics2d/constraints/pcontact2d", [ "base/class", "math/vec2", "physics2d/constraints/pequation2d" ], function(Class, Vec2, PEquation2D) {
+    /**
+	 * @class PContact2D
+	 * @extends PEquation2D
+	 * @brief 2d contact equation
+	 * @param PBody2D bi
+	 * @param PBody2D bj
+	 */
     function PContact2D(bi, bj) {
         PEquation2D.call(this, bi, bj, 0, 1e6);
+        /**
+	    * @property Vec2 n
+	    * @brief normal pointing from bodyi to bodyj
+	    * @memberof PEquation2D
+	    */
         this.n = new Vec2();
+        /**
+	    * @property Vec2 ri
+	    * @brief contact point on bodyi
+	    * @memberof PEquation2D
+	    */
         this.ri = new Vec2();
+        /**
+	    * @property Vec2 rj
+	    * @brief contact point on bodyj
+	    * @memberof PEquation2D
+	    */
         this.rj = new Vec2();
         this.rixn = 0;
         this.rjxn = 0;
@@ -7758,8 +8268,22 @@ define("physics2d/constraints/pcontact2d", [ "base/class", "math/vec2", "physics
 if ("function" != typeof define) var define = require("amdefine")(module);
 
 define("physics2d/constraints/pdistanceconstraint2d", [ "base/class", "physics2d/constraints/pconstraint2d", "physics2d/constraints/pcontact2d" ], function(Class, PConstraint2D, PContact2D) {
+    /**
+	 * @class PDistanceConstraint2D
+	 * @extends PConstraint2D
+	 * @brief 2d distance constraint
+	 * @param PBody2D bi
+	 * @param PBody2D bj
+	 * @param Number distance
+	 * @param Number maxForce
+	 */
     function PDistanceConstraint2D(bi, bj, distance, maxForce) {
         PConstraint2D.call(this, bi, bj);
+        /**
+	    * @property Number distance
+	    * @brief the min distance that separates the bodies
+	    * @memberof PConstraint2D
+	    */
         this.distance = void 0 !== distance ? distance : 1;
         this.maxForce = void 0 !== maxForce ? maxForce : 1e6;
         this.equations.push(new PContact2D(bi, bj));
@@ -7780,10 +8304,32 @@ define("physics2d/constraints/pdistanceconstraint2d", [ "base/class", "physics2d
 if ("function" != typeof define) var define = require("amdefine")(module);
 
 define("physics2d/constraints/pfriction2d", [ "base/class", "math/vec2", "physics2d/constraints/pequation2d" ], function(Class, Vec2, PEquation2D) {
+    /**
+	 * @class PFriction2D
+	 * @extends PEquation2D
+	 * @brief 2d friction equation
+	 * @param PBody2D bi
+	 * @param PBody2D bj
+	 */
     function PFriction2D(bi, bj, slipForce) {
         PEquation2D.call(this, bi, bj, -slipForce, slipForce);
+        /**
+	    * @property Vec2 t
+	    * @brief tangent of the contact normal
+	    * @memberof PEquation2D
+	    */
         this.t = new Vec2();
+        /**
+	    * @property Vec2 ri
+	    * @brief contact point on bodyi
+	    * @memberof PEquation2D
+	    */
         this.ri = new Vec2();
+        /**
+	    * @property Vec2 rj
+	    * @brief contact point on bodyj
+	    * @memberof PEquation2D
+	    */
         this.rj = new Vec2();
         this.rixt = 0;
         this.rjxt = 0;
@@ -7826,19 +8372,48 @@ define("physics2d/constraints/pfriction2d", [ "base/class", "math/vec2", "physic
 if ("function" != typeof define) var define = require("amdefine")(module);
 
 define("physics2d/psolver2d", [ "base/class" ], function(Class) {
-    function PSolver2D() {
+    /**
+	 * @class PSolver2D
+	 * @extends Class
+	 * @brief constraint equation Gauss-Seidel solver
+	 * @param Object opts sets Class properties from passed Object
+	 */
+    function PSolver2D(opts) {
+        opts || (opts = {});
         Class.call(this);
-        this.constraints = [];
-        this.iterations = 10;
-        this.tolerance = 1e-6;
+        /**
+	    * @property Array equations
+	    * @brief equations to solve
+	    * @memberof PSolver2D
+	    */
+        this.equations = [];
+        /**
+	    * @property Number iterations
+	    * @brief max number of iterations
+	    * @memberof PSolver2D
+	    */
+        this.iterations = void 0 !== opts.iterations ? opts.iterations : 10;
+        /**
+	    * @property Number tolerance
+	    * @brief global error tolerance
+	    * @memberof PSolver2D
+	    */
+        this.tolerance = void 0 !== opts.tolerance ? opts.tolerance : 1e-6;
     }
     var abs = Math.abs;
     Class.extend(PSolver2D, Class);
+    /**
+	 * @method solve
+	 * @memberof PSolver2D
+	 * @brief sovles equations for world bodies
+	 * @param PWorld2D world
+	 * @param Number dt
+	 */
     PSolver2D.prototype.solve = function() {
         var lambdas = [], invCs = [], Bs = [];
         return function(world, dt) {
-            var B, invC, GWlambda, deltalambda, deltalambdaTotal, lambda, body, velocity, vlambda, c, i, iter, iterations = this.iterations, tolerance = this.tolerance, toleranceSq = tolerance * tolerance, constraints = this.constraints, constraintsLen = constraints.length, bodies = world.bodies, bodiesLen = bodies.length;
-            if (constraintsLen) {
+            var B, invC, GWlambda, deltalambda, deltalambdaTotal, lambda, body, velocity, vlambda, c, i, iter, iterations = this.iterations, tolerance = this.tolerance, toleranceSq = tolerance * tolerance, equations = this.equations, equationsLen = equations.length, bodies = world.bodies, bodiesLen = bodies.length;
+            if (equationsLen) {
                 for (i = bodiesLen; i--; ) {
                     body = bodies[i];
                     vlambda = body.vlambda;
@@ -7846,8 +8421,8 @@ define("physics2d/psolver2d", [ "base/class" ], function(Class) {
                     vlambda.y = 0;
                     void 0 !== body.wlambda && (body.wlambda = 0);
                 }
-                for (i = constraintsLen; i--; ) {
-                    c = constraints[i];
+                for (i = equationsLen; i--; ) {
+                    c = equations[i];
                     c.calculateConstants(dt);
                     lambdas[i] = 0;
                     Bs[i] = c.calculateB(dt);
@@ -7855,8 +8430,8 @@ define("physics2d/psolver2d", [ "base/class" ], function(Class) {
                 }
                 for (iter = 0; iterations > iter; iter++) {
                     deltalambdaTotal = 0;
-                    for (i = constraintsLen; i--; ) {
-                        c = constraints[i];
+                    for (i = equationsLen; i--; ) {
+                        c = equations[i];
                         B = Bs[i];
                         invC = invCs[i];
                         lambda = lambdas[i];
@@ -7881,15 +8456,32 @@ define("physics2d/psolver2d", [ "base/class" ], function(Class) {
             return iter;
         };
     }();
-    PSolver2D.prototype.add = function(constraint) {
-        this.constraints.push(constraint);
+    /**
+	 * @method add
+	 * @memberof PSolver2D
+	 * @brief adds equation
+	 * @param PEquation2D equation
+	 */
+    PSolver2D.prototype.add = function(equation) {
+        this.equations.push(equation);
     };
-    PSolver2D.prototype.remove = function(constraint) {
-        var constraints = this.constraints, idx = constraints.indexOf(constraint);
-        -1 !== idx && constraints.splice(idx, constraint);
+    /**
+	 * @method remove
+	 * @memberof PSolver2D
+	 * @brief removes equation
+	 * @param PEquation2D equation
+	 */
+    PSolver2D.prototype.remove = function(equation) {
+        var equations = this.equations, idx = equations.indexOf(equation);
+        -1 !== idx && equations.splice(idx, equation);
     };
+    /**
+	 * @method clear
+	 * @memberof PSolver2D
+	 * @brief clears all equations
+	 */
     PSolver2D.prototype.clear = function() {
-        this.constraints.length = 0;
+        this.equations.length = 0;
     };
     return PSolver2D;
 });
@@ -7897,23 +8489,78 @@ define("physics2d/psolver2d", [ "base/class" ], function(Class) {
 if ("function" != typeof define) var define = require("amdefine")(module);
 
 define("physics2d/pworld2d", [ "base/class", "math/mathf", "math/vec2", "physics2d/psolver2d", "physics2d/constraints/pfriction2d", "physics2d/collision/pbroadphase2d", "physics2d/collision/pnearphase2d", "physics2d/shape/pshape2d", "physics2d/body/pparticle2d", "physics2d/body/pbody2d", "physics2d/body/prigidbody2d" ], function(Class, Mathf, Vec2, PSolver2D, PFriction2D, PBroadphase2D, PNearphase2D, PShape2D, PParticle2D, PBody2D, PRigidbody2D) {
+    /**
+	 * @class PWorld2D
+	 * @extends Class
+	 * @brief Physices manager for 2D Bodies
+	 * @param Object opts sets Class properties from passed Object
+	 */
     function PWorld2D(opts) {
         opts || (opts = {});
         Class.call(this);
+        /**
+	    * @property Boolean allowSleep
+	    * @brief global allowes bodies to sleep or not
+	    * @memberof PWorld2D
+	    */
         this.allowSleep = void 0 !== opts.allowSleep ? opts.allowSleep : !0;
-        this.dt = 1 / 60;
-        this.time = 0;
+        this._time = 0;
+        /**
+	    * @property Array bodies
+	    * @brief array of all bodies attached to this world
+	    * @memberof PWorld2D
+	    */
         this.bodies = [];
         this.contacts = [];
         this.frictions = [];
         this.constraints = [];
+        /**
+	    * @property Array pairsi
+	    * @brief array holding bodies i for check in nearphase
+	    * @memberof PWorld2D
+	    */
         this.pairsi = [];
+        /**
+	    * @property Array pairsj
+	    * @brief array holding bodies j for check in nearphase
+	    * @memberof PWorld2D
+	    */
         this.pairsj = [];
+        /**
+	    * @property Vec2 gravity
+	    * @brief world gravity defaults to Vec2( 0, -9.801 )
+	    * @memberof PWorld2D
+	    */
         this.gravity = opts.gravity instanceof Vec2 ? opts.gravity : new Vec2(0, -9.801);
-        this.solver = new PSolver2D();
+        /**
+	    * @property PSolver2D solver
+	    * @brief world solver
+	    * @memberof PWorld2D
+	    */
+        this.solver = new PSolver2D(opts);
+        /**
+	    * @property PBroadphase2D broadphase
+	    * @brief world broadphase handler
+	    * @memberof PWorld2D
+	    */
         this.broadphase = new PBroadphase2D(opts);
+        /**
+	    * @property PNearphase2D nearphase
+	    * @brief world nearphase handler
+	    * @memberof PWorld2D
+	    */
         this.nearphase = new PNearphase2D();
+        /**
+	    * @property Boolean debug
+	    * @brief world debug
+	    * @memberof PWorld2D
+	    */
         this.debug = void 0 !== opts.debug ? opts.debug : !0;
+        /**
+	    * @property Object profile
+	    * @brief world profile info, only calculated if debug is true
+	    * @memberof PWorld2D
+	    */
         this.profile = {
             total: 0,
             solve: 0,
@@ -7923,14 +8570,28 @@ define("physics2d/pworld2d", [ "base/class", "math/mathf", "math/vec2", "physics
         };
         this._removeList = [];
     }
-    var objectTypes = {
+    var now, objectTypes = {
         PParticle2D: PParticle2D,
         PBody2D: PBody2D,
         PRigidbody2D: PRigidbody2D
     }, pow = Math.pow, min = Math.min, SLEEPING = (Mathf.clamp, PShape2D.CIRCLE, PShape2D.BOX, 
     PShape2D.CONVEX, PParticle2D.AWAKE, PParticle2D.SLEEPY, PParticle2D.SLEEPING), DYNAMIC = PBody2D.DYNAMIC, KINEMATIC = (PBody2D.STATIC, 
-    PBody2D.KINEMATIC), frictionPool = [];
+    PBody2D.KINEMATIC), LOW = 1e-6, HIGH = .1, frictionPool = [], now = function() {
+        var startTime = Date.now(), w = "undefined" != typeof window ? window : {}, performance = w.performance !== void 0 ? w.performance : {
+            now: function() {
+                return Date.now() - startTime;
+            }
+        };
+        return function() {
+            return .001 * performance.now();
+        };
+    }();
     Class.extend(PWorld2D, Class);
+    /**
+	 * @method add
+	 * @memberof PWorld2D
+	 * @brief adds body to world
+	 */
     PWorld2D.prototype.add = function(body) {
         var bodies = this.bodies, index = bodies.indexOf(body);
         if (-1 === index) {
@@ -7939,6 +8600,11 @@ define("physics2d/pworld2d", [ "base/class", "math/mathf", "math/vec2", "physics
             body.trigger("add");
         }
     };
+    /**
+	 * @method remove
+	 * @memberof PWorld2D
+	 * @brief removes body from world
+	 */
     PWorld2D.prototype.remove = function(body) {
         this._removeList.push(body);
     };
@@ -7954,27 +8620,33 @@ define("physics2d/pworld2d", [ "base/class", "math/mathf", "math/vec2", "physics
         }
         removeList.length = 0;
     };
+    /**
+	 * @method addConstraint
+	 * @memberof PWorld2D
+	 * @brief adds constraint to world
+	 */
     PWorld2D.prototype.addConstraint = function(constraint) {
         var constraints = this.constraints, index = constraints.indexOf(constraint);
         -1 === index && constraints.push(constraint);
     };
+    /**
+	 * @method removeConstraint
+	 * @memberof PWorld2D
+	 * @brief removes constraint from world
+	 */
     PWorld2D.prototype.removeConstraint = function(constraint) {
         var constraints = this.constraints, index = constraints.indexOf(constraint);
         -1 !== index && constraints.splice(index, 1);
     };
-    PWorld2D.prototype.now = function() {
-        var startTime = Date.now(), w = "undefined" != typeof window ? window : {}, performance = w.performance !== void 0 ? w.performance : {
-            now: function() {
-                return Date.now() - startTime;
-            }
-        };
-        return function() {
-            return .001 * performance.now();
-        };
-    }();
+    /**
+	 * @method step
+	 * @memberof PWorld2D
+	 * @brief step world forward by time,
+	 * @param Number dt
+	 */
     PWorld2D.prototype.step = function(dt) {
-        var profileStart, c, bi, bj, um, umg, c1, c2, body, shape, shapeType, type, force, vel, aVel, linearDamping, pos, mass, invMass, i, j, debug = this.debug, now = this.now, profile = this.profile, start = now(), gravity = this.gravity, gn = gravity.len(), bodies = this.bodies, solver = this.solver, solverConstraints = solver.constraints, pairsi = this.pairsi, pairsj = this.pairsj, contacts = this.contacts, frictions = this.frictions, constraints = this.constraints;
-        this.time += dt;
+        var profileStart, c, bi, bj, um, umg, c1, c2, body, shape, shapeType, type, force, vel, aVel, linearDamping, pos, mass, invMass, i, j, debug = this.debug, profile = this.profile, start = now(), gravity = this.gravity, gn = gravity.len(), bodies = this.bodies, solver = this.solver, solverEquations = solver.equations, pairsi = this.pairsi, pairsj = this.pairsj, contacts = this.contacts, frictions = this.frictions, constraints = this.constraints;
+        this._time += LOW > dt ? LOW : dt > HIGH ? HIGH : dt;
         for (i = bodies.length; i--; ) {
             body = bodies[i];
             force = body.force;
@@ -7995,7 +8667,7 @@ define("physics2d/pworld2d", [ "base/class", "math/mathf", "math/vec2", "physics
             c = contacts[i];
             bi = c.bi;
             bj = c.bj;
-            solverConstraints.push(c);
+            solverEquations.push(c);
             um = min(bi.friction, bj.friction);
             if (um > 0) {
                 umg = um * gn;
@@ -8014,7 +8686,7 @@ define("physics2d/pworld2d", [ "base/class", "math/mathf", "math/vec2", "physics
                 c2.rj.copy(c.rj);
                 c1.t.copy(c.n).perpL();
                 c2.t.copy(c.n).perpR();
-                solverConstraints.push(c1, c2);
+                solverEquations.push(c1, c2);
             }
         }
         debug && (profile.nearphase = now() - profileStart);
@@ -8022,10 +8694,10 @@ define("physics2d/pworld2d", [ "base/class", "math/mathf", "math/vec2", "physics
         for (i = constraints.length; i--; ) {
             c = constraints[i];
             c.update();
-            for (j = c.equations.length; j--; ) solverConstraints.push(c.equations[j]);
+            for (j = c.equations.length; j--; ) solverEquations.push(c.equations[j]);
         }
         solver.solve(this, dt);
-        solverConstraints.length = 0;
+        solverEquations.length = 0;
         debug && (profile.solve = now() - profileStart);
         debug && (profileStart = now());
         for (i = bodies.length; i--; ) {
@@ -8040,12 +8712,10 @@ define("physics2d/pworld2d", [ "base/class", "math/mathf", "math/vec2", "physics
             pos = body.position;
             invMass = body.invMass;
             body.trigger("preStep");
-            if (type === DYNAMIC) {
+            if (type === DYNAMIC || type === KINEMATIC) {
                 vel.x *= pow(1 - linearDamping.x, dt);
                 vel.y *= pow(1 - linearDamping.y, dt);
                 void 0 !== aVel && (body.angularVelocity *= pow(1 - body.angularDamping, dt));
-            }
-            if (type === DYNAMIC || type === KINEMATIC) {
                 vel.x += force.x * invMass * dt;
                 vel.y += force.y * invMass * dt;
                 void 0 !== aVel && (body.angularVelocity += body.torque * body.invInertia * dt);
@@ -8060,7 +8730,7 @@ define("physics2d/pworld2d", [ "base/class", "math/mathf", "math/vec2", "physics
             force.x = 0;
             force.y = 0;
             body.torque && (body.torque = 0);
-            this.allowSleep && body.sleepTick(this.time);
+            this.allowSleep && body.sleepTick(this._time);
             body.trigger("postStep");
         }
         debug && (profile.integration = now() - profileStart);
@@ -8546,13 +9216,8 @@ define("core/components/rigidbody2d", [ "base/class", "base/time", "core/compone
     };
     RigidBody2D.prototype.update = function() {
         var body = this.body, gameObject = this.gameObject;
-        if (body.mass > 0) {
-            gameObject.position.copy(body.position);
-            gameObject.rotation = body.rotation;
-        } else {
-            body.position.copy(gameObject.position);
-            body.rotation = gameObject.rotation;
-        }
+        gameObject.position.copy(body.position);
+        gameObject.rotation = body.rotation;
     };
     /**
 	 * @method applyForce
@@ -11248,11 +11913,6 @@ define("core/canvas", [ "base/class", "base/device", "base/dom" ], function(Clas
             this.handleResize();
         } else console.warn("Canvas.set: no width and or height specified using default width and height");
     };
-    /**
-	 * @method handleResize
-	 * @memberof Canvas
-	 * @brief handles element resize on any change in size of the DOM
-	 */
     Canvas.prototype.handleResize = function() {
         var width, height, element = this.element, elementStyle = element.style, w = window.innerWidth, h = window.innerHeight, pixelRatio = Device.pixelRatio, aspect = w / h, id = "#" + this.viewportId, viewportScale = document.querySelector(id).getAttribute("content");
         if (this.fullScreen) {
@@ -11310,12 +11970,7 @@ define("core/canvasrenderer2d", [ "base/class", "base/dom", "base/device", "base
 	    * @memberof CanvasRenderer2D
 	    */
         this.pixelRatio = void 0 !== opts.pixelRatio ? opts.pixelRatio : 128;
-        /**
-	    * @property Number invPixelRatio
-	    * @brief inverse ratio of pixels/meter
-	    * @memberof CanvasRenderer2D
-	    */
-        this.invPixelRatio = 1 / this.pixelRatio;
+        this._invPixelRatio = 1 / this.pixelRatio;
         /**
 	    * @property Canvas canvas
 	    * @brief Canvas Class
@@ -11435,7 +12090,7 @@ define("core/canvasrenderer2d", [ "base/class", "base/dom", "base/device", "base
                 3 === sleepState && (ctx.globalAlpha *= .5);
                 if (component.line) {
                     ctx.strokeStyle = component.lineColor ? component.lineColor.rgba() : "#000000";
-                    ctx.lineWidth = component.lineWidth || this.invPixelRatio;
+                    ctx.lineWidth = component.lineWidth || this._invPixelRatio;
                 }
                 ctx.beginPath();
                 if (radius) {
@@ -11521,12 +12176,7 @@ define("core/webglrenderer2d", [ "base/class", "base/dom", "base/device", "base/
 	    * @memberof WebGLRenderer2D
 	    */
         this.pixelRatio = void 0 !== opts.pixelRatio ? opts.pixelRatio : 128;
-        /**
-	    * @property Number invPixelRatio
-	    * @brief inverse ratio of pixels/meter
-	    * @memberof WebGLRenderer2D
-	    */
-        this.invPixelRatio = 1 / this.pixelRatio;
+        this._invPixelRatio = 1 / this.pixelRatio;
         /**
 	    * @property Canvas canvas
 	    * @brief Canvas Class
@@ -11837,7 +12487,7 @@ define("core/webglrenderer2d", [ "base/class", "base/dom", "base/device", "base/
             if (component.line) {
                 gl.useProgram(basic.program);
                 this.bindBuffers(attributes, componentData);
-                this.setLineWidth(component.lineWidth || this.invPixelRatio);
+                this.setLineWidth(component.lineWidth || this._invPixelRatio);
                 uniforms = basic.uniforms;
                 attributes = basic.attributes;
                 gl.bindTexture(gl.TEXTURE_2D, null);

@@ -13,9 +13,24 @@ define([
 	    cos = Math.cos,
 	    sin = Math.sin;
 	
-        
+        /**
+	 * @class AABB3
+	 * @brief 3D axis aligned bounding box
+	 * @param Vec3 min
+	 * @param Vec3 max
+	 */
         function AABB3( min, max ){
+	    
+	    /**
+	    * @property Vec3 min
+	    * @memberof AABB3
+	    */
             this.min = min instanceof Vec3 ? min : new Vec3;
+	    
+	    /**
+	    * @property Vec3 max
+	    * @memberof AABB3
+	    */
             this.max = max instanceof Vec3 ? max : new Vec3;
 	}
         
@@ -26,7 +41,12 @@ define([
 	};
         
         
-        
+        /**
+	 * @method clone
+	 * @memberof AABB3
+	 * @brief returns new copy of this
+	 * @return AABB3
+	 */
         AABB3.prototype.clone = function(){
             
             return new AABB3(
@@ -35,7 +55,13 @@ define([
 	    );
 	};
         
-        
+        /**
+	 * @method copy
+	 * @memberof AABB3
+	 * @brief copies other AABB
+	 * @param AABB3 other
+	 * @return AABB3
+	 */
         AABB3.prototype.copy = function( other ){
             var amin = this.min, bmin = other.min,
 		amax = this.max, bmax = other.max;
@@ -51,7 +77,14 @@ define([
             return this;
 	};
         
-        
+        /**
+	 * @method set
+	 * @memberof AABB3
+	 * @brief set min and max vectors
+	 * @param Vec3 min
+	 * @param Vec3 max
+	 * @return AABB3
+	 */
         AABB3.prototype.set = function( min, max ){
             
             this.min.copy( min );
@@ -60,7 +93,13 @@ define([
             return this;
 	};
         
-        
+        /**
+	 * @method setFromPoints
+	 * @memberof AABB3
+	 * @brief set min and max from array of vectors
+	 * @param Array points
+	 * @return AABB3
+	 */
         AABB3.prototype.setFromPoints = function( points ){
             var v, i = points.length,
 		minx, miny, minz, maxx, maxy, maxz,
@@ -95,7 +134,13 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method contains
+	 * @memberof AABB3
+	 * @brief checks if AABB contains point
+	 * @param Vec3 point
+	 * @return Boolean
+	 */
         AABB3.prototype.contains = function( point ){
             var min = this.min, max = this.max,
 		px = point.x, py = point.y, pz = point.z;
@@ -107,7 +152,13 @@ define([
 	    );
 	};
         
-        
+        /**
+	 * @method intersects
+	 * @memberof AABB3
+	 * @brief checks if AABB intersects AABB
+	 * @param AABB3 other
+	 * @return Boolean
+	 */
         AABB3.prototype.intersects = function( other ){
             var aMin = this.min, aMax = this.max,
 		bMin = other.min, bMax = other.max;
@@ -119,14 +170,25 @@ define([
 	    );
 	};
         
-        
+        /**
+	 * @method toString
+	 * @memberof AABB3
+	 * @brief converts AABB to string "AABB3( min: Vec2( -1, -1, -1 ), max: Vec2( 1, 1, 1 ) )"
+	 * @return String
+	 */
         AABB3.prototype.toString = function(){
             var min = this.min, max = this.max;
 	    
             return "AABB3( min: "+ min.x +", "+ min.y +", "+ min.z +", max: "+ max.x +", "+ max.y +", "+ max.z +" )";
 	};
         
-        
+        /**
+	 * @method equals
+	 * @memberof AABB3
+	 * @brief checks if AABB equals AABB
+	 * @param AABB3 other
+	 * @return Boolean
+	 */
         AABB3.prototype.equals = function( other ){
             var amin = this.min, amax = this.max,
 		bmin = other.min, bmax = other.max;
@@ -141,7 +203,14 @@ define([
             );
 	};
         
-        
+        /**
+	 * @method AABB3.intersects
+	 * @memberof AABB3
+	 * @brief checks if AABB intersects AABB
+	 * @param AABB3 a
+	 * @param AABB3 b
+	 * @return Boolean
+	 */
         AABB3.intersects = function( a, b ){
             var aMin = a.min, aMax = a.max,
 		bMin = b.min, bMax = b.max;
@@ -152,7 +221,12 @@ define([
 	    );
 	};
         
-        
+        /**
+	 * @method AABB3.equals
+	 * @memberof AABB3
+	 * @brief checks if AABB equals AABB
+	 * @return Boolean
+	 */
         AABB3.equals = function( a, b ){
             var amin = a.min, amax = a.max,
 		bmin = b.min, bmax = b.max;

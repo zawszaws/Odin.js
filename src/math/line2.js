@@ -12,19 +12,39 @@ define([
 	    clamp01 = Mathf.clamp01,
 	    equals = Mathf.equals;
 	
-        
+        /**
+	 * @class Line2
+	 * @brief 2D line, start and end vectors
+	 * @param Vec2 start
+	 * @param Vec2 end
+	 */
         function Line2( start, end ){
+	    
+	    /**
+	    * @property Vec2 start
+	    * @memberof Line2
+	    */
             this.start = start instanceof Vec2 ? start : new Vec2;
+	    
+	    /**
+	    * @property Vec2 end
+	    * @memberof Line2
+	    */
             this.end = end instanceof Vec2 ? end : new Vec2;
 	}
         
-        
+	
         Line2.prototype.fromJSON = function( json ){
             
 	    this.copy( json );
 	};
         
-        
+        /**
+	 * @method clone
+	 * @memberof Line2
+	 * @brief returns new copy of this
+	 * @return Line2
+	 */
         Line2.prototype.clone = function(){
             
             return new Line2(
@@ -33,7 +53,12 @@ define([
 	    );
 	};
         
-        
+        /**
+	 * @method copy
+	 * @memberof Line2
+	 * @brief copies other line
+	 * @return Line2
+	 */
         Line2.prototype.copy = function( other ){
 	    var ts = this.start, te = this.end,
 		os = other.start, os = other.end;
@@ -47,7 +72,14 @@ define([
             return this;
 	};
         
-        
+        /**
+	 * @method set
+	 * @memberof Line2
+	 * @brief sets start and end point
+	 * @param Vec2 start
+	 * @param Vec2 end
+	 * @return Line2
+	 */
         Line2.prototype.set = function( start, end ){
 	    var ts = this.start, te = this.end;
 	    
@@ -60,7 +92,13 @@ define([
             return this;
 	};
         
-        
+        /**
+	 * @method add
+	 * @memberof Line2
+	 * @brief adds this start and end to other start and end
+	 * @param Line2 other
+	 * @return Line2
+	 */
         Line2.prototype.add = function( other ){
 	    var ts = this.start, te = this.end,
 		x = other.x, y = other.y;
@@ -74,7 +112,13 @@ define([
             return this;
 	};
         
-        
+        /**
+	 * @method sadd
+	 * @memberof Line2
+	 * @brief adds scalar to this start and end
+	 * @param Number s
+	 * @return Line2
+	 */
         Line2.prototype.sadd = function( s ){
 	    var ts = this.start, te = this.end;
 	    
@@ -87,7 +131,13 @@ define([
             return this;
 	};
         
-        
+        /**
+	 * @method sub
+	 * @memberof Line2
+	 * @brief subtracts other start and end from this start and end
+	 * @param Line2 other
+	 * @return Line2
+	 */
         Line2.prototype.sub = function( other ){
 	    var ts = this.start, te = this.end,
 		x = other.x, y = other.y;
@@ -101,7 +151,13 @@ define([
             return this;
 	};
         
-        
+        /**
+	 * @method sadd
+	 * @memberof Line2
+	 * @brief subtracts scalar from this start and end
+	 * @param Number s
+	 * @return Line2
+	 */
         Line2.prototype.ssub = function( s ){
 	    var ts = this.start, te = this.end;
 	    
@@ -114,7 +170,13 @@ define([
             return this;
 	};
         
-        
+        /**
+	 * @method mul
+	 * @memberof Line2
+	 * @brief multiples this start and end by other start and end
+	 * @param Line2 other
+	 * @return Line2
+	 */
         Line2.prototype.mul = function( other ){
 	    var ts = this.start, te = this.end,
 		x = other.x, y = other.y;
@@ -128,7 +190,13 @@ define([
             return this;
 	};
         
-        
+        /**
+	 * @method smul
+	 * @memberof Line2
+	 * @brief multiples this start and end by scalar
+	 * @param Number s
+	 * @return Line2
+	 */
         Line2.prototype.smul = function( s ){
 	    var ts = this.start, te = this.end;
 	    
@@ -141,7 +209,13 @@ define([
             return this;
 	};
         
-        
+        /**
+	 * @method div
+	 * @memberof Line2
+	 * @brief divides this start and end by other start and end
+	 * @param Line2 other
+	 * @return Line2
+	 */
         Line2.prototype.div = function( other ){
 	    var ts = this.start, te = this.end,
 		x = other.x !== 0 ? 1 / other.x : 0,
@@ -156,7 +230,13 @@ define([
             return this;
 	};
         
-        
+        /**
+	 * @method sdiv
+	 * @memberof Line2
+	 * @brief divides this start and end by scalar
+	 * @param Number s
+	 * @return Line2
+	 */
         Line2.prototype.sdiv = function( s ){
 	    var ts = this.start, te = this.end;
 	    
@@ -171,7 +251,14 @@ define([
             return this;
 	};
         
-        
+        /**
+	 * @method ldotv
+	 * @memberof Line2
+	 * @brief returns dot of line and vector
+	 * @param Line2 l
+	 * @param Vec2 v
+	 * @return Number
+	 */
         Line2.prototype.ldotv = function( l, v ){
 	    var start = l.start, end = l.end,
 		x = end.x - start.x,
@@ -180,7 +267,13 @@ define([
 	    return x * v.x + y * v.y;
 	};
         
-        
+        /**
+	 * @method dot
+	 * @memberof Line2
+	 * @brief returns dot of this and vector
+	 * @param Vec2 v
+	 * @return Number
+	 */
         Line2.prototype.dot = function( v ){
 	    var start = this.start, end = this.end,
 		x = end.x - start.x,
@@ -189,7 +282,12 @@ define([
 	    return x * v.x + y * v.y;
 	};
         
-        
+        /**
+	 * @method lenSq
+	 * @memberof Line2
+	 * @brief returns squared length
+	 * @return Number
+	 */
         Line2.prototype.lenSq = function(){
 	    var start = this.start, end = this.end,
 		x = end.x - start.x,
@@ -198,7 +296,12 @@ define([
 	    return x * x + y * y;
 	};
         
-        
+        /**
+	 * @method len
+	 * @memberof Line2
+	 * @brief returns length
+	 * @return Number
+	 */
         Line2.prototype.len = function(){
 	    var start = this.start, end = this.end,
 		x = end.x - start.x,
@@ -207,7 +310,13 @@ define([
 	    return sqrt( x * x + y * y );
 	};
         
-        
+        /**
+	 * @method center
+	 * @memberof Line2
+	 * @brief returns center of this line
+	 * @param Vec2 target
+	 * @return Vec2
+	 */
         Line2.prototype.center = function( target ){
 	    target = target || new Vec2;
 	    
@@ -219,7 +328,13 @@ define([
 	    return target;
 	};
         
-        
+        /**
+	 * @method delta
+	 * @memberof Line2
+	 * @brief returns vector representing this line
+	 * @param Vec2 target
+	 * @return Vec2
+	 */
         Line2.prototype.delta = function( target ){
 	    target = target || new Vec2;
 	    
@@ -231,7 +346,12 @@ define([
 	    return target;
 	};
         
-        
+        /**
+	 * @method norm
+	 * @memberof Line2
+	 * @brief normalizes line
+	 * @return Line2
+	 */
         Line2.prototype.norm = function(){
 	    var start = this.start, end = this.end,
 		sx = start.x, sy = start.y,
@@ -251,7 +371,14 @@ define([
 	    return this;
 	};
         
-        
+        /**
+	 * @method closestPoint
+	 * @memberof Line2
+	 * @brief returns closest point on line to point
+	 * @param Vec2 point
+	 * @param Vec2 target
+	 * @return Vec2
+	 */
         Line2.prototype.closestPoint = function( point, target ){
 	    target = target || new Vec2;
 	    
@@ -273,7 +400,14 @@ define([
 	    return target;
 	};
         
-        
+        /**
+	 * @method intersect
+	 * @memberof Line2
+	 * @brief checks if this intersects with other and returns intersection point
+	 * @param Line2 other
+	 * @param Vec2 target
+	 * @return Vec2
+	 */
         Line2.prototype.intersect = function( other, target ){
 	    target = target || new Vec2;
 	    
@@ -297,14 +431,25 @@ define([
 	    return target;
 	};
         
-        
+        /**
+	 * @method toString
+	 * @memberof Line2
+	 * @brief returns string of this "Line2( start: Vec2( 0, 0 ), end: Vec2( 0, 1 ) )"
+	 * @return String
+	 */
         Line2.prototype.toString = function(){
             var start = this.start, end = this.end;
 	    
             return "Line2( start: "+ start.x +", "+ start.y +", end: "+ end.x +", "+ end.y +" )";
 	};
         
-        
+        /**
+	 * @method equals
+	 * @memberof Line2
+	 * @brief checks if this equals other
+	 * @param Line2 other
+	 * @return Boolean
+	 */
         Line2.prototype.equals = function( other ){
             var astart = this.start, aend = this.end,
 		bstart = other.start, bend = other.end;
@@ -317,7 +462,14 @@ define([
             );
 	};
         
-        
+        /**
+	 * @method Line2.equal
+	 * @memberof Line2
+	 * @brief checks if a equals b
+	 * @param Line2 a
+	 * @param Line2 b
+	 * @return Boolean
+	 */
         Line2.equals = function( a, b ){
             var astart = a.start, aend = a.end,
 		bstart = b.start, bend = b.end;
@@ -330,7 +482,15 @@ define([
             );
 	};
         
-        
+        /**
+	 * @method Line2.intersect
+	 * @memberof Line2
+	 * @brief checks if a intersects with b and returns intersection point
+	 * @param Line2 a
+	 * @param Line2 b
+	 * @param Vec2 target
+	 * @return Vec2
+	 */
         Line2.intersect = function( a, b, target ){
 	    target = target || new Vec2;
 	    

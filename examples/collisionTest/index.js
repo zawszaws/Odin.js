@@ -84,15 +84,22 @@ require(
 		);
 	    }
 	    
-	    Mouse.on("wheel", function(){
-		camera.zoomBy( -this.wheel*Time.delta*8 );
-	    });
-	    Mouse.on("move", function(){
-		
-		if( this.left ){
-		    camera.translate( vec2_1.set( this.delta.x, this.delta.y ).smul( -Time.delta ) );
-		}
-	    });
+	    if( !Device.mobile ){
+		Mouse.on("wheel", function(){
+		    camera.zoomBy( -this.wheel*Time.delta*8 );
+		});
+		Mouse.on("move", function(){
+		    
+		    if( this.left ){
+			camera.translate( vec2_1.set( this.delta.x, this.delta.y ).smul( -Time.delta ) );
+		    }
+		});
+	    }
+	    else{
+		Touches.on("move", function( touch ){
+		    camera.translate( vec2_1.set( touch.delta.x, touch.delta.y ).smul( -Time.delta*0.5 ) );
+		});
+	    }
 	    
 	    
 	    scene.add( camera );

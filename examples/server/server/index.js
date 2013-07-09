@@ -11,15 +11,14 @@ requirejs(
         Odin.globalize();
         
         var game = new ServerGame({
-            host: "127.0.0.1",
+            host: "192.168.1.191",
             port: 3000,
             debug: true
         });
         
         game.on("init", function(){
             var scene = new Scene2D,
-                vec = new Vec2;
-            
+                vec2_1 = new Vec2;
             
             scene.add(
                 new GameObject2D({
@@ -27,16 +26,15 @@ requirejs(
                     components: [
                         new Box2D({
                             color: new Color("#000000"),
-                            extents: new Vec2( 8, 0.5 )
+                            extents: new Vec2( 10, 0.5 )
                         }),
                         new RigidBody2D({
                             mass: 0,
-                            extents: new Vec2( 8, 0.5 )
+                            extents: new Vec2( 10, 0.5 )
                         })
                     ]
                 })
             );
-            
             
             this.on("connection", function( id ){
                 var client = this.clients[ id ],
@@ -75,37 +73,68 @@ requirejs(
                 
                 scene.add( player, camera );
                 userData.player = player;
-                userData.speed = 2;
+                userData.speed = 3;
                 userData.jump = 3;
                 userData.canJump = false;
                 
                 player.components.RigidBody2D.on("collide", function( body, time ){
                     player.userData.canJump = true;
-                })
+                });
                 
-                client.on("keydown", function( key ){
-                    var userData = this.userData,
-                        body = userData.player.components.RigidBody2D.body,
-                        speed = userData.speed,
-                        jump = userData.jump,
-                        name = key.name;
-                    
-                    if( name === "up" ){
+                camera.on("update", function(){
+                    this.follow( player, 1 / Time.delta );
+                });
+                
+                if( !client.device.mobile ){
+                    client.on("keydown", function( key ){
+                        var userData = this.userData,
+                            body = userData.player.components.RigidBody2D.body,
+                            speed = userData.speed,
+                            jump = userData.jump,
+                            name = key.name;
+                        
+                        if( name === "up" ){
+                            if( userData.canJump ){
+                                body.applyImpulse( vec2_1.set( 0, jump ), body.position, true );
+                                userData.canJump = false;
+                            }
+                        }
+                        if( name === "right" ){
+                            body.applyTorque( -speed, true );
+                        }
+                        if( name === "left" ){
+                            body.applyTorque( speed, true );
+                        }
+                    });
+                    client.on("mousemove", function( mouse ){
+                        
+                        if( mouse.left ){
+                            client.camera.translate( vec2_1.set( mouse.delta.x, mouse.delta.y ).smul( -Time.delta*4 ) );
+                        }
+                    });
+                    client.on("mousewheel", function( mouse ){
+                        client.camera.zoomBy( -mouse.wheel*Time.delta*16 );
+                    });
+                }
+                else{
+                    client.on("touchend", function( touch ){
+                        var userData = this.userData,
+                            body = userData.player.components.RigidBody2D.body,
+                            jump = userData.jump;
+                        
                         if( userData.canJump ){
-                            body.applyImpulse( vec.set( 0, jump ), body.position, true );
+                            body.applyImpulse( vec2_1.set( 0, jump ), body.position, true );
                             userData.canJump = false;
                         }
-                    }
-                    if( name === "right" ){
-                        body.applyTorque( -speed, true );
-                    }
-                    if( name === "left" ){
-                        body.applyTorque( speed, true );
-                    }
-                });
-                client.on("mousemove", function( mouse ){
-                    
-                });
+                    });
+                    client.on("accelerometer", function( accelerometer ){
+                        var userData = this.userData,
+                            body = userData.player.components.RigidBody2D.body,
+                            speed = userData.speed;
+                        
+                        body.applyTorque( accelerometer.y * 2 * speed, true );
+                    });
+                }
                 
                 this.setScene( client, scene );
                 this.setCamera( client, camera );
@@ -114,8 +143,11 @@ requirejs(
             
             this.on("disconnect", function( id ){
                 var client = this.clients[ id ],
+                    scene = client.scene,
                     player = client.scene.findById( client.userData.player._id ),
                     camera = client.scene.findById( client.camera._id );
+                
+                console.log(id);
                 
                 scene.remove( player, camera );
             });

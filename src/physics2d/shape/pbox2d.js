@@ -12,9 +12,19 @@ define([
 	
 	var sqrt = Math.sqrt;
 	
-        
+        /**
+	 * @class PBox2D
+	 * @extends PConvex2D
+	 * @brief Box shape class
+	 * @param Vec2 extents
+	 */
 	function PBox2D( extents ){
 	    
+	    /**
+	    * @property Vec2 extents
+	    * @memberof PShape2D
+	    * @brief the half extents of box
+	    */
 	    this.extents = extents instanceof Vec2 ? extents : new Vec2( 0.5, 0.5 );
 	    
 	    var x = this.extents.x, y = this.extents.y;

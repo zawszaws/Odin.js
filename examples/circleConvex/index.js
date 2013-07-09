@@ -27,31 +27,36 @@ require(
 		components: [
 		    new RigidBody2D({
 			mass: 0,
-			extents: new Vec2( 4, 0.5 ),
+			extents: new Vec2( 4, 0.25 ),
+			allowSleep: false,
+			linearDamping: new Vec2( 0.9, 0.9 ),
+			angularDamping: 0.9,
 			type: RigidBody2D.KINEMATIC
 		    })
 		]
 	    });
 	    ground.on("update", function(){
+		var body = this.getComponent("RigidBody2D").body,
+		    velocity = body.velocity;
 		
 		if( Input.key("up") ){
-		    this.position.y += 0.01;
+		    velocity.y += 0.1;
 		}
 		if( Input.key("down") ){
-		    this.position.y -= 0.01;
+		    velocity.y -= 0.1;
 		}
 		if( Input.key("right") ){
-		    this.position.x += 0.01;
+		    velocity.x += 0.1;
 		}
 		if( Input.key("left") ){
-		    this.position.x -= 0.01;
+		    velocity.x -= 0.1;
 		}
 		
 		if( Input.key("a") ){
-		    this.rotation += 0.01;
+		    body.angularVelocity += 0.05;
 		}
 		if( Input.key("d") ){
-		    this.rotation -= 0.01;
+		    body.angularVelocity -= 0.05;
 		}
 	    });
 	    
@@ -77,16 +82,22 @@ require(
 	    });
 	    scene.add( ball );
 	    
-	    Mouse.on("wheel", function(){
-		camera.zoomBy( -this.wheel*Time.delta*4 );
-	    });
-	    Mouse.on("move", function(){
-		
-		if( this.left ){
-		    camera.translate( vec2_1.set( this.delta.x, this.delta.y ).smul( -Time.delta*0.5 ) );
-		}
-	    });
-	    
+	    if( !Device.mobile ){
+		Mouse.on("wheel", function(){
+		    camera.zoomBy( -this.wheel*Time.delta*4 );
+		});
+		Mouse.on("move", function(){
+		    
+		    if( this.left ){
+			camera.translate( vec2_1.set( this.delta.x, this.delta.y ).smul( -Time.delta*0.5 ) );
+		    }
+		});
+	    }
+	    else{
+		Touches.on("move", function( touch ){
+		    camera.translate( vec2_1.set( touch.delta.x, touch.delta.y ).smul( -Time.delta*0.5 ) );
+		});
+	    }
 	    
 	    scene.add( camera );
 	    

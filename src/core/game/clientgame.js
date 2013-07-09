@@ -19,9 +19,7 @@ define([
 	"core/objects/transform2d"
 	
     ],
-    function( require, Class, Time, Device, Input, Mouse, Touches, Keyboard, Accelerometer, Orientation,
-	Scene2D, Game, Camera2D, GameObject2D, Transform2D
-    ){
+    function( require, Class, Time, Device, Input, Mouse, Touches, Keyboard, Accelerometer, Orientation, Scene2D, Game, Camera2D, GameObject2D, Transform2D ){
 	"use strict";
 	
 	var objectTypes = {
@@ -31,20 +29,46 @@ define([
 		Transform2D: Transform2D
 	    };
 	
-	
+	/**
+	 * @class ClientGame
+	 * @extends Game
+	 * @brief Client Game used to join ServerGame
+	 * @param Object opts sets Class properties from passed Object
+	 */
 	function ClientGame( opts ){
 	    opts || ( opts = {} );
 	    
 	    Game.call( this, opts );
 	    
+	    /**
+	    * @property Number id
+	    * @brief unique id of this client
+	    * @memberof ClientGame
+	    */
 	    this.id = undefined;
 	    
+	    /**
+	    * @property String host
+	    * @brief the host address
+	    * @memberof ClientGame
+	    */
 	    this.host = opts.host || "127.0.0.1";
+	    
+	    /**
+	    * @property Number port
+	    * @brief the port
+	    * @memberof ClientGame
+	    */
 	    this.port = opts.port || 3000;
 	    
 	    var self = this, socket,
 		scenes, jsonObject, object, i;
 	    
+	    /**
+	    * @property Object socket
+	    * @brief reference to client's socket
+	    * @memberof ClientGame
+	    */
 	    this.socket = socket = io.connect("http://"+ this.host, { port: this.port });
 	    
 	    socket.on("connection", function( id, scenes ){
@@ -65,6 +89,17 @@ define([
 		    socket.emit("clientOffset", Time.stamp() - timeStamp );
 		});
 		
+		
+		socket.on("cameraZoom", function( scene, gameObject, zoom ){
+		    scene = self.findSceneByServerId( scene );
+		    if( !scene ) return;
+		    
+		    gameObject = scene.findByServerId( gameObject );
+		    if( !gameObject ) return;
+		    
+		    gameObject.zoom = zoom;
+		    gameObject.updateMatrixProjection();
+		});
 		
 		socket.on("gameObjectMoved", function( scene, gameObject, position ){
 		    scene = self.findSceneByServerId( scene );
@@ -168,13 +203,13 @@ define([
 		    if( camera ) self.setCamera( camera );
 		});
 		
-		
 		socket.on("log", function(){
 		    console.log.apply( console, arguments );
 		});
 		
 		
-		Accelerometer.on("accelerometerchange", function(){ socket.emit("accelerometerchange", Accelerometer ); });
+		Accelerometer.on("accelerometer", function(){ socket.emit("accelerometer", Accelerometer ); });
+		Orientation.on("orientation", function( orientation ){ socket.emit("orientation", orientation ); });
 		Orientation.on("orientationchange", function( mode, orientation ){ socket.emit("orientationchange", mode, orientation ); });
 		
 		Keyboard.on("keydown", function( key ){ socket.emit("keydown", key ); });

@@ -21,22 +21,58 @@ define([
 	
 	defaultImage.src = "data:image/gif;base64,R0lGODlhAQABAIAAAP7//wAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==";
 	
+	/**
+	 * @class CanvasRenderer2D
+	 * @extends Class
+	 * @brief Canvas 2D Renderer
+	 * @param Object opts sets Class properties from passed Object
+	 */
         function CanvasRenderer2D( opts ){
             opts || ( opts = {} );
             
             Class.call( this );
             
+	    /**
+	    * @property Boolean debug
+	    * @brief games debug value
+	    * @memberof CanvasRenderer2D
+	    */
 	    this.debug = opts.debug !== undefined ? !!opts.debug : false;
 	    
+	    /**
+	    * @property Number pixelRatio
+	    * @brief ratio of pixels/meter
+	    * @memberof CanvasRenderer2D
+	    */
 	    this.pixelRatio = opts.pixelRatio !== undefined ? opts.pixelRatio : 128;
-	    this.invPixelRatio = 1 / this.pixelRatio;
+	    this._invPixelRatio = 1 / this.pixelRatio;
 	    
+	    /**
+	    * @property Canvas canvas
+	    * @brief Canvas Class
+	    * @memberof CanvasRenderer2D
+	    */
             this.canvas = opts.canvas instanceof Canvas ? opts.canvas : new Canvas( opts.width, opts.height );
+	    
+	    /**
+	    * @property CanvasRenderingContext2D context
+	    * @brief this Canvas's Context
+	    * @memberof CanvasRenderer2D
+	    */
+            this.context = Dom.get2DContext( this.canvas.element );
             
+	    /**
+	    * @property Boolean autoClear
+	    * @brief if true clears ever frame
+	    * @memberof CanvasRenderer2D
+	    */
             this.autoClear = opts.autoClear !== undefined ? opts.autoClear : true;
 	    
-            this.context = Dom.get2DContext( this.canvas.element );
-	    
+	    /**
+	    * @property Number time
+	    * @brief How long in seconds it took to render last frame
+	    * @memberof CanvasRenderer2D
+	    */
 	    this.time = 0;
 	    
 	    this._data = {
@@ -48,7 +84,12 @@ define([
         
 	Class.extend( CanvasRenderer2D, Class );
 	
-        
+        /**
+	 * @method setClearColor
+	 * @memberof CanvasRenderer2D
+	 * @brief sets background color
+	 * @param Color color color to set background too
+	 */
         CanvasRenderer2D.prototype.setClearColor = function( color ){
             
 	    if( color ){
@@ -59,13 +100,23 @@ define([
 	    }
 	};
 	
-        
+        /**
+	 * @method clear
+	 * @memberof CanvasRenderer2D
+	 * @brief clears canvas
+	 */
         CanvasRenderer2D.prototype.clear = function(){
 	    
             this.context.clearRect( -1, -1, 2, 2 );
 	};
         
-        
+        /**
+	 * @method render
+	 * @memberof CanvasRenderer2D
+	 * @brief renders scene from cameras perspective
+	 * @param Scene2D scene to render
+	 * @param Camera2D camera to get perspective from
+	 */
         CanvasRenderer2D.prototype.render = function(){
 	    var lastScene, lastCamera, lastBackground = new Color;
 	    
@@ -124,7 +175,7 @@ define([
 		    for( i = rigidbodies.length; i--; ){
 			rigidbody = rigidbodies[i];
 			
-			if( rigidbody.visible ) this.renderComponent( rigidbody, camera );
+			this.renderComponent( rigidbody, camera );
 		    }
 		}
 		
@@ -191,18 +242,13 @@ define([
 		    if( component.fill ) ctx.fillStyle = component.color ? component.color.rgba() : "#000000";
 		    ctx.globalAlpha = component.alpha;
 		    
-		    if( sleepState ){
-			if( sleepState === 2 ){
-			    ctx.globalAlpha *= 0.5;
-			}
-			else if( sleepState === 3 ){
-			    ctx.globalAlpha *= 0.25;
-			}
+		    if( sleepState === 3 ){
+			ctx.globalAlpha *= 0.5;
 		    }
 		    
 		    if( component.line ){
 			ctx.strokeStyle = component.lineColor ? component.lineColor.rgba() : "#000000";
-			ctx.lineWidth = component.lineWidth || this.invPixelRatio;
+			ctx.lineWidth = component.lineWidth || this._invPixelRatio;
 		    }
 		    ctx.beginPath();
 		    

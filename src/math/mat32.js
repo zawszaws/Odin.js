@@ -15,8 +15,22 @@ define([
 	    lerp = Mathf.lerp,
 	    equals= Mathf.equals;
 	
-	
+	/**
+	 * @class Mat32
+	 * @brief Affine Matrix
+	 * @param Number m11
+	 * @param Number m12
+	 * @param Number m13
+	 * @param Number m21
+	 * @param Number m22
+	 * @param Number m23
+	 */
 	function Mat32( m11, m12, m13, m21, m22, m23 ){
+	    
+	    /**
+	    * @property Float32Array elements
+	    * @memberof Mat32
+	    */
 	    this.elements = new Float32Array(6);
 	    var te = this.elements;
 	    
@@ -30,7 +44,12 @@ define([
 	    this.copy( json );
 	};
         
-        
+        /**
+	 * @method clone
+	 * @memberof Mat32
+	 * @brief returns new copy of this
+	 * @return Mat32
+	 */
         Mat32.prototype.clone = function(){
             var te = this.elements;
 	    
@@ -40,7 +59,12 @@ define([
 	    );
         };
         
-        
+        /**
+	 * @method copy
+	 * @memberof Mat32
+	 * @brief copies other matrix
+	 * @return Mat32
+	 */
         Mat32.prototype.copy = function( other ){
             var te = this.elements,
 		me = other.elements;
@@ -55,7 +79,18 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method set
+	 * @memberof Mat32
+	 * @brief sets matrix elements
+	 * @param Number m11
+	 * @param Number m12
+	 * @param Number m13
+	 * @param Number m21
+	 * @param Number m22
+	 * @param Number m23
+	 * @return Mat32
+	 */
         Mat32.prototype.set = function( m11, m12, m13, m21, m22, m23 ){
             var te = this.elements;
 	    
@@ -65,7 +100,12 @@ define([
             return this;
         };
 	
-	
+	/**
+	 * @method identity
+	 * @memberof Mat32
+	 * @brief sets matrix to identity matrix
+	 * @return Mat32
+	 */
 	Mat32.prototype.identity = function(){
             var te = this.elements;
 	    
@@ -79,7 +119,12 @@ define([
             return this;
         };
 	
-	
+	/**
+	 * @method zero
+	 * @memberof Mat32
+	 * @brief sets matrix to zero matrix
+	 * @return Mat32
+	 */
 	Mat32.prototype.zero = function(){
             var te = this.elements;
 	    
@@ -93,7 +138,14 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method mmul
+	 * @memberof Mat32
+	 * @brief mutilples a and b
+	 * @param Mat32 a
+	 * @param Mat32 b
+	 * @return Mat32
+	 */
         Mat32.prototype.mmul = function( a, b ){
 	    var te = this.elements,
 		ae = a.elements,
@@ -117,7 +169,13 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method mul
+	 * @memberof Mat32
+	 * @brief mutilples this and other
+	 * @param Mat32 other
+	 * @return Mat32
+	 */
         Mat32.prototype.mul = function( other ){
 	    var ae = this.elements,
 		be = other.elements,
@@ -140,7 +198,13 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method smul
+	 * @memberof Mat32
+	 * @brief mutilples this by scalar
+	 * @param Number s
+	 * @return Mat32
+	 */
         Mat32.prototype.smul = function( s ){
             var te = this.elements;
 	    
@@ -154,7 +218,13 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method sdiv
+	 * @memberof Mat32
+	 * @brief divides this by scalar
+	 * @param Number s
+	 * @return Mat32
+	 */
         Mat32.prototype.sdiv = function( s ){
 	    var te = this.elements;
 	    
@@ -170,7 +240,12 @@ define([
             return this;
         };
 	
-	
+	/**
+	 * @method transpose
+	 * @memberof Mat32
+	 * @brief transposes this matrix
+	 * @return Mat32
+	 */
 	Mat32.prototype.transpose = function(){
             var te = this.elements, tmp;
 	    
@@ -179,7 +254,13 @@ define([
 	    return this;
         };
 	
-	
+	/**
+	 * @method setTrace
+	 * @memberof Mat32
+	 * @brief sets the diagonal of matrix
+	 * @param Vec2 v
+	 * @return Mat32
+	 */
 	Mat32.prototype.setTrace = function( v ){
             var te = this.elements;
 	    
@@ -189,7 +270,13 @@ define([
 	    return this;
         };
 	
-	
+	/**
+	 * @method minv
+	 * @memberof Mat32
+	 * @brief gets the inverse of another matrix saves it in this
+	 * @param Mat32 other
+	 * @return Mat32
+	 */
 	Mat32.prototype.minv = function( other ){
 	    var te = this.elements,
 		me = other.elements,
@@ -212,7 +299,12 @@ define([
             return this;
 	};
 	
-	
+	/**
+	 * @method inv
+	 * @memberof Mat32
+	 * @brief gets the inverse of this matrix
+	 * @return Mat32
+	 */
 	Mat32.prototype.inv = function(){
 	    var te = this.elements,
 		
@@ -234,7 +326,15 @@ define([
             return this;
 	};
         
-        
+        /**
+	 * @method mlerp
+	 * @memberof Mat32
+	 * @brief linear interpolation between a matrix and b matrix by t
+	 * @param Mat32 a
+	 * @param Mat32 b
+	 * @param Number t
+	 * @return Mat32
+	 */
         Mat32.prototype.mlerp = function( a, b, t ){
 	    var te = this.elements,
 		ae = a.elements,
@@ -250,7 +350,14 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method lerp
+	 * @memberof Mat32
+	 * @brief linear interpolation between this and other matrix by t
+	 * @param Mat32 other
+	 * @param Number t
+	 * @return Mat32
+	 */
         Mat32.prototype.lerp = function( other, t ){
 	    var ae = this.elements,
 		be = other.elements;
@@ -265,7 +372,12 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method abs
+	 * @memberof Mat32
+	 * @brief gets absolute values of matrix
+	 * @return Mat32
+	 */
         Mat32.prototype.abs = function(){
 	    var te = this.elements;
             
@@ -279,7 +391,13 @@ define([
             return this;
         };
 	
-	
+	/**
+	 * @method setTranslation
+	 * @memberof Mat32
+	 * @brief sets translation of matrix
+	 * @param Vec2 v
+	 * @return Mat32
+	 */
 	Mat32.prototype.setTranslation = function( v ){
 	    var te = this.elements;
 	    
@@ -289,7 +407,13 @@ define([
 	    return this;
         };
         
-        
+        /**
+	 * @method setRotation
+	 * @memberof Mat32
+	 * @brief sets rotation of matrix
+	 * @param Number a
+	 * @return Mat32
+	 */
         Mat32.prototype.setRotation = function( a ){
             var te = this.elements,
 		c = cos( a ), s = sin( a );
@@ -302,24 +426,41 @@ define([
             return this;
         };
 	
-	
+	/**
+	 * @method getTranslation
+	 * @memberof Mat32
+	 * @brief gets translation of matrix
+	 * @param Vec2 v
+	 * @return Vec2
+	 */
 	Mat32.prototype.getTranslation = function( v ){
 	    var te = this.elements;
 	    
 	    v.x = te[4];
 	    v.y = te[5];
 	    
-	    return this;
+	    return v;
         };
 	
-	
+	/**
+	 * @method getRotation
+	 * @memberof Mat32
+	 * @brief returns the rotation of the matrix
+	 * @return Number
+	 */
 	Mat32.prototype.getRotation = function(){
 	    var te = this.elements;
 	    
 	    return atan2( te[1], te[0] );
         };
 	
-	
+	/**
+	 * @method extractPosition
+	 * @memberof Mat32
+	 * @brief gets position from this matrix
+	 * @param Mat32 m
+	 * @return Mat32
+	 */
 	Mat32.prototype.extractPosition = function( m ){
 	    var te = this.elements,
 		me = m.elements;
@@ -330,7 +471,13 @@ define([
 	    return this;
         };
 	
-	
+	/**
+	 * @method extractRotation
+	 * @memberof Mat32
+	 * @brief gets rotation from this matrix
+	 * @param Mat32 m
+	 * @return Mat32
+	 */
 	Mat32.prototype.extractRotation = function( m ){
 	    var te = this.elements,
 		me = m.elements,
@@ -353,7 +500,14 @@ define([
 	    return this;
 	};
 	
-	
+	/**
+	 * @method lookAt
+	 * @memberof Mat32
+	 * @brief makes matrix look from eye at target
+	 * @param Vec2 eye
+	 * @param Vec2 target
+	 * @return Mat32
+	 */
 	Mat32.prototype.lookAt = function( eye, target ){
 	    var te = this.elements,
 		x = target.x - eye.x,
@@ -369,7 +523,13 @@ define([
 	    return this;
 	};
 	
-	
+	/**
+	 * @method translate
+	 * @memberof Mat32
+	 * @brief translates matrix by vector
+	 * @param Vec2 v
+	 * @return Mat32
+	 */
 	Mat32.prototype.translate = function( v ){
 	    var te = this.elements,
 		x = v.x, y = v.y;
@@ -380,7 +540,13 @@ define([
 	    return this;
         };
         
-        
+        /**
+	 * @method scale
+	 * @memberof Mat32
+	 * @brief scales matrix by vector
+	 * @param Vec2 v
+	 * @return Mat32
+	 */
         Mat32.prototype.scale = function( v ){
 	    var te = this.elements,
 		x = v.x, y = v.y;
@@ -396,7 +562,13 @@ define([
             return this;
         };
 	
-	
+	/**
+	 * @method rotate
+	 * @memberof Mat32
+	 * @brief rotates matrix by angle
+	 * @param Number angle
+	 * @return Mat32
+	 */
 	Mat32.prototype.rotate = function( angle ){
 	    var te = this.elements,
 		
@@ -416,7 +588,13 @@ define([
 	    return this;
         };
 	
-	
+	/**
+	 * @method skew
+	 * @memberof Mat32
+	 * @brief skews matrix by vector
+	 * @param Vec2 v
+	 * @return Mat32
+	 */
 	Mat32.prototype.skew = function( v ){
 	    var te = this.elements,
 		x = v.x, y = v.y;
@@ -427,7 +605,16 @@ define([
 	    return this;
         };
 	
-	
+	/**
+	 * @method orthographic
+	 * @memberof Mat32
+	 * @brief makes orthographic matrix
+	 * @param Number left
+	 * @param Number right
+	 * @param Number top
+	 * @param Number bottom
+	 * @return Mat32
+	 */
 	Mat32.prototype.orthographic = function( left, right, top, bottom ){
 	    var te = this.elements,
 		w = 1 / ( right - left ),
@@ -446,7 +633,12 @@ define([
             return this;
         };
 	
-        
+        /**
+	 * @method toString
+	 * @memberof Mat32
+	 * @brief returns string value of this "Mat32[ 1, 0... ]"
+	 * @return Mat32
+	 */
         Mat32.prototype.toString = function(){
             var te = this.elements;
 	    
@@ -456,7 +648,13 @@ define([
 	    );
         };
 	
-        
+        /**
+	 * @method equals
+	 * @memberof Mat32
+	 * @brief checks if this matrix equals other matrix
+	 * @param Mat32 other
+	 * @return Boolean
+	 */
         Mat32.prototype.equals = function( other ){
             var ae = this.elements,
 		be = other.elements;
@@ -471,7 +669,14 @@ define([
             );
         };
         
-        
+        /**
+	 * @method Mat32.equals
+	 * @memberof Mat32
+	 * @brief checks if a matrix equals b matrix
+	 * @param Mat32 a
+	 * @param Mat32 b
+	 * @return Boolean
+	 */
         Mat32.equals = function( a, b ){
 	    var ae = a.elements,
 		be = b.elements;

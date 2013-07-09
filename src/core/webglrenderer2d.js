@@ -98,7 +98,6 @@ define([
 	    ].join("\n");
 	}
 	
-	//texture2D(uSampler, vec2(vTextureCoord.x * uCropSource.z, vTextureCoord.y * uCropSource.w) + uCropSource.xy);
 	
 	function spriteVertexShader( precision ){
 	    
@@ -142,24 +141,67 @@ define([
 	    ].join("\n");
 	}
 	
-	
+	/**
+	 * @class WebGLRenderer2D
+	 * @extends Class
+	 * @brief WebGL 2D Renderer
+	 * @param Object opts sets Class properties from passed Object
+	 */
         function WebGLRenderer2D( opts ){
             opts || ( opts = {} );
             
             Class.call( this );
             
+	    /**
+	    * @property Boolean debug
+	    * @brief games debug value
+	    * @memberof WebGLRenderer2D
+	    */
 	    this.debug = opts.debug !== undefined ? !!opts.debug : false;
             
+	    /**
+	    * @property Number pixelRatio
+	    * @brief ratio of pixels/meter
+	    * @memberof WebGLRenderer2D
+	    */
 	    this.pixelRatio = opts.pixelRatio !== undefined ? opts.pixelRatio : 128;
-	    this.invPixelRatio = 1 / this.pixelRatio;
+	    this._invPixelRatio = 1 / this.pixelRatio;
             
+	    /**
+	    * @property Canvas canvas
+	    * @brief Canvas Class
+	    * @memberof WebGLRenderer2D
+	    */
             this.canvas = opts.canvas instanceof Canvas ? opts.canvas : new Canvas( opts.width, opts.height );
+	    
+	    /**
+	    * @property WebGLRenderingContext context
+	    * @brief this Canvas's Context
+	    * @memberof WebGLRenderer2D
+	    */
+	    opts.attributes || ( opts.attributes = {} );
+	    opts.attributes.depth = false;
             this.context = Dom.getWebGLContext( this.canvas.element, opts.attributes );
             
+	    /**
+	    * @property Boolean autoClear
+	    * @brief if true clears ever frame
+	    * @memberof WebGLRenderer2D
+	    */
             this.autoClear = opts.autoClear !== undefined ? opts.autoClear : true;
 	    
+	    /**
+	    * @property Number time
+	    * @brief How long in seconds it took to render last frame
+	    * @memberof WebGLRenderer2D
+	    */
 	    this.time = 0;
 	    
+	    /**
+	    * @property Object ext
+	    * @brief WebGL extension information
+	    * @memberof WebGLRenderer2D
+	    */
 	    this.ext = {
 		texture_filter_anisotropic: undefined,
 		texture_float: undefined,
@@ -167,6 +209,11 @@ define([
 		compressed_texture_s3tc: undefined
 	    };
 	    
+	    /**
+	    * @property Object gpu
+	    * @brief WebGL gpu information
+	    * @memberof WebGLRenderer2D
+	    */
 	    this.gpu = {
 		precision: "highp",
 		maxAnisotropy: 16,
@@ -278,7 +325,11 @@ define([
 	    gpu.maxRenderBufferSize = maxRenderBufferSize;
         };
 	
-	
+	/**
+	 * @method setDefault
+	 * @memberof WebGLRenderer2D
+	 * @brief sets WebGL context to default settings
+	 */
         WebGLRenderer2D.prototype.setDefault = function(){
 	    var gl = this.context,
 		data = this._data,
@@ -371,7 +422,12 @@ define([
 	    textures[ imageSrc ] = texture;
         };
         
-        
+        /**
+	 * @method setClearColor
+	 * @memberof WebGLRenderer2D
+	 * @brief sets background color
+	 * @param Color color color to set background too
+	 */
         WebGLRenderer2D.prototype.setClearColor = function( color ){
             
             if( color ){
@@ -382,14 +438,23 @@ define([
             }
 	};
 	
-        
+        /**
+	 * @method clear
+	 * @memberof WebGLRenderer2D
+	 * @brief clears canvas
+	 */
         WebGLRenderer2D.prototype.clear = function(){
             var gl = this.context;
 	    
             gl.clear( gl.COLOR_BUFFER_BIT | gl.STENCIL_BUFFER_BIT );
 	};
-        
-        
+	
+        /**
+	 * @method setBlending
+	 * @memberof WebGLRenderer2D
+	 * @brief sets webgl blending mode( 0 - none, 1 - additive, 2 - subtractive, or 3 - multiply  )
+	 * @param Number blending 
+	 */
         WebGLRenderer2D.prototype.setBlending = function(){
 	    var lastBlending, gl;
 	    
@@ -433,7 +498,12 @@ define([
 	    };
 	}();
         
-        
+        /**
+	 * @method setLineWidth
+	 * @memberof WebGLRenderer2D
+	 * @brief sets webgl line width
+	 * @param Number width 
+	 */
         WebGLRenderer2D.prototype.setLineWidth = function(){
 	    var lastLineWidth = 1;
 	    
@@ -446,7 +516,13 @@ define([
 	    };
 	}();
         
-        
+        /**
+	 * @method render
+	 * @memberof WebGLRenderer2D
+	 * @brief renders scene from cameras perspective
+	 * @param Scene2D scene to render
+	 * @param Camera2D camera to get perspective from
+	 */
         WebGLRenderer2D.prototype.render = function(){
 	    var lastScene, lastCamera, lastBackground = new Color;
 	    
@@ -497,7 +573,7 @@ define([
 		    for( i = rigidbodies.length; i--; ){
 			rigidbody = rigidbodies[i];
 			
-			if( rigidbody.visible ) this.renderComponent( rigidbody, camera );
+			this.renderComponent( rigidbody, camera );
 		    }
 		}
 		
@@ -573,14 +649,9 @@ define([
 		
 		gl.uniformMatrix4fv( uniforms.uMatrix, false, mvp );
 		
-		if( sleepState ){
-			if( sleepState === 2 ){
-			    alpha *= 0.5;
-			}
-			else if( sleepState === 3 ){
-			    alpha *= 0.25;
-			}
-		    }
+		if( sleepState === 3 ){
+		    alpha *= 0.5;
+		}
 		
 		gl.uniform1f( uniforms.uAlpha, alpha );
 		
@@ -590,7 +661,7 @@ define([
 		    gl.useProgram( basic.program );
 		    
 		    this.bindBuffers( attributes, componentData );
-		    this.setLineWidth( component.lineWidth || this.invPixelRatio );
+		    this.setLineWidth( component.lineWidth || this._invPixelRatio );
 		    
 		    uniforms = basic.uniforms;
 		    attributes = basic.attributes;

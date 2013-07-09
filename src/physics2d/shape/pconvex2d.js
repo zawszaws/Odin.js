@@ -12,7 +12,12 @@ define([
 	var abs = Math.abs,
 	    sqrt = Math.sqrt;
 	
-        
+        /**
+	 * @class PConvex2D
+	 * @extends PShape2D
+	 * @brief Convex shape class
+	 * @param Array vertices
+	 */
 	function PConvex2D( vertices ){
 	    var v1, v2, normal, verts, normals,
 		worldVertices, worldNormals,
@@ -22,6 +27,10 @@ define([
 	    
 	    this.type = PShape2D.CONVEX;
 	    
+	    /**
+	    * @property Array vertices
+	    * @memberof PConvex2D
+	    */
 	    this.vertices = verts = vertices instanceof Array ? vertices : [
 		new Vec2( 0.5, 0.5 ),
 		new Vec2( -0.5, 0.5 ),
@@ -29,6 +38,10 @@ define([
 		new Vec2( 0.5, -0.5 )
 	    ];
 	    
+	    /**
+	    * @property Array normals
+	    * @memberof PConvex2D
+	    */
 	    this.normals = normals = [];
 	    
 	    for( i = 0, il = verts.length; i < il; i++ ){

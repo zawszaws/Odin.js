@@ -5,9 +5,23 @@ define(
     function( require ){
 	"use strict";
 	
+	/**
+	* @library Odin.js
+	* @version 0.0.12
+	* @brief Node.js Canvas/WebGL Javascript Game Engine
+	*/
 	
+	/**
+	 * @class Odin
+	 * @brief Holds all Classes
+	 */
 	var Odin = {};
 	
+	/**
+	 * @method globalize
+	 * @memberof Odin
+	 * @brief globalizes Odin Classes
+	 */
 	Odin.globalize = function(){
 	    
 	    for( var key in this ){
@@ -16,6 +30,14 @@ define(
 	    window.Odin = this;
 	};
 	
+	/**
+	 * @method test
+	 * @memberof Odin
+	 * @brief test function a nth numeber of times and console.logs the time it took
+	 * @param String name
+	 * @param Number times
+	 * @param Function fn
+	 */
 	Odin.test = function(){
 	    var now = Date.now,
 		start, i;
@@ -81,8 +103,10 @@ define(
 	Odin.RigidBody2D = require("core/components/rigidbody2d");
 	Odin.Sprite2D = require("core/components/sprite2d");
 	
-	Odin.Game = require("core/game/game");
+	Odin.Client = require("core/game/client");
 	Odin.ClientGame = require("core/game/clientgame");
+	Odin.Game = require("core/game/game");
+	Odin.ServerGame = require("core/game/servergame");
 	
 	Odin.Accelerometer = require("core/input/accelerometer");
 	Odin.Input = require("core/input/input");

@@ -109,7 +109,7 @@ define([
 		radius = this.radius,
 		vertices = data.vertices,
 		indices = data.indices,
-		segments = ceil( sqrt( radius * radius * 1024 ) ),
+		segments = ceil( sqrt( radius * 512 ) ),
 		segment, i, il;
 	    
 	    vertices.length = indices.length = data.uvs.length = 0;

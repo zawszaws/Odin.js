@@ -15,22 +15,71 @@ define([
 	    EPSILON = Mathf.EPSILON,
 	    standardRadian = Mathf.standardRadian;
 	
-	
+	/**
+	 * @class Transform2D
+	 * @extends Class
+	 * @brief 2d Transform info for Game Objects
+	 * @param Object opts sets Class properties from passed Object
+	 */
         function Transform2D( opts ){
             opts || ( opts = {} );
 	    
             Class.call( this );
             
+	    /**
+	    * @property Class root
+	    * @brief reference to root element
+	    * @memberof Transform2D
+	    */
             this.root = this;
             
+	    /**
+	    * @property Array children
+	    * @brief array of children attached to this object
+	    * @memberof Transform2D
+	    */
             this.children = [];
             
+	    /**
+	    * @property Mat32 matrix
+	    * @brief local matrix
+	    * @memberof Transform2D
+	    */
 	    this.matrix = new Mat32;
+	    
+	    /**
+	    * @property Mat32 matrixWorld
+	    * @brief world matrix
+	    * @memberof Transform2D
+	    */
             this.matrixWorld = new Mat32;
+	    
+	    /**
+	    * @property Mat32 matrixModelView
+	    * @brief model view matrix, calculated in renderer
+	    * @memberof Transform2D
+	    */
             this.matrixModelView = new Mat32;
             
+	    /**
+	    * @property Vec2 position
+	    * @brief local position
+	    * @memberof Transform2D
+	    */
 	    this.position = opts.position instanceof Vec2 ? opts.position : new Vec2;
+	    
+	    /**
+	    * @property Number rotation
+	    * @brief local rotation
+	    * @memberof Transform2D
+	    */
 	    this.rotation = !!opts.rotation ? opts.rotation : 0;
+	    
+	    /**
+	    * @property Vec2 scale
+	    * @brief local scale
+	    * @memberof Transform2D
+	    */
 	    this.scale = opts.scale instanceof Vec2 ? opts.scale : new Vec2( 1, 1 );
 	    
 	    this._position = this.position.clone();
@@ -42,7 +91,12 @@ define([
         
 	Class.extend( Transform2D, Class );
         
-        
+	/**
+	 * @method copy
+	 * @memberof Transform2D
+	 * @brief copies other object's properties
+	 * @param Transform2D other
+	 */
         Transform2D.prototype.copy = function( other ){
 	    var children = other.children,
 		child, i;
@@ -66,7 +120,11 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method add
+	 * @memberof Transform2D
+	 * @brief adds all objects in arguments to children
+	 */
         Transform2D.prototype.add = function(){
             var children = this.children,
                 child, index, root,
@@ -100,7 +158,11 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method remove
+	 * @memberof Transform2D
+	 * @brief removes all objects in arguments from children
+	 */
         Transform2D.prototype.remove = function(){
             var children = this.children,
                 child, index,
@@ -131,13 +193,23 @@ define([
             return this;
         };
 	
-	
+	/**
+	 * @method localToWorld
+	 * @memberof Transform2D
+	 * @brief converts vector from local to world coordinates
+	 * @param Vec2 v
+	 */
         Transform2D.prototype.localToWorld = function( v ){
 	    
 	    return v.applyMat32( this.matrixWorld );
 	};
         
-	
+	/**
+	 * @method worldToLocal
+	 * @memberof Transform2D
+	 * @brief converts vector from world to local coordinates
+	 * @param Vec2 v
+	 */
         Transform2D.prototype.worldToLocal = function(){
 	    var mat = new Mat32;
 	    
@@ -147,7 +219,12 @@ define([
 	    };
 	}();
 	
-	
+	/**
+	 * @method applyMat32
+	 * @memberof Transform2D
+	 * @brief applies Mat32 to Transform
+	 * @param Mat32 matrix
+	 */
 	Transform2D.prototype.applyMat32 = function(){
 	    var mat = new Mat32;
 	    
@@ -161,7 +238,13 @@ define([
 	    };
         }();
         
-	
+	/**
+	 * @method translate
+	 * @memberof Transform2D
+	 * @brief translates Transform by translation relative to some object or if not set itself
+	 * @param Vec2 translation
+	 * @param Transform2D relativeTo
+	 */
         Transform2D.prototype.translate = function(){
 	    var vec = new Vec2,
 		mat = new Mat32;
@@ -176,25 +259,40 @@ define([
 		    mat.setRotation( relativeTo );
 		}
 		
-		if( relativeTo ){
-		    vec.applyMat32( mat );
-		}
+		if( relativeTo ) vec.applyMat32( mat );
 		
 		this.position.add( vec );
 	    };
         }();
         
-        
+        /**
+	 * @method rotate
+	 * @memberof Transform2D
+	 * @brief rotates Transform by rotation relative to some object or if not set itself
+	 * @param Number rotation
+	 * @param Transform2D relativeTo
+	 */
         Transform2D.prototype.rotate = function( angle, relativeTo ){
 	    
-	    if( relativeTo ){
+	    if( relativeTo instanceof Transform2D ){
 		angle += relativeTo.rotation;
 	    }
+	    else if( isNumber( relativeTo ) ){
+		angle += relativeTo;
+	    }
+	    
+	    if( relativeTo ) angle += relativeTo.rotation;
 	    
 	    this.rotation += angle;
         };
         
-        
+        /**
+	 * @method rotate
+	 * @memberof Transform2D
+	 * @brief scales Transform by scale relative to some object or if not set itself
+	 * @param Number scale
+	 * @param Transform2D relativeTo
+	 */
         Transform2D.prototype.scale = function(){
 	    var vec = new Vec2,
 		mat = new Mat32;
@@ -217,7 +315,13 @@ define([
 	    }
         }();
         
-        
+        /**
+	 * @method rotateAround
+	 * @memberof Transform2D
+	 * @brief rotates Transform around point
+	 * @param Vec2 point
+	 * @param Number angle
+	 */
         Transform2D.prototype.rotateAround = function(){
 	    var point = new Vec2;
 		
@@ -231,7 +335,12 @@ define([
 	    };
         }();
 	
-        
+        /**
+	 * @method lookAt
+	 * @memberof Transform2D
+	 * @brief makes Transform look at another Transform or point
+	 * @param Transform2D target
+	 */
         Transform2D.prototype.lookAt = function(){
 	    var vec = new Vec2,
 		mat = new Mat32;
@@ -249,7 +358,14 @@ define([
 	    };
         }();
 	
-	
+	/**
+	 * @method follow
+	 * @memberof Transform2D
+	 * @brief makes Transform follow another Transform or point
+	 * @param Transform2D target
+	 * @param Number damping
+	 * @param Transform2D relativeTo
+	 */
 	Transform2D.prototype.follow = function(){
 	    var vec = new Vec2;
 	    
@@ -269,7 +385,11 @@ define([
 	    };
 	}();
         
-        
+        /**
+	 * @method updateMatrices
+	 * @memberof Transform2D
+	 * @brief update matrices
+	 */
         Transform2D.prototype.updateMatrices = function(){
             var scale = this.scale,
 		matrix = this.matrix,

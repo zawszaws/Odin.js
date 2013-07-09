@@ -29,21 +29,57 @@ define([
 		Sprite2D: Sprite2D
 	    };
 	
-	
+	/**
+	 * @class GameObject2D
+	 * @extends Transform2D
+	 * @brief 2d GameObject
+	 * @param Object opts sets Class properties from passed Object
+	 */
         function GameObject2D( opts ){
 	    opts || ( opts = {} );
 	    
             Transform2D.call( this, opts );
             
+	    /**
+	    * @property String name
+	    * @brief name of this GameObject
+	    * @memberof GameObject2D
+	    */
             this.name = opts.name || ( this._class +"-"+ this._id );
 	    
+	    /**
+	    * @property Number z
+	    * @brief determines renderering order smaller numbers render in back
+	    * @memberof GameObject2D
+	    */
 	    this.z = opts.z !== undefined ? opts.z : 0;
 	    
+	    /**
+	    * @property Object userData
+	    * @brief any extra custom data added
+	    * @memberof GameObject2D
+	    */
 	    this.userData = opts.userData !== undefined ? opts.userData : {};
 	    
+	    /**
+	    * @property Array tags
+	    * @brief array of string names
+	    * @memberof GameObject2D
+	    */
             this.tags = [];
+	    
+	    /**
+	    * @property Object components
+	    * @brief object holding components attached to GameObject
+	    * @memberof GameObject2D
+	    */
             this.components = {};
             
+	    /**
+	    * @property Scene2D scene
+	    * @brief reference to Scene this was added to
+	    * @memberof GameObject2D
+	    */
             this.scene = undefined;
 	    
             this.add.apply( this, opts.children );
@@ -53,7 +89,12 @@ define([
         
 	Class.extend( GameObject2D, Transform2D );
         
-        
+        /**
+	 * @method copy
+	 * @memberof GameObject2D
+	 * @brief copies other object's properties
+	 * @param GameObject2D other
+	 */
         GameObject2D.prototype.copy = function( other ){
             var name, component, prop;
             
@@ -76,7 +117,11 @@ define([
             return this;
         };
 	
-	
+	/**
+	 * @method init
+	 * @memberof GameObject2D
+	 * @brief called when added to scene
+	 */
         GameObject2D.prototype.init = function(){
             var components = this.components,
                 type, component;
@@ -94,7 +139,11 @@ define([
             this.trigger("init");
         };
         
-        
+        /**
+	 * @method addTag
+	 * @memberof GameObject2D
+	 * @brief adds all strings in arguments to tags
+	 */
         GameObject2D.prototype.addTag = function(){
             var tags = this.tags,
                 tag, index,
@@ -110,7 +159,11 @@ define([
             }
         };
         
-        
+        /**
+	 * @method removeTag
+	 * @memberof GameObject2D
+	 * @brief removes all strings in arguments from tags
+	 */
         GameObject2D.prototype.removeTag = function(){
             var tags = this.tags,
                 tag, index,
@@ -126,13 +179,22 @@ define([
             }
         };
         
-        
+        /**
+	 * @method hasTag
+	 * @memberof GameObject2D
+	 * @brief checks if this GameObject has a tag
+	 * @param String tag
+	 */
         GameObject2D.prototype.hasTag = function( tag ){
 	    
 	    return this.tags.indexOf( tag ) !== -1;
         };
         
-        
+        /**
+	 * @method addComponent
+	 * @memberof GameObject2D
+	 * @brief adds all components in arguments to components
+	 */
         GameObject2D.prototype.addComponent = function(){
             var components = this.components,
                 component, i;
@@ -163,7 +225,11 @@ define([
             }
         };
         
-        
+        /**
+	 * @method removeComponent
+	 * @memberof GameObject2D
+	 * @brief removes all components in arguments from components
+	 */
         GameObject2D.prototype.removeComponent = function(){
             var components = this.components,
                 component, i;
@@ -185,19 +251,34 @@ define([
             }
         };
         
-        
+        /**
+	 * @method hasComponent
+	 * @memberof GameObject2D
+	 * @brief checks if this GameObject has a Component
+	 * @param String type
+	 */
         GameObject2D.prototype.hasComponent = function( type ){
             
             return !!this.components[ type ];
         };
         
-        
+        /**
+	 * @method getComponent
+	 * @memberof GameObject2D
+	 * @brief returns component with name
+	 * @param String type
+	 */
         GameObject2D.prototype.getComponent = function( type ){
             
             return this.components[ type ];
         };
         
-        
+        /**
+	 * @method getComponents
+	 * @memberof GameObject2D
+	 * @brief returns all components attached to this GameObject
+	 * @param Array results
+	 */
         GameObject2D.prototype.getComponents = function( results ){
             results = results || [];
 	    var key;
@@ -209,7 +290,12 @@ define([
             return results;
         };
         
-        
+        /**
+	 * @method forEachComponent
+	 * @memberof GameObject2D
+	 * @brief for each component call a function
+	 * @param Function callback
+	 */
         GameObject2D.prototype.forEachComponent = function( callback ){
             var components = this.components,
                 type, component;
@@ -224,7 +310,11 @@ define([
             }
         };
         
-        
+        /**
+	 * @method update
+	 * @memberof GameObject2D
+	 * @brief called in Scence2D.update
+	 */
         GameObject2D.prototype.update = function(){
             var components = this.components,
                 type, component;

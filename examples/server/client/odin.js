@@ -4479,8 +4479,8 @@ define("physics2d/body/pparticle2d", [ "base/class", "math/vec2", "physics2d/bod
         this.vlambda = new Vec2();
         this.allowSleep = void 0 !== opts.allowSleep ? opts.allowSleep : !0;
         this.sleepState = AWAKE;
-        this._sleepVelocity = .01;
-        this._sleepTimeLimit = 1;
+        this._sleepVelocity = 1e-4;
+        this._sleepTimeLimit = 3;
         this._sleepLastSleepy = 0;
     }
     var AWAKE, SLEEPY, SLEEPING, DYNAMIC = PBody2D.DYNAMIC, STATIC = PBody2D.STATIC;
@@ -4871,7 +4871,7 @@ define("physics2d/body/prigidbody2d", [ "base/class", "math/vec2", "math/mat2", 
         this.invInertia = this.inertia > 0 ? 1 / this.inertia : 0;
         this.density = this.mass / this.shape.volume;
         this.wlambda = 0;
-        this._sleepAngularVelocity = .001;
+        this._sleepAngularVelocity = 1e-4;
     }
     var objectTypes = {
         PBox2D: PBox2D,
@@ -5372,7 +5372,7 @@ define("physics2d/constraints/pcontact2d", [ "base/class", "math/vec2", "physics
         this.rixn = 0;
         this.rjxn = 0;
         this.stiffness = 1e7;
-        this.relaxation = 3;
+        this.relaxation = 6;
     }
     var min = Math.min;
     Class.extend(PContact2D, PEquation2D);
@@ -5440,7 +5440,7 @@ define("physics2d/constraints/pfriction2d", [ "base/class", "math/vec2", "physic
         this.rixt = 0;
         this.rjxt = 0;
         this.stiffness = 1e7;
-        this.relaxation = 3;
+        this.relaxation = 6;
     }
     Math.abs;
     Class.extend(PFriction2D, PEquation2D);
@@ -5802,7 +5802,7 @@ define("core/components/renderable2d", [ "base/class", "base/utils", "core/compo
         indices.push(0, 1, 2, 0, 2, 3);
     };
     Renderable2D.prototype.calculateCircle = function() {
-        var segment, i, data = this._data, radius = this.radius, vertices = data.vertices, indices = data.indices, segments = ceil(sqrt(1024 * radius * radius));
+        var segment, i, data = this._data, radius = this.radius, vertices = data.vertices, indices = data.indices, segments = ceil(sqrt(512 * radius));
         vertices.length = indices.length = data.uvs.length = 0;
         data.vertexBuffer = data.indexBuffer = data.uvBuffer = void 0;
         vertices.push(0, 0);
@@ -6862,7 +6862,7 @@ define("core/input/accelerometer", [ "base/class", "math/vec2" ], function(Class
                 this.y = 0;
                 this.z = 0;
             }
-            this.trigger("change");
+            this.trigger("accelerometer");
         }
     };
     Accelerometer.prototype.toJSON = function() {
@@ -7552,10 +7552,12 @@ define("core/objects/camera2d", [ "base/class", "math/mathf", "math/vec2", "math
     };
     Camera2D.prototype.setZoom = function(zoom) {
         this.zoom = void 0 !== zoom ? zoom : this.zoom;
+        this.trigger("zoom");
         this.needsUpdate = !0;
     };
     Camera2D.prototype.zoomBy = function(zoom) {
         this.zoom += void 0 !== zoom ? zoom : 0;
+        this.trigger("zoom");
         this.needsUpdate = !0;
     };
     Camera2D.prototype.toWorld = function() {
@@ -7969,7 +7971,7 @@ define("core/canvasrenderer2d", [ "base/class", "base/dom", "base/device", "base
                 body && (sleepState = body.sleepState);
                 component.fill && (ctx.fillStyle = component.color ? component.color.rgba() : "#000000");
                 ctx.globalAlpha = component.alpha;
-                sleepState && (2 === sleepState ? ctx.globalAlpha *= .5 : 3 === sleepState && (ctx.globalAlpha *= .25));
+                3 === sleepState && (ctx.globalAlpha *= .5);
                 if (component.line) {
                     ctx.strokeStyle = component.lineColor ? component.lineColor.rgba() : "#000000";
                     ctx.lineWidth = component.lineWidth || this.invPixelRatio;
@@ -8280,7 +8282,7 @@ define("core/webglrenderer2d", [ "base/class", "base/dom", "base/device", "base/
             }
             this.bindBuffers(attributes, componentData);
             gl.uniformMatrix4fv(uniforms.uMatrix, !1, mvp);
-            sleepState && (2 === sleepState ? alpha *= .5 : 3 === sleepState && (alpha *= .25));
+            3 === sleepState && (alpha *= .5);
             gl.uniform1f(uniforms.uAlpha, alpha);
             gl.drawElements(gl.TRIANGLES, componentData.indices.length, gl.UNSIGNED_SHORT, 0);
             if (component.line) {
@@ -8462,7 +8464,7 @@ define("core/game/game", [ "base/class", "base/utils", "base/device", "base/dom"
     };
     Game.prototype.animate = function() {
         var fpsDisplay = document.createElement("p"), last = 0;
-        fpsDisplay.style.cssText = [ "z-index: 1000;", "position: absolute;", "margin: 0px;", "padding: 0px;", "color: #ddd;", "text-shadow: 1px 1px #333" ].join("\n");
+        fpsDisplay.style.cssText = [ "z-index: 1000;", "position: absolute;", "margin: 0px;", "padding: 0px;", "color: #ddd;", "text-shadow: 1px 1px #333", "-webkit-touch-callout: none;", "-webkit-user-select: none;", "-khtml-user-select: none;", "-moz-user-select: moz-none;", "-ms-user-select: none;", "user-select: none;" ].join("\n");
         document.body.appendChild(fpsDisplay);
         return function() {
             if (this.debug && Time.sinceStart >= last + .5) {
@@ -8507,6 +8509,16 @@ define("core/game/clientgame", [ "require", "base/class", "base/time", "base/dev
             }
             socket.on("sync", function(timeStamp) {
                 socket.emit("clientOffset", Time.stamp() - timeStamp);
+            });
+            socket.on("cameraZoom", function(scene, gameObject, zoom) {
+                scene = self.findSceneByServerId(scene);
+                if (scene) {
+                    gameObject = scene.findByServerId(gameObject);
+                    if (gameObject) {
+                        gameObject.zoom = zoom;
+                        gameObject.updateMatrixProjection();
+                    }
+                }
             });
             socket.on("gameObjectMoved", function(scene, gameObject, position) {
                 scene = self.findSceneByServerId(scene);
@@ -8591,8 +8603,14 @@ define("core/game/clientgame", [ "require", "base/class", "base/time", "base/dev
             socket.on("log", function() {
                 console.log.apply(console, arguments);
             });
-            Accelerometer.on("accelerometerchange", function() {
-                socket.emit("accelerometerchange", Accelerometer);
+            socket.on("error", function(error) {
+                console.log("ClientGame: " + error);
+            });
+            Accelerometer.on("accelerometer", function() {
+                socket.emit("accelerometer", Accelerometer);
+            });
+            Orientation.on("orientation", function(orientation) {
+                socket.emit("orientation", orientation);
             });
             Orientation.on("orientationchange", function(mode, orientation) {
                 socket.emit("orientationchange", mode, orientation);

@@ -26,7 +26,7 @@ define([
 	    this.rjxn = 0;
 	    
 	    this.stiffness = 1e7;
-	    this.relaxation = 3;
+	    this.relaxation = 6;
 	}
 	
 	Class.extend( PContact2D, PEquation2D );

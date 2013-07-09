@@ -10,36 +10,99 @@ define([
     function( Class, Time, Renderable2D, Vec2 ){
         "use strict";
 	
-        
+        /**
+	 * @class Sprite2D
+	 * @extends Renderable2D
+	 * @brief 2D Sprite Component
+	 * @param Object opts sets Class properties from passed Object
+	 */
         function Sprite2D( opts ){
             opts || ( opts = {} );
 	    
             Renderable2D.call( this, opts );
 	    
+	    /**
+	    * @property String image
+	    * @brief string source of image to load
+	    * @memberof Sprite2D
+	    */
 	    this.image = opts.image !== undefined ? opts.image : "default";
 	    
+	    /**
+	    * @property Number width
+	    * @brief width of Sprite
+	    * @memberof Sprite2D
+	    */
 	    this.width = opts.width || 1;
+	    
+	    /**
+	    * @property Number height
+	    * @brief height of Sprite
+	    * @memberof Sprite2D
+	    */
 	    this.height = opts.height || 1;
 	    
+	    /**
+	    * @property Number x
+	    * @brief source x position of image
+	    * @memberof Sprite2D
+	    */
             this.x = opts.x || 0;
+	    
+	    /**
+	    * @property Number y
+	    * @brief source y position of image
+	    * @memberof Sprite2D
+	    */
             this.y = opts.y || 0;
             
+	    /**
+	    * @property Number w
+	    * @brief source width of image
+	    * @memberof Sprite2D
+	    */
             this.w = opts.w || this.image.width;
+	    
+	    /**
+	    * @property Number h
+	    * @brief source height of image
+	    * @memberof Sprite2D
+	    */
             this.h = opts.h || this.image.height;
 	    
+	    /**
+	    * @property Object animations
+	    * @brief list of animations { "name": [ frame1 [ x, y, w, h, rate ], frame2, frame3... ] }
+	    * @memberof Sprite2D
+	    */
 	    this.animations = opts.animations || {
 		idle: [
 		    [ this.x, this.y, this.w, this.h, 0.25 ]
 		]
 	    };
 	    
+	    /**
+	    * @property String animation
+	    * @brief active animation
+	    * @memberof Sprite2D
+	    */
 	    this.animation = "idle";
 	    
-	    this.mode = Sprite2D.loop;
+	    /**
+	    * @property Enum mode
+	    * @brief animation playback type ( 0 - Sprite2D.ONCE, 1 - Sprite2D.LOOP, or 2 - Sprite2D.PINGPONG )
+	    * @memberof Sprite2D
+	    */
+	    this.mode = Sprite2D.LOOP;
 	    
 	    this._last = 0;
 	    this._frame = 0
 	    
+	    /**
+	    * @property Boolean playing
+	    * @brief is playing animation
+	    * @memberof Sprite2D
+	    */
 	    this.playing = this.animations[ this.animation ] !== undefined ? true : false;
 	    
 	    this.calculateSprite();
@@ -85,7 +148,13 @@ define([
 	    return this;
 	};
 	
-	
+	/**
+	 * @method play
+	 * @memberof Sprite2D
+	 * @brief plays animation with name and playback mode
+	 * @param String name
+	 * @param Enum mode
+	 */
 	Sprite2D.prototype.play = function( name, mode ){
 	    
 	    if( this.animations[ name ] ){
@@ -119,7 +188,11 @@ define([
 	    }
 	};
 	
-	
+	/**
+	 * @method stop
+	 * @memberof Sprite2D
+	 * @brief stops animation
+	 */
 	Sprite2D.prototype.stop = function(){
 	    
 	    this.playing = false;

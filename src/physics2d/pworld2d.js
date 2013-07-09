@@ -38,37 +38,110 @@ define([
 	    STATIC = PBody2D.STATIC,
 	    KINEMATIC = PBody2D.KINEMATIC,
 	    
+	    LOW = 0.000001, HIGH = 0.1, now,
 	    frictionPool = [];
 	
-        
+	
+	var now = (function(){
+	    var startTime = Date.now(),
+		w = typeof window !== "undefined" ? window : {},
+		performance = typeof w.performance !== "undefined" ? w.performance : {
+		    now: function(){
+			return Date.now() - startTime;
+		    }
+		};
+	    
+	    return function(){
+		
+		return performance.now() * 0.001;
+	    }
+	}());
+	
+        /**
+	 * @class PWorld2D
+	 * @extends Class
+	 * @brief Physices manager for 2D Bodies
+	 * @param Object opts sets Class properties from passed Object
+	 */
 	function PWorld2D( opts ){
 	    opts || ( opts = {} );
 	    
 	    Class.call( this );
 	    
+	    /**
+	    * @property Boolean allowSleep
+	    * @brief global allowes bodies to sleep or not
+	    * @memberof PWorld2D
+	    */
 	    this.allowSleep = opts.allowSleep !== undefined ? opts.allowSleep : true;
 	    
-	    this.dt = 1 / 60;
-	    this.time = 0;
+	    this._time = 0;
 	    
+	    /**
+	    * @property Array bodies
+	    * @brief array of all bodies attached to this world
+	    * @memberof PWorld2D
+	    */
 	    this.bodies = [];
 	    
 	    this.contacts = [];
 	    this.frictions = [];
 	    this.constraints = [];
 	    
+	    /**
+	    * @property Array pairsi
+	    * @brief array holding bodies i for check in nearphase
+	    * @memberof PWorld2D
+	    */
 	    this.pairsi = [];
+	    
+	    /**
+	    * @property Array pairsj
+	    * @brief array holding bodies j for check in nearphase
+	    * @memberof PWorld2D
+	    */
 	    this.pairsj = [];
 	    
+	    /**
+	    * @property Vec2 gravity
+	    * @brief world gravity defaults to Vec2( 0, -9.801 )
+	    * @memberof PWorld2D
+	    */
 	    this.gravity = opts.gravity instanceof Vec2 ? opts.gravity : new Vec2( 0, -9.801 );
 	    
-	    this.solver = new PSolver2D();
+	    /**
+	    * @property PSolver2D solver
+	    * @brief world solver
+	    * @memberof PWorld2D
+	    */
+	    this.solver = new PSolver2D( opts );
 	    
+	    /**
+	    * @property PBroadphase2D broadphase
+	    * @brief world broadphase handler
+	    * @memberof PWorld2D
+	    */
 	    this.broadphase = new PBroadphase2D( opts );
+	    
+	    /**
+	    * @property PNearphase2D nearphase
+	    * @brief world nearphase handler
+	    * @memberof PWorld2D
+	    */
 	    this.nearphase = new PNearphase2D;
 	    
+	    /**
+	    * @property Boolean debug
+	    * @brief world debug
+	    * @memberof PWorld2D
+	    */
 	    this.debug = opts.debug !== undefined ? opts.debug : true;
 	    
+	    /**
+	    * @property Object profile
+	    * @brief world profile info, only calculated if debug is true
+	    * @memberof PWorld2D
+	    */
 	    this.profile = {
 		total: 0,
 		solve: 0,
@@ -82,7 +155,11 @@ define([
 	
 	Class.extend( PWorld2D, Class );
 	
-	
+	/**
+	 * @method add
+	 * @memberof PWorld2D
+	 * @brief adds body to world
+	 */
 	PWorld2D.prototype.add = function( body ){
 	    var bodies = this.bodies,
 		index = bodies.indexOf( body );
@@ -94,7 +171,11 @@ define([
 	    }
 	};
 	
-	
+	/**
+	 * @method remove
+	 * @memberof PWorld2D
+	 * @brief removes body from world
+	 */
 	PWorld2D.prototype.remove = function( body ){
 	    
 	    this._removeList.push( body );
@@ -119,7 +200,11 @@ define([
 	    removeList.length = 0;
 	};
 	
-	
+	/**
+	 * @method addConstraint
+	 * @memberof PWorld2D
+	 * @brief adds constraint to world
+	 */
 	PWorld2D.prototype.addConstraint = function( constraint ){
 	    var constraints = this.constraints,
 		index = constraints.indexOf( constraint );
@@ -129,7 +214,11 @@ define([
 	    }
 	};
 	
-	
+	/**
+	 * @method removeConstraint
+	 * @memberof PWorld2D
+	 * @brief removes constraint from world
+	 */
 	PWorld2D.prototype.removeConstraint = function( constraint ){
 	    var constraints = this.constraints,
 		index = constraints.indexOf( constraint );
@@ -139,33 +228,21 @@ define([
 	    }
 	};
 	
-	
-	PWorld2D.prototype.now = function(){
-	    var startTime = Date.now(),
-		w = typeof window !== "undefined" ? window : {},
-		performance = typeof w.performance !== "undefined" ? w.performance : {
-		    now: function(){
-			return Date.now() - startTime;
-		    }
-		};
-	    
-	    return function(){
-		
-		return performance.now() * 0.001;
-	    }
-	}();
-	
-	
+	/**
+	 * @method step
+	 * @memberof PWorld2D
+	 * @brief step world forward by time,
+	 * @param Number dt
+	 */
 	PWorld2D.prototype.step = function( dt ){
 	    var debug = this.debug,
-		now = this.now,
 		profile = this.profile, profileStart, start = now(),
 		
 		gravity = this.gravity,
 		gn = gravity.len(),
 		bodies = this.bodies,
 		solver = this.solver,
-		solverConstraints = solver.constraints,
+		solverEquations = solver.equations,
 		pairsi = this.pairsi, pairsj = this.pairsj,
 		contacts = this.contacts, frictions = this.frictions, constraints = this.constraints,
 		c, bi, bj, um, umg, c1, c2,
@@ -173,8 +250,8 @@ define([
 		body, shape, shapeType, type, force, vel, aVel, linearDamping, pos, mass, invMass,
 		i, j;
 	    
-	    this.time += dt;
-		
+	    this._time += dt < LOW ? LOW : dt > HIGH ? HIGH : dt;
+	    
 	    for( i = bodies.length; i--; ){
 		body = bodies[i];
 		force = body.force;
@@ -206,7 +283,7 @@ define([
 		c = contacts[i];
 		bi = c.bi; bj = c.bj;
 		
-		solverConstraints.push( c );
+		solverEquations.push( c );
 		
 		um = min( bi.friction, bj.friction );
 		
@@ -233,7 +310,7 @@ define([
 		    c1.t.copy( c.n ).perpL();
 		    c2.t.copy( c.n ).perpR();
 		    
-		    solverConstraints.push( c1, c2 );
+		    solverEquations.push( c1, c2 );
 		}
 	    }
 	    
@@ -247,12 +324,12 @@ define([
 		c.update();
 		
 		for( j = c.equations.length; j--; ){
-		    solverConstraints.push( c.equations[j] );
+		    solverEquations.push( c.equations[j] );
 		}
 	    }
 	    
 	    solver.solve( this, dt );
-	    solverConstraints.length = 0;
+	    solverEquations.length = 0;
 	    
 	    if( debug ) profile.solve = now() - profileStart;
 	    
@@ -275,15 +352,12 @@ define([
 		
 		body.trigger("preStep");
 		
-		if( type === DYNAMIC ){
+		if( type === DYNAMIC || type === KINEMATIC ){
 		    
 		    vel.x *= pow( 1 - linearDamping.x, dt );
 		    vel.y *= pow( 1 - linearDamping.y, dt );
 		    
 		    if( aVel !== undefined ) body.angularVelocity *= pow( 1 - body.angularDamping, dt );
-		}
-		
-		if( type === DYNAMIC || type === KINEMATIC ){
 		    
 		    vel.x += force.x * invMass * dt;
 		    vel.y += force.y * invMass * dt;
@@ -307,7 +381,7 @@ define([
 		
 		if( body.torque ) body.torque = 0;
 		
-		if( this.allowSleep ) body.sleepTick( this.time );
+		if( this.allowSleep ) body.sleepTick( this._time );
 		
 		body.trigger("postStep");
 	    }

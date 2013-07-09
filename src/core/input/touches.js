@@ -12,18 +12,22 @@ define([
         
         var startNeedsUpdate = true,
             moveNeedsUpdate = true,
-            endNeedsUpdate = true,
-            
-            x, y, last = new Vec2,
-            
-            touches, touch, count, i, j,
-            evtTouches, evtTouch;
+            endNeedsUpdate = true;
         
-        
+        /**
+	 * @class Touches
+	 * @extends Class
+	 * @brief handles all Touch events
+	 */
         function Touches(){
             
             Class.call( this );
-            
+	    
+            /**
+	    * @property Array array
+	    * @brief array holding all touches
+	    * @memberof Touches
+	    */
             this.array = [];
             
             for( var i = 0; i < 11; i++ ){
@@ -33,7 +37,11 @@ define([
         
 	Class.extend( Touches, Class );
         
-        
+        /**
+	 * @method clear
+	 * @memberof Touches
+	 * @brief clears all touch events
+	 */
         Touches.prototype.clear = function(){
             var array =  this.array,
                 i, il;
@@ -43,7 +51,13 @@ define([
             }
         };
         
-        
+        /**
+	 * @method getTouches
+	 * @memberof Touches
+	 * @brief returns list of active touches
+	 * @param Array array
+	 * @return Array
+	 */
         Touches.prototype.getTouches = function(){
 	    var defaultArray = [];
 	    
@@ -66,7 +80,12 @@ define([
 	    };
 	}();
         
-        
+        /**
+	 * @method forEach
+	 * @memberof Touches
+	 * @brief for each active touch call a function
+	 * @param Function callback
+	 */
         Touches.prototype.forEach = function( callback ){
 	    var thisArray = this.array, touch,
 		i, il;
@@ -80,7 +99,12 @@ define([
 	    }
 	};
         
-        
+        /**
+	 * @method count
+	 * @memberof Touches
+	 * @brief returns number of active touches
+	 * @return Number
+	 */
         Touches.prototype.count = function(){
 	    var thisArray = this.array, touch,
 		i, il, count = 0;
@@ -129,7 +153,9 @@ define([
         
         
         Touches.prototype.handle_touchstart = function( e ){
-            
+	    var touches, count, evtTouches, touch, evtTouch,
+		i;
+	    
             if( startNeedsUpdate ){
                 
                 touches = this.array;
@@ -137,7 +163,7 @@ define([
                 count = evtTouches.length;
 		
 		if( count <= touches.length ){
-		    for( i = 0; i < count; i++ ){
+		    for( i = count; i--; ){
 			evtTouch = evtTouches[i];
 			touch = touches[i];
                         
@@ -153,7 +179,7 @@ define([
 			}
                         
                         touch.start.copy( touch.position );
-                        
+			
                         this.trigger("start", touch );
                     }
                 }
@@ -167,26 +193,32 @@ define([
         
         
         Touches.prototype.handle_touchmove = function( e ){
-            
+            var touches, count, evtTouches, touch, evtTouch,
+		delta, position, last, i, j;
+	    
             if( moveNeedsUpdate ){
                 
                 touches = this.array;
                 evtTouches = e.changedTouches;
                 count = evtTouches.length;
 		
-		for( i = 0; i < count; i++ ){
+		for( i = count; i--; ){
 		    evtTouch = evtTouches[i];
 		    
-		    for( j = 0; j < touches.length; j++ ){
+		    for( j = touches.length; j--; ){
 			touch = touches[j];
                         
 			if( touch.identifier === evtTouch.identifier ){
-                        
+			    delta = touch.delta;
+			    position = touch.position;
+			    last = touch._last;
+			    
                             last.copy( touch.position );
                             
                             touch.getPosition( evtTouch );
                             
-                            touch.delta.vsub( touch.position, last );
+			    delta.x = position.x - last.x;
+			    delta.y = -( position.y - last.y );
                             
                             this.trigger("move", touch );
                         }
@@ -199,22 +231,24 @@ define([
         
         
         Touches.prototype.handle_touchend = function( e ){
-            
+            var touches, count, evtTouches, touch, evtTouch,
+		i, j;
+	    
             if( endNeedsUpdate ){
                 
                 touches = this.array;
                 evtTouches = e.changedTouches;
                 count = evtTouches.length;
 		
-		for( i = 0; i < count; i++ ){
+		for( i = count; i--; ){
 		    evtTouch = evtTouches[i];
 		    
-		    for( j = 0; j < touches.length; j++ ){
+		    for( j = touches.length; j--; ){
 			touch = touches[j];
 			
 			if( touch.identifier === evtTouch.identifier ){ 
                             
-                            last.copy( touch.position );
+                            touch._last.copy( touch.position );
                             
                             touch.getPosition( evtTouch );
 			    
@@ -241,7 +275,6 @@ define([
         
         
         Touches.prototype.handle_touchcancel = function( e ){
-            
 	    this.clear();
         };
 	

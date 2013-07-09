@@ -14,60 +14,136 @@ define([
 	    KINEMATIC = PBody2D.KINEMATIC,
 	    AWAKE, SLEEPY, SLEEPING;
 	
-        
+        /**
+	 * @class PParticle2D
+	 * @extends PBody2D
+	 * @brief Body consisting of one point mass, does not have orientation
+	 * @param Object opts sets Class properties from passed Object
+	 */
 	function PParticle2D( opts ){
 	    opts || ( opts = {} );
 	    
 	    PBody2D.call( this, opts );
 	    
+	    /**
+	    * @property Vec2 position
+	    * @brief position of body
+	    * @memberof PParticle2D
+	    */
 	    this.position = opts.position instanceof Vec2 ? opts.position : new Vec2;
 	    
+	    /**
+	    * @property Vec2 velocity
+	    * @brief velocity of body
+	    * @memberof PParticle2D
+	    */
 	    this.velocity = opts.velocity instanceof Vec2 ? opts.velocity : new Vec2;
 	    
+	    /**
+	    * @property Vec2 linearDamping
+	    * @brief linear damping of body
+	    * @memberof PParticle2D
+	    */
 	    this.linearDamping = opts.linearDamping instanceof Vec2 ? opts.linearDamping : new Vec2( 0.01, 0.01 );
 	    
+	    /**
+	    * @property Number mass
+	    * @brief mass of body, a mass of zero makes the bodt static
+	    * @memberof PParticle2D
+	    */
 	    this.mass = opts.mass !== undefined ? opts.mass : 1;
+	    
+	    /**
+	    * @property Number mass
+	    * @brief inverse mass of body, 1 / mass
+	    * @memberof PParticle2D
+	    */
 	    this.invMass = this.mass > 0 ? 1 / this.mass : 0;
 	    
+	    /**
+	    * @property Enum type
+	    * @brief type of body, 1 - DYNAMIC, 2 - STATIC, 3 - KINEMATIC
+	    * @memberof PParticle2D
+	    */
 	    this.type = opts.type !== undefined ? opts.type : this.mass > 0 ? DYNAMIC : STATIC;
 	    
+	    /**
+	    * @property Number elasticity
+	    * @brief the elasticity of the body
+	    * @memberof PParticle2D
+	    */
 	    this.elasticity = opts.elasticity !== undefined ? opts.elasticity : 0.5;
+	    
+	    /**
+	    * @property Number friction
+	    * @brief the friction of the body
+	    * @memberof PParticle2D
+	    */
 	    this.friction = opts.friction !== undefined ? opts.friction : 0.25;
 	    
+	    /**
+	    * @property Vec2 force
+	    * @memberof PParticle2D
+	    */
 	    this.force = new Vec2;
 	    
 	    this.vlambda = new Vec2;
 	    
+	    /**
+	    * @property Boolean allowSleep
+	    * @memberof PParticle2D
+	    */
 	    this.allowSleep = opts.allowSleep !== undefined ? opts.allowSleep : true;
 	    
+	    /**
+	    * @property Enum sleepState
+	    * @brief type of body, 1 - AWAKE, 2 - SLEEPY, 3 - SLEEPING
+	    * @memberof PParticle2D
+	    */
 	    this.sleepState = AWAKE;
 	    
-	    this._sleepVelocity = 0.01;
-	    this._sleepTimeLimit = 1;
+	    this._sleepVelocity = 1e-4;
+	    this._sleepTimeLimit = 3;
 	    this._sleepLastSleepy = 0;
 	}
 	
 	Class.extend( PParticle2D, PBody2D );
 	
-	
+	/**
+	 * @method isAwake
+	 * @memberof PParticle2D
+	 * @return Boolean
+	 */
 	PParticle2D.prototype.isAwake = function(){
 	    
 	    return this.sleepState === AWAKE;
 	};
 	
-	
+	/**
+	 * @method isSleepy
+	 * @memberof PParticle2D
+	 * @return Boolean
+	 */
 	PParticle2D.prototype.isSleepy = function(){
 	    
 	    return this.sleepState === SLEEPY;
 	};
 	
-	
+	/**
+	 * @method isSleeping
+	 * @memberof PParticle2D
+	 * @return Boolean
+	 */
 	PParticle2D.prototype.isSleeping = function(){
 	    
 	    return this.sleepState === SLEEPING;
 	};
 	
-	
+	/**
+	 * @method wake
+	 * @memberof PParticle2D
+	 * @brief wakes body if sleeping
+	 */
 	PParticle2D.prototype.wake = function(){
 	    
 	    if( this.sleepState === SLEEPING ){
@@ -76,7 +152,11 @@ define([
 	    this.sleepState = AWAKE;
 	};
 	
-	
+	/**
+	 * @method sleep
+	 * @memberof PParticle2D
+	 * @brief makes body sleep
+	 */
 	PParticle2D.prototype.sleep = function(){
 	    
 	    if( this.sleepState === AWAKE || this.sleepState === SLEEPY ){
@@ -85,7 +165,12 @@ define([
 	    this.sleepState = SLEEPING;
 	};
 	
-	
+	/**
+	 * @method sleepTick
+	 * @memberof PParticle2D
+	 * @brief if allowSleep is true checks if can sleep, called in PWorld2D.step
+	 * @param Number time
+	 */
 	PParticle2D.prototype.sleepTick = function( time ){
 	    
 	    if( this.allowSleep ){

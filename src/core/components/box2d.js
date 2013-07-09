@@ -9,12 +9,22 @@ define([
     function( Class, Vec2, Renderable2D ){
         "use strict";
 	
-        
+        /**
+	 * @class Box2D
+	 * @extends Renderable2D
+	 * @brief 2D Box Component
+	 * @param Object opts sets Class properties from passed Object
+	 */
         function Box2D( opts ){
             opts || ( opts = {} );
 	    
             Renderable2D.call( this, opts );
 	    
+	    /**
+	    * @property Vec2 extents
+	    * @brief half extents of the box
+	    * @memberof Box2D
+	    */
 	    this.extents = opts.extents instanceof Vec2 ? opts.extents : new Vec2( 0.5, 0.5 );
 	    this.calculateBox();
         }

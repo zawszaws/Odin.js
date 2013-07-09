@@ -15,14 +15,36 @@ define([
     function( Class, Time, Renderable2D, PBody2D, PRigidBody2D, PShape2D, PCircle2D, PBox2D, PConvex2D ){
         "use strict";
 	
-        
+        /**
+	 * @class RigidBody2D
+	 * @extends Renderable2D
+	 * @brief 2D RigidBody Component
+	 * @param Object opts sets Class properties from passed Object
+	 */
         function RigidBody2D( opts ){
             opts || ( opts = {} );
 	    
             Renderable2D.call( this );
 	    
+	    /**
+	    * @property Number radius
+	    * @brief if passed shape will be a Circle, radius of the RigidBody
+	    * @memberof RigidBody2D
+	    */
 	    this.radius = undefined;
+	    
+	    /**
+	    * @property Vec2 extents
+	    * @brief if passed shape will be a Box, half extents of the RigidBody
+	    * @memberof RigidBody2D
+	    */
 	    this.extents = undefined;
+	    
+	    /**
+	    * @property Array vertices
+	    * @brief if passed shape will be Convex Polygon, vertices of the RigidBody
+	    * @memberof RigidBody2D
+	    */
 	    this.vertices = undefined;
 	    
 	    var shape;
@@ -43,6 +65,11 @@ define([
 		this.calculatePoly();
 	    }
 	    
+	    /**
+	    * @property PRigidBody2D body
+	    * @brief reference to PRigidBody2D
+	    * @memberof RigidBody2D
+	    */
 	    opts.shape = shape instanceof PShape2D ? shape : undefined;
 	    this.body = new PRigidBody2D( opts );
 	    
@@ -52,6 +79,7 @@ define([
 	    
 	    this.line = true;
 	    this.alpha = 0.25;
+	    this.visible = false
 	    
 	    switch( this.body.type ){
 		
@@ -110,29 +138,43 @@ define([
 	    var body = this.body,
 		gameObject = this.gameObject;
 	    
-	    if( body.mass > 0 ){
-		gameObject.position.copy( body.position );
-		gameObject.rotation = body.rotation;
-	    }
-	    else{
-		body.position.copy( gameObject.position );
-		body.rotation = gameObject.rotation;
-	    }
+	    gameObject.position.copy( body.position );
+	    gameObject.rotation = body.rotation;
 	};
 	
-	
+	/**
+	 * @method applyForce
+	 * @memberof RigidBody2D
+	 * @brief applies force to body at world point
+	 * @param Vec2 force
+	 * @param Vec2 worldPoint
+	 * @param Boolean wake
+	 */
 	RigidBody2D.prototype.applyForce = function( force, worldPoint, wake ){
 	    
 	    this.body.applyForce( force, worldPoint, wake );
 	};
 	
-	
+	/**
+	 * @method applyTorque
+	 * @memberof RigidBody2D
+	 * @brief applies torque to body
+	 * @param Number torque
+	 * @param Boolean wake
+	 */
 	RigidBody2D.prototype.applyTorque = function( torque, wake ){
 	    
 	    this.body.applyTorque( torque, wake );
 	};
 	
-	
+	/**
+	 * @method applyImpulse
+	 * @memberof RigidBody2D
+	 * @brief applies impulse to body at world point
+	 * @param Vec2 impulse
+	 * @param Vec2 worldPoint
+	 * @param Boolean wake
+	 */
 	RigidBody2D.prototype.applyImpulse = function( impulse, worldPoint, wake ){
 	    
 	    this.body.applyImpulse( impulse, worldPoint, wake );

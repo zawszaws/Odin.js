@@ -9,15 +9,25 @@ define([
     function( Class, Time, Key ){
 	"use strict";
 	
-        
+        /**
+	 * @class Keyboard
+	 * @extends Class
+	 * @brief Keyboard helper
+	 * @event keydown called when any key is pressed
+	 * @event keyup called when any key is released
+	 */
         function Keyboard(){
             
             Class.call( this );
             
+	    /**
+	    * @property Object keys
+	    * @brief all keys on the keyboard
+	    * @memberof Keyboard
+	    */
             this.keys = {};
             
             for( var key in keyNames ){
-                
                 this.keys[ key ] = new Key( key, keyNames[ key ] );
             }
         };

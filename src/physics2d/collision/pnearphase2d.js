@@ -194,7 +194,11 @@ define([
 	    edge.end.set( v2x, v2y );
 	}
 	
-        
+        /**
+	 * @class PNearphase2D
+	 * @extends Class
+	 * @brief World near phase
+	 */
 	function PNearphase2D(){
 	    
 	    Class.call( this );
@@ -202,7 +206,15 @@ define([
 	
 	Class.extend( PNearphase2D, Class );
 	
-	
+	/**
+	 * @method collisions
+	 * @memberof PNearphase2D
+	 * @brief gets all contacts from world pairs
+	 * @param PWorld2D world
+	 * @param Array pairsi
+	 * @param Array pairsj
+	 * @param Array contacts
+	 */
 	PNearphase2D.prototype.collisions = function( world, pairsi, pairsj, contacts ){
 	    var bi, bj, i;
 	    
@@ -219,7 +231,19 @@ define([
 	    }
 	};
 	
-	
+	/**
+	 * @method convexConvex
+	 * @memberof PNearphase2D
+	 * @brief convex vs convex collision detection
+	 * @param PBody2D bi
+	 * @param PBody2D bj
+	 * @param PShape2D si
+	 * @param PShape2D sj
+	 * @param Vec2 xi
+	 * @param Vec2 xj
+	 * @param Array Ri
+	 * @param Array Rj
+	 */
 	PNearphase2D.prototype.convexConvex = function(){
 	    var edgei = new Line2, edgej = new Line2,
 		edgeOuti = [0], edgeOutj = [0],
@@ -300,7 +324,18 @@ define([
 	    };
 	}();
 	
-	
+	/**
+	 * @method convexCircle
+	 * @memberof PNearphase2D
+	 * @brief convex vs circle collision detection
+	 * @param PBody2D bi
+	 * @param PBody2D bj
+	 * @param PShape2D si
+	 * @param PShape2D sj
+	 * @param Vec2 xi
+	 * @param Vec2 xj
+	 * @param Array Ri
+	 */
 	PNearphase2D.prototype.convexCircle = function( bi, bj, si, sj, xi, xj, Ri, contacts ){
 	    var vertices = si.vertices, normals = si.normals, count = vertices.length,
 		radius = sj.radius,
@@ -380,7 +415,17 @@ define([
 	    bj.trigger("collide", bi );
 	};
 	
-	
+	/**
+	 * @method circleCircle
+	 * @memberof PNearphase2D
+	 * @brief circle vs circle collision detection
+	 * @param PBody2D bi
+	 * @param PBody2D bj
+	 * @param PShape2D si
+	 * @param PShape2D sj
+	 * @param Vec2 xi
+	 * @param Vec2 xj
+	 */
 	PNearphase2D.prototype.circleCircle = function( bi, bj, si, sj, xi, xj, contacts ){
 	    var dx = xj.x - xi.x,
 		dy = xj.y - xi.y,
@@ -425,7 +470,20 @@ define([
 	    bj.trigger("collide", bi );
 	};
 	
-	
+	/**
+	 * @method nearphase
+	 * @memberof PNearphase2D
+	 * @brief does near phase, calls detection function based on bodies type
+	 * @param PBody2D bi
+	 * @param PBody2D bj
+	 * @param PShape2D si
+	 * @param PShape2D sj
+	 * @param Vec2 xi
+	 * @param Vec2 xj
+	 * @param Array Ri
+	 * @param Array Rj
+	 * @param Array contacts
+	 */
 	PNearphase2D.prototype.nearphase = function( bi, bj, si, sj, xi, xj, Ri, Rj, contacts ){
 	    
 	    if( si && sj ){

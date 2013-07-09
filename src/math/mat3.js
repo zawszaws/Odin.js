@@ -14,8 +14,25 @@ define([
 	    lerp = Mathf.lerp,
 	    equals= Mathf.equals;
 	
-	
+	/**
+	 * @class Mat3
+	 * @brief Matrix for 3D rotations
+	 * @param Number m11
+	 * @param Number m12
+	 * @param Number m13
+	 * @param Number m21
+	 * @param Number m22
+	 * @param Number m23
+	 * @param Number m31
+	 * @param Number m32
+	 * @param Number m33
+	 */
 	function Mat3( m11, m12, m13, m21, m22, m23, m31, m32, m33 ){
+	    
+	    /**
+	    * @property Float32Array elements
+	    * @memberof Mat3
+	    */
 	    this.elements = new Float32Array(8);
 	    var te = this.elements;
 	    
@@ -30,7 +47,12 @@ define([
 	    this.copy( json );
 	};
         
-        
+        /**
+	 * @method clone
+	 * @memberof Mat3
+	 * @brief returns new copy of this
+	 * @return Mat3
+	 */
         Mat3.prototype.clone = function(){
             var te = this.elements;
 	    
@@ -41,7 +63,12 @@ define([
 	    );
         };
         
-        
+        /**
+	 * @method copy
+	 * @memberof Mat3
+	 * @brief copies other matrix
+	 * @return Mat3
+	 */
         Mat3.prototype.copy = function( other ){
             var te = this.elements,
 		me = other.elements;
@@ -59,7 +86,21 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method set
+	 * @memberof Mat3
+	 * @brief sets matrix elements
+	 * @param Number m11
+	 * @param Number m12
+	 * @param Number m13
+	 * @param Number m21
+	 * @param Number m22
+	 * @param Number m23
+	 * @param Number m31
+	 * @param Number m32
+	 * @param Number m33
+	 * @return Mat3
+	 */
         Mat3.prototype.set = function( m11, m12, m13, m21, m22, m23, m31, m32, m33 ){
             var te = this.elements;
 	    
@@ -70,7 +111,12 @@ define([
             return this;
         };
 	
-	
+	/**
+	 * @method identity
+	 * @memberof Mat3
+	 * @brief sets matrix to identity matrix
+	 * @return Mat3
+	 */
 	Mat3.prototype.identity = function(){
             var te = this.elements;
 	    
@@ -87,7 +133,12 @@ define([
             return this;
         };
 	
-	
+	/**
+	 * @method zero
+	 * @memberof Mat3
+	 * @brief sets matrix to zero matrix
+	 * @return Mat3
+	 */
 	Mat3.prototype.zero = function(){
             var te = this.elements;
 	    
@@ -104,7 +155,14 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method mmul
+	 * @memberof Mat3
+	 * @brief mutilples a and b
+	 * @param Mat3 a
+	 * @param Mat3 b
+	 * @return Mat3
+	 */
         Mat3.prototype.mmul = function( a, b ){
 	    var te = this.elements,
 		ae = a.elements,
@@ -133,7 +191,13 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method mul
+	 * @memberof Mat3
+	 * @brief mutilples this and other
+	 * @param Mat3 other
+	 * @return Mat3
+	 */
         Mat3.prototype.mul = function( other ){
 	    var ae = this.elements,
 		be = other.elements,
@@ -161,7 +225,13 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method smul
+	 * @memberof Mat3
+	 * @brief mutilples this by scalar
+	 * @param Number s
+	 * @return Mat3
+	 */
         Mat3.prototype.smul = function( s ){
             var te = this.elements;
 	    
@@ -178,7 +248,13 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method sdiv
+	 * @memberof Mat3
+	 * @brief divides this by scalar
+	 * @param Number s
+	 * @return Mat3
+	 */
         Mat3.prototype.sdiv = function( s ){
 	    var te = this.elements;
 	    
@@ -197,7 +273,12 @@ define([
             return this;
         };
 	
-	
+	/**
+	 * @method transpose
+	 * @memberof Mat3
+	 * @brief transposes this matrix
+	 * @return Mat3
+	 */
 	Mat3.prototype.transpose = function(){
             var te = this.elements, tmp;
 	    
@@ -208,7 +289,13 @@ define([
 	    return this;
         };
 	
-	
+	/**
+	 * @method setTrace
+	 * @memberof Mat3
+	 * @brief sets the diagonal of matrix
+	 * @param Vec3 v
+	 * @return Mat3
+	 */
 	Mat3.prototype.setTrace = function( v ){
             var te = this.elements;
 	    
@@ -219,7 +306,13 @@ define([
 	    return this;
         };
 	
-	
+	/**
+	 * @method minv
+	 * @memberof Mat3
+	 * @brief gets the inverse of another matrix saves it in this
+	 * @param Mat3 other
+	 * @return Mat3
+	 */
 	Mat3.prototype.minv = function( m ){
 	    var te = this.elements,
 		me = m.elements, det,
@@ -244,7 +337,13 @@ define([
             return this;
 	};
 	
-	
+	/**
+	 * @method invMat4
+	 * @memberof Mat3
+	 * @brief gets the inverse of Mat4 saves it in this
+	 * @param Mat4 m
+	 * @return Mat3
+	 */
 	Mat3.prototype.invMat4 = function( m ){
 	    var te = this.elements,
 		me = m.elements,
@@ -268,7 +367,12 @@ define([
             return this;
 	};
 	
-	
+	/**
+	 * @method inv
+	 * @memberof Mat3
+	 * @brief gets the inverse of this matrix
+	 * @return Mat3
+	 */
 	Mat3.prototype.inv = function(){
 	    var te = this.elements, det,
 		m11 = te[0], m12 = te[3], m13 = te[6],
@@ -292,7 +396,15 @@ define([
             return this;
 	};
         
-        
+        /**
+	 * @method mlerp
+	 * @memberof Mat3
+	 * @brief linear interpolation between a matrix and b matrix by t
+	 * @param Mat3 a
+	 * @param Mat3 b
+	 * @param Number t
+	 * @return Mat3
+	 */
         Mat3.prototype.mlerp = function( a, b, t ){
 	    var te = this.elements,
 		ae = a.elements,
@@ -311,7 +423,14 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method lerp
+	 * @memberof Mat3
+	 * @brief linear interpolation between this and other matrix by t
+	 * @param Mat3 other
+	 * @param Number t
+	 * @return Mat3
+	 */
         Mat3.prototype.lerp = function( other, t ){
 	    var ae = this.elements,
 		be = other.elements;
@@ -329,7 +448,12 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method abs
+	 * @memberof Mat3
+	 * @brief gets absolute values of matrix
+	 * @return Mat3
+	 */
         Mat3.prototype.abs = function(){
 	    var te = this.elements;
             
@@ -346,7 +470,13 @@ define([
             return this;
         };
 	
-	
+	/**
+	 * @method setRotationQuat
+	 * @memberof Mat3
+	 * @brief sets rotation of matrix from quaterian
+	 * @param Quat q
+	 * @return Mat3
+	 */
 	Mat3.prototype.setRotationQuat = function( q ){
 	    var te = this.elements,
 		x = q.x, y = q.y, z = q.z, w = q.w,
@@ -370,7 +500,13 @@ define([
 	    return this;
 	};
 	
-	
+	/**
+	 * @method rotateAxis
+	 * @memberof Mat3
+	 * @brief sets rotation axis
+	 * @param Vec3 v
+	 * @return Mat3
+	 */
 	Mat3.prototype.rotateAxis = function( v ){
 	    var te = this.elements,
 		vx = v.x, vy = v.y, vz = v.z;
@@ -384,7 +520,13 @@ define([
 	    return v;
 	};
 	
-	
+	/**
+	 * @method scale
+	 * @memberof Mat3
+	 * @brief scales matrix by vector
+	 * @param Vec3 v
+	 * @return Mat3
+	 */
 	Mat3.prototype.scale = function( v ){
 	    var te = this.elements,
 		x = v.x, y = v.y, z = v.z;
@@ -396,7 +538,12 @@ define([
 	    return this;
         };
 	
-        
+        /**
+	 * @method toString
+	 * @memberof Mat3
+	 * @brief returns string value of this "Mat3[ 1, 0.... ]"
+	 * @return String
+	 */
         Mat3.prototype.toString = function(){
             var te = this.elements;
 	    
@@ -407,7 +554,13 @@ define([
 	    );
         };
 	
-        
+        /**
+	 * @method equals
+	 * @memberof Mat3
+	 * @brief checks if this matrix equals other matrix
+	 * @param Mat3 other
+	 * @return Boolean
+	 */
         Mat3.prototype.equals = function( other ){
             var ae = this.elements,
 		be = other.elements;
@@ -425,7 +578,14 @@ define([
             );
         };
         
-        
+        /**
+	 * @method Mat3.equals
+	 * @memberof Mat3
+	 * @brief checks if a matrix equals b matrix
+	 * @param Mat3 a
+	 * @param Mat3 b
+	 * @return Boolean
+	 */
         Mat3.equals = function( a, b ){
 	    var ae = a.elements,
 		be = b.elements;

@@ -18,8 +18,8 @@ require(
 	    
 	    scene = new Scene2D;
 	    camera = new Camera2D({
-		position: new Vec2( 0, 4 ),
-		zoom: 3
+		position: new Vec2( 0, 2 ),
+		zoom: 2
 	    });
 	    
 	    ground = new GameObject2D({
@@ -27,43 +27,29 @@ require(
 		components: [
 		    new RigidBody2D({
 			mass: 0,
-			extents: new Vec2( 8, 0.5 )
+			extents: new Vec2( 4, 0.25 )
 		    })
 		]
 	    });
 	    
 	    wallLeft = new GameObject2D({
-		position: new Vec2( -8, 8 ),
+		position: new Vec2( -4, 4 ),
 		components: [
 		    new RigidBody2D({
 			mass: 0,
-			extents: new Vec2( 0.5, 8 )
+			extents: new Vec2( 0.25, 4 )
 		    })
 		]
 	    });
 	    
 	    wallRight = new GameObject2D({
-		position: new Vec2( 8, 8 ),
+		position: new Vec2( 4, 4 ),
 		components: [
 		    new RigidBody2D({
 			mass: 0,
-			extents: new Vec2( 0.5, 8 )
+			extents: new Vec2( 0.25, 4 )
 		    })
 		]
-	    });
-	    
-	    spinner = new GameObject2D({
-		position: new Vec2( 0, 4 ),
-		components: [
-		    new RigidBody2D({
-			mass: 0,
-			extents: new Vec2( 1, 2 ),
-			type: RigidBody2D.KINEMATIC
-		    })
-		]
-	    });
-	    spinner.on("update", function(){
-		this.rotate( Math.PI*0.5*Time.delta );
 	    });
 	    
 	    ceiling = new GameObject2D({
@@ -71,31 +57,36 @@ require(
 		components: [
 		    new RigidBody2D({
 			mass: 0,
-			extents: new Vec2( 4, 0.5 ),
+			extents: new Vec2( 4, 0.25 ),
+			allowSleep: false,
+			linearDamping: new Vec2( 0.9, 0.9 ),
+			angularDamping: 0.9,
 			type: RigidBody2D.KINEMATIC
 		    })
 		]
 	    });
 	    ceiling.on("update", function(){
+		var body = this.getComponent("RigidBody2D").body,
+		    velocity = body.velocity;
 		
 		if( Input.key("up") ){
-		    this.position.y += 0.1;
+		    velocity.y += 0.1;
 		}
 		if( Input.key("down") ){
-		    this.position.y -= 0.1;
+		    velocity.y -= 0.1;
 		}
 		if( Input.key("right") ){
-		    this.position.x += 0.1;
+		    velocity.x += 0.1;
 		}
 		if( Input.key("left") ){
-		    this.position.x -= 0.1;
+		    velocity.x -= 0.1;
 		}
 		
 		if( Input.key("a") ){
-		    this.rotation += 0.05;
+		    body.angularVelocity += 0.05;
 		}
 		if( Input.key("d") ){
-		    this.rotation -= 0.05;
+		    body.angularVelocity -= 0.05;
 		}
 	    });
 	    
@@ -103,9 +94,9 @@ require(
 	    
 	    
 	    for( var i = 256; i--; ){
-		var r = Mathf.randFloat( 0.25, 0.5 );
+		var r = Mathf.randFloat( 0.1, 0.25 );
 		
-		if( Math.random() < 0.5 ){
+		if( Math.random() < 1 ){
 		    scene.add(
 			new GameObject2D({
 			    position: new Vec2( Mathf.randFloat( -3, 3 ), Mathf.randFloat( 3, 16 ) ),
@@ -133,15 +124,22 @@ require(
 		}
 	    }
 	    
-	    Mouse.on("wheel", function(){
-		camera.zoomBy( -this.wheel*Time.delta*8 );
-	    });
-	    Mouse.on("move", function(){
-		
-		if( this.left ){
-		    camera.translate( vec2_1.set( this.delta.x, this.delta.y ).smul( -Time.delta ) );
-		}
-	    });
+	    if( !Device.mobile ){
+		Mouse.on("wheel", function(){
+		    camera.zoomBy( -this.wheel*Time.delta*8 );
+		});
+		Mouse.on("move", function(){
+		    
+		    if( this.left ){
+			camera.translate( vec2_1.set( this.delta.x, this.delta.y ).smul( -Time.delta ) );
+		    }
+		});
+	    }
+	    else{
+		Touches.on("move", function( touch ){
+		    camera.translate( vec2_1.set( touch.delta.x, touch.delta.y ).smul( -Time.delta*0.5 ) );
+		});
+	    }
 	    
 	    
 	    scene.add( camera );

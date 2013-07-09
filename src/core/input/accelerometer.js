@@ -11,19 +11,38 @@ define([
         var abs = Math.abs,
 	    sqrt = Math.sqrt;
 	
-        
-        function Accelerometer( max ){
+        /**
+	 * @class Accelerometer
+	 * @extends Class
+	 * @brief Accelerometer helper
+	 * @event accelerometer called when the device accelerometer changes
+	 */
+        function Accelerometer(){
             
             Class.call( this );
-            
+	    
+            /**
+	    * @property Number x
+	    * @memberof Accelerometer
+	    */
 	    this.x = 0;
+	    
+            /**
+	    * @property Number y
+	    * @memberof Accelerometer
+	    */
 	    this.y = 0;
+	    
+            /**
+	    * @property Number z
+	    * @memberof Accelerometer
+	    */
 	    this.z = 0;
         };
         
 	Class.extend( Accelerometer, Class );
 	
-        
+	
         Accelerometer.prototype.handle_devicemotion = function( e ){
 	    var x, y, z, len;
 	    
@@ -49,7 +68,7 @@ define([
 		    this.z = 0;
 		}
 		
-                this.trigger("change");
+                this.trigger("accelerometer");
             }
         };
 	
