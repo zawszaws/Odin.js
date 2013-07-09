@@ -264,24 +264,23 @@ define([
 		edgeIndexj = edgeOutj[0];
 		if( separationj > 0 ) return;
 		
-		findEdge( si, xi, Ri, edgeIndexi, edgei );
-		findEdge( sj, xj, Rj, edgeIndexj, edgej );
-		
 		normal = si.normals[ edgeIndexi ];
 		x = normal.x; y = normal.y;
-		axis.x = nx = x * Ri[0] + y * Ri[2];
-		axis.y = ny = x * Ri[1] + y * Ri[3];
+		nx = x * Ri[0] + y * Ri[2];
+		ny = x * Ri[1] + y * Ri[3];
 		
-		if( edgej.dot( axis ) > edgei.dot( axis ) * relativeTol + absoluteTol ){
+		if( separationj > separationi * relativeTol + absoluteTol ){
 		    tmp = bj; bj = bi; bi = tmp;
 		    tmp = sj; sj = si; si = tmp;
 		    tmp = xj; xj = xi; xi = tmp;
 		    tmp = Rj; Rj = Ri; Ri = tmp;
 		    tmp = edgeIndexj; edgeIndexj = edgeIndexi; edgeIndexi = tmp;
-		    tmp = edgej; edgej = edgei; edgei = tmp;
-		    nx = -axis.x;
-		    ny = -axis.y;
+		    nx = -nx;
+		    ny = -ny;
 		}
+		
+		findEdge( si, xi, Ri, edgeIndexi, edgei );
+		findEdge( sj, xj, Rj, edgeIndexj, edgej );
 		
 		edgeiStart = edgei.start; edgeiEnd = edgei.end;
 		edgejStart = edgej.start; edgejEnd = edgej.end;

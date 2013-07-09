@@ -13,11 +13,38 @@ define([
 	    lerp = Mathf.lerp,
 	    equals = Mathf.equals;
 	
-        
+        /**
+	 * @class Color
+	 * @brief color representation
+	 * @param Number r
+	 * @param Number g
+	 * @param Number b
+	 * @param Number a
+	 */
         function Color( r, g, b, a ){
+	    
+	    /**
+	    * @property Number r
+	    * @memberof Color
+	    */
             this.r = 0;
+	    
+	    /**
+	    * @property Number g
+	    * @memberof Color
+	    */
             this.g = 0;
+	    
+	    /**
+	    * @property Number b
+	    * @memberof Color
+	    */
             this.b = 0;
+	    
+	    /**
+	    * @property Number a
+	    * @memberof Color
+	    */
             this.a = 1;
             
             this._cache = {
@@ -40,13 +67,24 @@ define([
 	    this.copy( json );
 	};
         
-        
+        /**
+	 * @method clone
+	 * @memberof Color
+	 * @brief returns new copy of this
+	 * @return Color
+	 */
         Color.prototype.clone = function(){
             
             return new Color( this.r, this.g, this.b, this.a );
         };
         
-        
+        /**
+	 * @method copy
+	 * @memberof Color
+	 * @brief copies other color
+	 * @param Color other color to be copied
+	 * @return Color
+	 */
         Color.prototype.copy = function( other ){
 	    var cacheA = this._cache,
 		cacheB = other._cache;
@@ -63,7 +101,16 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method set
+	 * @memberof Color
+	 * @brief sets rgba values of this color
+	 * @param Number r
+	 * @param Number g
+	 * @param Number b
+	 * @param Number a
+	 * @return Color
+	 */
         Color.prototype.set = function( r, g, b, a ){
             
             if( typeof r === "number" ){
@@ -82,7 +129,13 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method setString
+	 * @memberof Color
+	 * @brief sets rgba values of this color from string
+	 * @param String string
+	 * @return Color
+	 */
         Color.prototype.setString = function(){
             
             var reg1 = /^rgb(a)?\(\s*(-?[\d]+)(%)?\s*,\s*(-?[\d]+)(%)?\s*,\s*(-?[\d]+)(%)?\s*,?\s*(-?[\d\.]+)?\s*\)$/,
@@ -124,7 +177,16 @@ define([
             };
         }();
         
-        
+        /**
+	 * @method setArgs
+	 * @memberof Color
+	 * @brief sets rgba values of this color from r, g, b, a
+	 * @param Number r
+	 * @param Number g
+	 * @param Number b
+	 * @param Number a
+	 * @return Color
+	 */
         Color.prototype.setArgs = function( r, g, b, a ){
             
             this.r = r;
@@ -137,7 +199,13 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method setRgb
+	 * @memberof Color
+	 * @brief sets rgba values of this color from rgb "rgba( 255, 128, 64, 1 )"
+	 * @param String rgb
+	 * @return Color
+	 */
         Color.prototype.setRgb = function(){
             
             var reg = /^rgb(a)?\(\s*(-?[\d]+)(%)?\s*,\s*(-?[\d]+)(%)?\s*,\s*(-?[\d]+)(%)?\s*,?\s*(-?[\d\.]+)?\s*\)$/;
@@ -169,7 +237,13 @@ define([
             };
         }();
         
-        
+        /**
+	 * @method setHex
+	 * @memberof Color
+	 * @brief sets rgba values of this color from hex "#ff8844"
+	 * @param String hex
+	 * @return Color
+	 */
         Color.prototype.setHex = function(){
             
             var reg1 = /#(.)(.)(.)/,
@@ -251,25 +325,46 @@ define([
             };
         }();
         
-        
+        /**
+	 * @method hex
+	 * @memberof Color
+	 * @brief returns hex value "#ff8844"
+	 * @return String
+	 */
         Color.prototype.hex = function(){
             
             return this._cache.hex;
         };
         
-        
+        /**
+	 * @method rgb
+	 * @memberof Color
+	 * @brief returns rgb value "rgb( 255, 128, 64 )"
+	 * @return String
+	 */
         Color.prototype.rgb = function(){
             
             return this.a === 1 ? this._cache.rgb : this._cache.rgba;
         };
         
-        
+        /**
+	 * @method rgba
+	 * @memberof Color
+	 * @brief returns rgba value "rgba( 255, 128, 64, 1 )"
+	 * @return String
+	 */
         Color.prototype.rgba = function(){
             
             return this._cache.rgba;
         };
         
-        
+        /**
+	 * @method smul
+	 * @memberof Color
+	 * @brief multiples this color by scalar
+	 * @param Number s
+	 * @return Color
+	 */
         Color.prototype.smul = function( s ){
             
             this.r *= s;
@@ -280,7 +375,13 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method sdiv
+	 * @memberof Color
+	 * @brief divides this color by scalar
+	 * @param Number s
+	 * @return Color
+	 */
         Color.prototype.sdiv = function( s ){
             s = s !== 0 ? 1 / s : 0;
 	    
@@ -292,7 +393,15 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method clerp
+	 * @memberof Color
+	 * @brief linear interpolation between a color and b color by t
+	 * @param Color a
+	 * @param Color b
+	 * @param Number t
+	 * @return Color
+	 */
         Color.prototype.clerp = function( a, b, t ){
             
             this.r = lerp( a.r, b.r, t );
@@ -303,7 +412,14 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method lerp
+	 * @memberof Color
+	 * @brief linear interpolation between this color and other color by t
+	 * @param Color other
+	 * @param Number t
+	 * @return Color
+	 */
         Color.prototype.lerp = function( other, t ){
             
             this.r = lerp( this.r, other.r, t );
@@ -314,7 +430,12 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method abs
+	 * @memberof Color
+	 * @brief returns absolute values of this color
+	 * @return Color
+	 */
         Color.prototype.abs = function(){
 	    
 	    this.r = abs( this.r );
@@ -325,7 +446,13 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method min
+	 * @memberof Color
+	 * @brief returns min values from this color and other color
+	 * @param Color other
+	 * @return Color
+	 */
         Color.prototype.min = function( other ){
             var r = other.r, g = other.g, b = other.b, a = other.a;
             
@@ -337,7 +464,13 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method max
+	 * @memberof Color
+	 * @brief returns max values from this color and other color
+	 * @param Color other
+	 * @return Color
+	 */
         Color.prototype.max = function( other ){
             var r = other.r, g = other.g, b = other.b, a = other.a;
             
@@ -349,7 +482,14 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method clamp
+	 * @memberof Color
+	 * @brief clamp this color values by min and max color values
+	 * @param Color min
+	 * @param Color max
+	 * @return Color
+	 */
         Color.prototype.clamp = function( min, max ){
 	    
             this.r = clamp( this.r, min.r, max.r );
@@ -360,31 +500,51 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method toString
+	 * @memberof Color
+	 * @brief returns String of this color "Color( 1, 0.5, 0.25, 1 )"
+	 * @return String
+	 */
         Color.prototype.toString = function(){
             
             return "Color( "+ this.r +", "+ this.g +", "+ this.b +", "+ this.a +" )";
         };
         
-        
-        Color.prototype.equals = function( other ){
+        /**
+	 * @method equals
+	 * @memberof Color
+	 * @brief compares this color to other color
+	 * @param Color other
+	 * @param Number e
+	 * @return Boolean
+	 */
+        Color.prototype.equals = function( other, e ){
             
             return !(
-                !equals( this.r, other.r ) ||
-                !equals( this.g, other.g ) ||
-                !equals( this.b, other.b ) ||
-                !equals( this.a, other.a )
+                !equals( this.r, other.r, e ) ||
+                !equals( this.g, other.g, e ) ||
+                !equals( this.b, other.b, e ) ||
+                !equals( this.a, other.a, e )
             );
         };
         
-        
-        Color.equals = function( a, b ){
+        /**
+	 * @method Color.equals
+	 * @memberof Color
+	 * @brief compares a color to b color
+	 * @param Color a
+	 * @param Color b
+	 * @param Number e
+	 * @return Boolean
+	 */
+        Color.equals = function( a, b, e ){
             
             return !(
-                !equals( a.r, b.r ) ||
-                !equals( a.g, b.g ) ||
-                !equals( a.b, b.b ) ||
-                !equals( a.a, b.a )
+                !equals( a.r, b.r, e ) ||
+                !equals( a.g, b.g, e ) ||
+                !equals( a.b, b.b, e ) ||
+                !equals( a.a, b.a, e )
             );
         };
         

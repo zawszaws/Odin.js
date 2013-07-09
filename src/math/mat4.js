@@ -630,9 +630,9 @@ define([
 	 * @method lookAt
 	 * @memberof Mat4
 	 * @brief makes matrix look from eye at target along up vector
-	 * @param Vec2 eye
-	 * @param Vec2 target
-	 * @param Vec2 up
+	 * @param Vec3 eye
+	 * @param Vec3 target
+	 * @param Vec3 up
 	 * @return Mat4
 	 */
 	Mat4.prototype.lookAt = function(){

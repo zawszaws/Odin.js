@@ -96,7 +96,7 @@ require(
 	    for( var i = 256; i--; ){
 		var r = Mathf.randFloat( 0.1, 0.25 );
 		
-		if( Math.random() < 1 ){
+		if( Math.random() < 0.5 ){
 		    scene.add(
 			new GameObject2D({
 			    position: new Vec2( Mathf.randFloat( -3, 3 ), Mathf.randFloat( 3, 16 ) ),

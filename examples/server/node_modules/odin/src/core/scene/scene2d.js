@@ -17,22 +17,41 @@ define([
 		GameObject2D: GameObject2D,
 		Transform2D: Transform2D
 	    };
-	    
 	
-        
+        /**
+	 * @class Scene2D
+	 * @extends Class
+	 * @brief Scene manager for 2D GameObjects
+	 * @param Object opts sets Class properties from passed Object
+	 */
         function Scene2D( opts ){
 	    opts || ( opts = {} );
             
             Class.call( this );
             
+	    /**
+	    * @property String name
+	    * @brief name of this Object
+	    * @memberof Scene2D
+	    */
             this.name = opts.name || ( this._class +"-"+ this._id );
 	    
+	    /**
+	    * @property Array children
+	    * @brief array of all children attached to scene
+	    * @memberof Scene2D
+	    */
             this.children = [];
 	    
             this._renderables = [];
             this._rigidbodies = [];
             this._cameras = [];
 	    
+	    /**
+	    * @property World2D world
+	    * @brief World Class
+	    * @memberof Scene2D
+	    */
             this.world = opts.world instanceof World2D ? opts.world : new World2D( opts );
             
             this.add.apply( this, opts.children );
@@ -40,7 +59,12 @@ define([
         
 	Class.extend( Scene2D, Class );
         
-        
+        /**
+	 * @method forEach
+	 * @memberof Scene2D
+	 * @brief calls function on each child in scene
+	 * @param Function callback function to be called on each child
+	 */
         Scene2D.prototype.forEach = function( callback ){
             var children = this.children, i;
             
@@ -49,7 +73,11 @@ define([
             }
         };
         
-        
+        /**
+	 * @method add
+	 * @memberof Scene2D
+	 * @brief adds all Objects in arguments to scene
+	 */
         Scene2D.prototype.add = function(){
             var children = this.children,
                 child, index, i;
@@ -81,7 +109,11 @@ define([
             }
         };
         
-        
+        /**
+	 * @method remove
+	 * @memberof Scene2D
+	 * @brief removes all Objects in arguments from scene
+	 */
         Scene2D.prototype.remove = function(){
             var children = this.children,
                 child, index, i;
@@ -111,7 +143,11 @@ define([
             }
         };
         
-        
+        /**
+	 * @method clear
+	 * @memberof Scene2D
+	 * @brief removes all Objects from scene
+	 */
         Scene2D.prototype.clear = function(){
             var children = this.children,
                 child, index, i;
@@ -189,7 +225,13 @@ define([
 	    return b.gameObject.z - a.gameObject.z;
 	};
 	
-        
+        /**
+	 * @method findByTag
+	 * @memberof Scene2D
+	 * @brief finds Object by tag
+	 * @param String tag
+	 * @param Array results
+	 */
         Scene2D.prototype.findByTag = function( tag, results ){
             results = results || [];
             
@@ -207,7 +249,12 @@ define([
             return results;
         };
         
-        
+        /**
+	 * @method findByName
+	 * @memberof Scene2D
+	 * @brief finds Object by name
+	 * @param String name
+	 */
         Scene2D.prototype.findByName = function( name ){
             var children = this.children,
                 child, i;
@@ -221,7 +268,12 @@ define([
             return undefined;
         };
         
-        
+        /**
+	 * @method findById
+	 * @memberof Scene2D
+	 * @brief finds Object by id
+	 * @param Number id
+	 */
         Scene2D.prototype.findById = function( id ){
             var children = this.children,
                 child, i;
@@ -235,7 +287,12 @@ define([
             return undefined;
         };
         
-        
+        /**
+	 * @method findByServerId
+	 * @memberof Scene2D
+	 * @brief finds Object by its Server ID
+	 * @param Number id
+	 */
         Scene2D.prototype.findByServerId = function( id ){
             var children = this.children,
                 child, i;
@@ -249,7 +306,11 @@ define([
             return undefined;
         };
         
-        
+        /**
+	 * @method update
+	 * @memberof Scene2D
+	 * @brief updates all objects in scene
+	 */
         Scene2D.prototype.update = function(){
             var children = this.children, i;
             

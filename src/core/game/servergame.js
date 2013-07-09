@@ -110,16 +110,6 @@ define([
 		    console.log("ServerGame: new Client id: "+ id +" "+ device.userAgent );
 		});
 		
-		socket.on("clientOffset", function( offset ){
-		    client.offset = offset;
-		    
-		    if( offset > 10 ){
-			console.log("ServerGame: disconnected Client with id "+ id +" due to slow connection");
-			self.trigger("disconnect", id );
-			socket.disconnect();
-		    }
-		});
-		
 		socket.on("accelerometer", function( accelerometer ){ client.trigger("accelerometer", accelerometer ); });
 		socket.on("orientation", function( orientation ){ client.trigger("orientation", orientation ); });
 		socket.on("orientationchange", function( mode, orientation ){ client.trigger("orientationchange", mode, orientation ); });
@@ -127,9 +117,9 @@ define([
 		socket.on("keydown", function( key ){ client.trigger("keydown", key ); });
 		socket.on("keyup", function( key ){ client.trigger("keyup", key ); });
 		
-		socket.on("touchstart", function( touch ){ client.trigger("touchstart", touch ); });
-		socket.on("touchend", function( touch ){ client.trigger("touchend", touch ); });
-		socket.on("touchmove", function( touch ){ client.trigger("touchmove", touch ); });
+		socket.on("touchstart", function( Touches, touch ){ client.trigger("touchstart", touch ); });
+		socket.on("touchend", function( Touches, touch ){ client.trigger("touchend", touch ); });
+		socket.on("touchmove", function( Touches, touch ){ client.trigger("touchmove", touch ); });
 		
 		socket.on("mousedown", function( Mouse ){ client.trigger("mousedown", Mouse ); });
 		socket.on("mouseup", function( Mouse ){ client.trigger("mouseup", Mouse ); });
@@ -216,7 +206,7 @@ define([
         };
         
         /**
-	 * @method addScene
+	 * @method removeScene
 	 * @memberof ServerGame
 	 * @brief removes all scenes in arguments from game
 	 */
@@ -298,7 +288,7 @@ define([
 	 * @brief find scene by name
 	 * @param String name
 	 */
-	ServerGame.prototype.findSceneByName = function( name ){
+	ServerGame.prototype.findSceneByName = function( name, callback ){
             var scenes = this.scenes,
                 scene, i;
             
@@ -342,8 +332,6 @@ define([
 	    Time.update();
 	    
 	    for( i = scenes.length; i--; ) scenes[i].update();
-	    
-	    this.io.sockets.emit("sync", Time.stamp() );
 	};
 	
 	/**

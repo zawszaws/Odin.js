@@ -17,20 +17,61 @@ requirejs(
         });
         
         game.on("init", function(){
-            var scene = new Scene2D,
+            var scene = new Scene2D({
+                    gravity: new Vec2( 0, 0 )
+                }),
                 vec2_1 = new Vec2;
             
             scene.add(
                 new GameObject2D({
-                    position: new Vec2( 0, -1 ),
+                    position: new Vec2( 0, -8 ),
                     components: [
                         new Box2D({
                             color: new Color("#000000"),
-                            extents: new Vec2( 10, 0.5 )
+                            extents: new Vec2( 8, 0.1 )
                         }),
                         new RigidBody2D({
                             mass: 0,
-                            extents: new Vec2( 10, 0.5 )
+                            extents: new Vec2( 8, 0.1 )
+                        })
+                    ]
+                }),
+                new GameObject2D({
+                    position: new Vec2( 0, 8 ),
+                    components: [
+                        new Box2D({
+                            color: new Color("#000000"),
+                            extents: new Vec2( 8, 0.1 )
+                        }),
+                        new RigidBody2D({
+                            mass: 0,
+                            extents: new Vec2( 8, 0.1 )
+                        })
+                    ]
+                }),
+                new GameObject2D({
+                    position: new Vec2( -8, 0 ),
+                    components: [
+                        new Box2D({
+                            color: new Color("#000000"),
+                            extents: new Vec2( 0.1, 8 )
+                        }),
+                        new RigidBody2D({
+                            mass: 0,
+                            extents: new Vec2( 0.1, 8 )
+                        })
+                    ]
+                }),
+                new GameObject2D({
+                    position: new Vec2( 8, 0 ),
+                    components: [
+                        new Box2D({
+                            color: new Color("#000000"),
+                            extents: new Vec2( 0.1, 8 )
+                        }),
+                        new RigidBody2D({
+                            mass: 0,
+                            extents: new Vec2( 0.1, 8 )
                         })
                     ]
                 })
@@ -42,7 +83,6 @@ requirejs(
                     position = new Vec2( Mathf.randFloat( -6, 6 ), Mathf.randFloat( 0, 2 ) ),
                     player = new GameObject2D({
                         position: position,
-                        userData: userData,
                         components: [
                             new Sprite2D({
                                 image: "../assets/player.png",
@@ -55,14 +95,19 @@ requirejs(
                                 animations: {
                                     idle: [
                                         [ 0, 0, 64, 64, 0.25 ],
-                                        [ 64, 0, 64, 64, 0.5 ],
-                                        [ 128, 0, 64, 64, 1 ],
-                                        [ 192, 0, 64, 64, 0.1 ]
+                                        [ 64, 0, 64, 64, 0.5 ]
+                                    ],
+                                    walk_up: [
+                                        [ 0, 0, 64, 64, 0.1 ],
+                                        [ 64, 0, 64, 64, 0.1 ]
                                     ]
                                 }
                             }),
                             new RigidBody2D({
                                 mass: 1,
+                                elasticity: 0,
+                                angularDamping: 1,
+                                linearDamping: new Vec2( 0.9999, 0.9999 ),
                                 radius: 0.5
                             })
                         ]
@@ -72,69 +117,34 @@ requirejs(
                     });
                 
                 scene.add( player, camera );
-                userData.player = player;
-                userData.speed = 3;
-                userData.jump = 3;
-                userData.canJump = false;
                 
-                player.components.RigidBody2D.on("collide", function( body, time ){
-                    player.userData.canJump = true;
+                userData.player = player;
+                userData.speed = 100;
+                
+                client.on("keydown", function( key ){
+                    var body = this.userData.player.components.RigidBody2D.body,
+                        velocity = body.velocity,
+                        speed = this.userData.speed,
+                        name = key.name;
+                    
+                    if( name === "up" ) velocity.y += speed * Time.delta;
+                    if( name === "down" ) velocity.y -= speed * Time.delta;
+                    if( name === "right" ) velocity.x += speed * Time.delta;
+                    if( name === "left") velocity.x -= speed * Time.delta;
+                });
+                
+                client.on("mousemove", function( mouse ){
+                    if( mouse.left && client.camera ){
+                        client.camera.translate( vec2_1.copy( mouse.delta ).smul( -Time.delta*4 ) );
+                    }
+                });
+                client.on("mousewheel", function( mouse ){
+                    client.camera.zoomBy( -mouse.wheel*Time.delta*16 );
                 });
                 
                 camera.on("update", function(){
-                    this.follow( player, 1 / Time.delta );
+                    this.follow( player, 1 / ( Time.delta * 2 ) );
                 });
-                
-                if( !client.device.mobile ){
-                    client.on("keydown", function( key ){
-                        var userData = this.userData,
-                            body = userData.player.components.RigidBody2D.body,
-                            speed = userData.speed,
-                            jump = userData.jump,
-                            name = key.name;
-                        
-                        if( name === "up" ){
-                            if( userData.canJump ){
-                                body.applyImpulse( vec2_1.set( 0, jump ), body.position, true );
-                                userData.canJump = false;
-                            }
-                        }
-                        if( name === "right" ){
-                            body.applyTorque( -speed, true );
-                        }
-                        if( name === "left" ){
-                            body.applyTorque( speed, true );
-                        }
-                    });
-                    client.on("mousemove", function( mouse ){
-                        
-                        if( mouse.left ){
-                            client.camera.translate( vec2_1.set( mouse.delta.x, mouse.delta.y ).smul( -Time.delta*4 ) );
-                        }
-                    });
-                    client.on("mousewheel", function( mouse ){
-                        client.camera.zoomBy( -mouse.wheel*Time.delta*16 );
-                    });
-                }
-                else{
-                    client.on("touchend", function( touch ){
-                        var userData = this.userData,
-                            body = userData.player.components.RigidBody2D.body,
-                            jump = userData.jump;
-                        
-                        if( userData.canJump ){
-                            body.applyImpulse( vec2_1.set( 0, jump ), body.position, true );
-                            userData.canJump = false;
-                        }
-                    });
-                    client.on("accelerometer", function( accelerometer ){
-                        var userData = this.userData,
-                            body = userData.player.components.RigidBody2D.body,
-                            speed = userData.speed;
-                        
-                        body.applyTorque( accelerometer.y * 2 * speed, true );
-                    });
-                }
                 
                 this.setScene( client, scene );
                 this.setCamera( client, camera );
@@ -147,9 +157,7 @@ requirejs(
                     player = client.scene.findById( client.userData.player._id ),
                     camera = client.scene.findById( client.camera._id );
                 
-                console.log(id);
-                
-                scene.remove( player, camera );
+                scene.remove( camera, player );
             });
             
             this.addScene( scene );

@@ -44,7 +44,7 @@ define([
 	    * @brief ratio of pixels/meter
 	    * @memberof CanvasRenderer2D
 	    */
-	    this.pixelRatio = opts.pixelRatio !== undefined ? opts.pixelRatio : 128;
+	    this.pixelRatio = ( opts.pixelRatio !== undefined ? opts.pixelRatio : 128 ) * Device.pixelRatio;
 	    this._invPixelRatio = 1 / this.pixelRatio;
 	    
 	    /**
@@ -191,7 +191,9 @@ define([
         
         
         CanvasRenderer2D.prototype.renderComponent = function(){
-	    var modelViewProj = new Mat32,
+	    var model = new Mat32,
+		modelView = new Mat32,
+		modelViewProj = new Mat32,
 		mvp = modelViewProj.elements;
 	    
 	    return function( component, camera ){
@@ -218,8 +220,9 @@ define([
 		    }
 		}
 		
-		gameObject.matrixModelView.mmul( gameObject.matrixWorld, camera.matrixWorldInverse );
-		modelViewProj.mmul( gameObject.matrixModelView, camera.matrixProjection );
+		model.copy( gameObject.matrixWorld );
+		modelView.mmul( model, camera.matrixWorldInverse );
+		modelViewProj.mmul( modelView, camera.matrixProjection );
 		
 		ctx.save();
 		
@@ -256,10 +259,10 @@ define([
 			if( component.body ){
 			    ctx.lineTo( 0, 0 );
 			}
-			ctx.arc( 0, 0, radius, 0, TWO_PI );
+			ctx.arc( offset.x, -offset.y, radius, 0, TWO_PI );
 		    }
 		    else if( extents ){
-			x = extents.x; y = extents.y;
+			x = offset.x + extents.x; y = extents.y - offset.y;
 			ctx.lineTo( x, y );
 			ctx.lineTo( -x, y );
 			ctx.lineTo( -x, -y );
@@ -268,7 +271,7 @@ define([
 		    else if( vertices ){
 			for( i = vertices.length; i--; ){
 			    vertex = vertices[i];
-			    ctx.lineTo( vertex.x, vertex.y );
+			    ctx.lineTo( offset.x + vertex.x, vertex.y - offset.y );
 			}
 		    }
 		    

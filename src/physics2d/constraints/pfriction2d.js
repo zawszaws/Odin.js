@@ -18,6 +18,7 @@ define([
 	 * @brief 2d friction equation
 	 * @param PBody2D bi
 	 * @param PBody2D bj
+	 * @param Number slipForce
 	 */
 	function PFriction2D( bi, bj, slipForce ){
 	    

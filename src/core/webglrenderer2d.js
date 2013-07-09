@@ -164,7 +164,7 @@ define([
 	    * @brief ratio of pixels/meter
 	    * @memberof WebGLRenderer2D
 	    */
-	    this.pixelRatio = opts.pixelRatio !== undefined ? opts.pixelRatio : 128;
+	    this.pixelRatio = ( opts.pixelRatio !== undefined ? opts.pixelRatio : 128 ) * Device.pixelRatio;
 	    this._invPixelRatio = 1 / this.pixelRatio;
             
 	    /**
@@ -589,9 +589,11 @@ define([
         
         
         WebGLRenderer2D.prototype.renderComponent = function(){
-	    var modelView = new Mat4,
-		modelViewProj = new Mat4,
-		mvp = modelViewProj.elements;
+	    var model32 = new Mat32,
+		modelView32 = new Mat32,
+		modelView4 = new Mat4,
+		modelViewProj4 = new Mat4,
+		mvp = modelViewProj4.elements;
 	    
 	    return function( component, camera ){
 		var gl = this.context,
@@ -600,6 +602,7 @@ define([
 		    image = data.images[ imageSrc ],
 		    texture = data.textures[ imageSrc ],
 		    componentData = component._data,
+		    offset = component.offset,
 		    color = component.color,
 		    lineColor = component.lineColor,
 		    alpha = component.alpha,
@@ -615,10 +618,11 @@ define([
 		}
 		if( componentData.needsUpdate ) this.setupBuffers( componentData );
 		
-		gameObject.matrixModelView.mmul( gameObject.matrixWorld, camera.matrixWorldInverse );
+		model32.copy( gameObject.matrixWorld ).translate( offset );
+		modelView32.mmul( model32, camera.matrixWorldInverse );
 		
-		modelView.fromMat32( gameObject.matrixModelView );
-		modelViewProj.mmul( camera._matrixProjection3D, modelView );
+		modelView4.fromMat32( modelView32 );
+		modelViewProj4.mmul( camera._matrixProjection3D, modelView4 );
 		
 		if( componentData.uvBuffer ){
 		    gl.useProgram( sprite.program );

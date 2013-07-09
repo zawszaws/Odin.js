@@ -21,27 +21,98 @@ define([
 	    
             last = new Vec2;
         
-        
+        /**
+	 * @class Mouse
+	 * @extends Class
+	 * @brief Mouse helper
+	 * @event down called when mouse button is clicked
+	 * @event move called when mouse is moved
+	 * @event up called when mouse button is released
+	 * @event out called when mouse leaves element
+	 * @event wheel called when mouse wheel is moved
+	 */
         function Mouse(){
             
             Class.call( this );
             
+	    /**
+	    * @property Vec2 start
+	    * @brief start position of mouse
+	    * @memberof Mouse
+	    */
             this.start = new Vec2;
+	    
+	    /**
+	    * @property Vec2 delta
+	    * @brief delta position of mouse
+	    * @memberof Mouse
+	    */
             this.delta = new Vec2;
+	    
+	    /**
+	    * @property Vec2 position
+	    * @brief current position of mouse
+	    * @memberof Mouse
+	    */
             this.position = new Vec2;
+	    
+	    /**
+	    * @property Vec2 end
+	    * @brief end position of mouse
+	    * @memberof Mouse
+	    */
             this.end = new Vec2;
 	    
+	    /**
+	    * @property Number startTime
+	    * @brief start time of mouse when clicked
+	    * @memberof Mouse
+	    */
 	    this.startTime = 0;
+	    
+	    /**
+	    * @property Number deltaTime
+	    * @brief delta time of mouse when released
+	    * @memberof Mouse
+	    */
 	    this.deltaTime = 0;
+	    
+	    /**
+	    * @property Number endTime
+	    * @brief end time of mouse when released
+	    * @memberof Mouse
+	    */
 	    this.endTime = 0;
             
+	    /**
+	    * @property Number wheel
+	    * @brief wheels direction -1 or 1
+	    * @memberof Mouse
+	    */
             this.wheel = 0;
 	    
 	    this._downFrame = -1;
 	    this._upFrame = -1;
             
+	    /**
+	    * @property Boolean left
+	    * @brief left mouse button
+	    * @memberof Mouse
+	    */
             this.left = false;
+            
+	    /**
+	    * @property Boolean middle
+	    * @brief middle mouse button
+	    * @memberof Mouse
+	    */
             this.middle = false;
+            
+	    /**
+	    * @property Boolean right
+	    * @brief right mouse button
+	    * @memberof Mouse
+	    */
             this.right = false;
         };
         
@@ -90,10 +161,10 @@ define([
             var element = e.target || e.srcElement,
 		offsetX = element.offsetLeft,
 		offsetY = element.offsetTop,
-            
+		
 		x = ( e.pageX || e.clientX ) - offsetX,
-		y = ( window.innerHeight - ( e.pageY || e.clientY ) ) - offsetY;
-            
+		y = ( e.pageY || e.clientY ) - offsetY;
+	    
             this.position.set( x, y );
         };
         
@@ -135,14 +206,17 @@ define([
         
         
         Mouse.prototype.handle_mousemove = function( e ){
-            
+            var delta = this.delta,
+		position = this.position
+	    
             if( moveNeedsUpdate ){
                 last.copy( this.position );
 		
                 this.getPosition( e );
                 
-                this.delta.vsub( this.position, last );
-                
+		delta.x = position.x - last.x;
+		delta.y = -( position.y - last.y );
+		
 		this.trigger("move");
                 
                 moveNeedsUpdate = false;

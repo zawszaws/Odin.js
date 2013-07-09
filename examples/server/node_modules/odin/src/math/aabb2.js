@@ -2,19 +2,35 @@ if( typeof define !== "function" ){
     var define = require("amdefine")( module );
 }
 define([
+	"math/mathf",
 	"math/vec2"
     ],
-    function( Vec2 ){
+    function( Mathf, Vec2 ){
         "use strict";
         
-	var vEquals = Vec2.equals,
+	var equals = Mathf.equals,
 	    abs = Math.abs,
 	    cos = Math.cos,
 	    sin = Math.sin;
 	
-        
+        /**
+	 * @class AABB2
+	 * @brief 2D axis aligned bounding box
+	 * @param Vec2 min
+	 * @param Vec2 max
+	 */
         function AABB2( min, max ){
+	    
+	    /**
+	    * @property Vec2 min
+	    * @memberof AABB2
+	    */
             this.min = min instanceof Vec2 ? min : new Vec2;
+	    
+	    /**
+	    * @property Vec2 max
+	    * @memberof AABB2
+	    */
             this.max = max instanceof Vec2 ? max : new Vec2;
 	}
         
@@ -24,7 +40,12 @@ define([
 	    this.copy( json );
 	};
         
-        
+        /**
+	 * @method clone
+	 * @memberof AABB2
+	 * @brief returns new copy of this
+	 * @return AABB2
+	 */
         AABB2.prototype.clone = function(){
             
             return new AABB2(
@@ -33,7 +54,13 @@ define([
 	    );
 	};
         
-        
+        /**
+	 * @method copy
+	 * @memberof AABB2
+	 * @brief copies other AABB
+	 * @param AABB2 other
+	 * @return AABB2
+	 */
         AABB2.prototype.copy = function( other ){
             var amin = this.min, bmin = other.min,
 		amax = this.max, bmax = other.max;
@@ -47,7 +74,14 @@ define([
             return this;
 	};
         
-        
+        /**
+	 * @method set
+	 * @memberof AABB2
+	 * @brief set min and max vectors
+	 * @param Vec2 min
+	 * @param Vec2 max
+	 * @return AABB2
+	 */
         AABB2.prototype.set = function( min, max ){
             
 	    this.min.copy( min );
@@ -56,7 +90,13 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method setFromPoints
+	 * @memberof AABB2
+	 * @brief set min and max from array of vectors
+	 * @param Array points
+	 * @return AABB2
+	 */
         AABB2.prototype.setFromPoints = function( points ){
             var v, i = points.length,
 		minx, miny, maxx, maxy,
@@ -89,7 +129,13 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method contains
+	 * @memberof AABB2
+	 * @brief checks if AABB contains point
+	 * @param Vec2 point
+	 * @return Boolean
+	 */
         AABB2.prototype.contains = function( point ){
             var min = this.min, max = this.max,
 		px = point.x, py = point.y;
@@ -100,7 +146,13 @@ define([
 	    );
 	};
         
-        
+        /**
+	 * @method intersects
+	 * @memberof AABB2
+	 * @brief checks if AABB intersects AABB
+	 * @param AABB2 other
+	 * @return Boolean
+	 */
         AABB2.prototype.intersects = function( other ){
             var aMin = this.min, aMax = this.max,
 		bMin = other.min, bMax = other.max;
@@ -111,14 +163,25 @@ define([
 	    );
 	};
         
-        
+        /**
+	 * @method toString
+	 * @memberof AABB2
+	 * @brief converts AABB to string "AABB2( min: Vec2( -1, -1 ), max: Vec2( 1, 1 ) )"
+	 * @return String
+	 */
         AABB2.prototype.toString = function(){
             var min = this.min, max = this.max;
 	    
             return "AABB2( min: "+ min.x +", "+ min.y +", max: "+ max.x +", "+ max.y +" )";
 	};
         
-        
+        /**
+	 * @method equals
+	 * @memberof AABB2
+	 * @brief checks if AABB equals AABB
+	 * @param AABB2 other
+	 * @return Boolean
+	 */
         AABB2.prototype.equals = function( other ){
             var amin = this.min, amax = this.max,
 		bmin = other.min, bmax = other.max;
@@ -131,7 +194,14 @@ define([
             );
 	};
         
-        
+        /**
+	 * @method AABB2.intersects
+	 * @memberof AABB2
+	 * @brief checks if AABB intersects AABB
+	 * @param AABB2 a
+	 * @param AABB2 b
+	 * @return Boolean
+	 */
         AABB2.intersects = function( a, b ){
             var aMin = a.min, aMax = a.max,
 		bMin = b.min, bMax = b.max;
@@ -142,7 +212,12 @@ define([
 	    );
 	};
         
-        
+        /**
+	 * @method AABB2.equals
+	 * @memberof AABB2
+	 * @brief checks if AABB equals AABB
+	 * @return Boolean
+	 */
         AABB2.equals = function( a, b ){
             var amin = a.min, amax = a.max,
 		bmin = b.min, bmax = b.max;

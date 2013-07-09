@@ -18,22 +18,71 @@ define([
 	    sin = Math.sin,
 	    TWO_PI = Math.PI * 2;
 	
-        
+        /**
+	 * @class Renderable2D
+	 * @extends Component
+	 * @brief 2D Renderable Component
+	 * @param Object opts sets Class properties from passed Object
+	 */
         function Renderable2D( opts ){
             opts || ( opts = {} );
 	    
             Component.call( this );
 	    
+	    /**
+	    * @property Boolean visible
+	    * @brief visible value
+	    * @memberof Renderable2D
+	    */
 	    this.visible = opts.visible !== undefined ? !!opts.visible : true;
+	    
+	    /**
+	    * @property Vec2 offset
+	    * @brief offset of component
+	    * @memberof Renderable2D
+	    */
 	    this.offset = opts.offset instanceof Vec2 ? opts.offset : new Vec2;
 	    
+	    /**
+	    * @property Number alpha
+	    * @brief alpha value
+	    * @memberof Renderable2D
+	    */
 	    this.alpha = opts.alpha !== undefined ? opts.alpha : 1;
 	    
+	    /**
+	    * @property Boolean fill
+	    * @brief draw solid object
+	    * @memberof Renderable2D
+	    */
 	    this.fill = opts.fill !== undefined ? !!opts.fill : true;
+	    
+	    /**
+	    * @property Color color
+	    * @brief color of Component
+	    * @memberof Renderable2D
+	    */
 	    this.color = opts.color instanceof Color ? opts.color : new Color;
 	    
+	    /**
+	    * @property Boolean line
+	    * @brief draw lines
+	    * @memberof Renderable2D
+	    */
 	    this.line = opts.line !== undefined ? !!opts.line : false;
+	    
+	    /**
+	    * @property Color lineColor
+	    * @brief line color
+	    * @memberof Renderable2D
+	    */
 	    this.lineColor = opts.lineColor instanceof Color ? opts.lineColor : new Color;
+	    
+	    /**
+	    * @property Color lineWidth
+	    * @brief line width
+	    * @memberof Renderable2D
+	    */
 	    this.lineWidth = opts.lineWidth !== undefined ? opts.lineWidth : 0.01;
 	    
 	    this._data = {

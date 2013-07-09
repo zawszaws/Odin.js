@@ -282,7 +282,7 @@ define([
 	Touches.prototype.toJSON = function(){
 	    var json = this._JSON;
 	    
-	    json.array = this.array;
+	    json.array = this.getTouches();
 	    
 	    return json;
 	};

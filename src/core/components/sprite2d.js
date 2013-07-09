@@ -72,7 +72,7 @@ define([
 	    
 	    /**
 	    * @property Object animations
-	    * @brief list of animations { "name": [ frame1 [ x, y, w, h, rate ], frame2, frame3... ] }
+	    * @brief list of animations { "name": [ frame1 [ x, y, w, h, frameTime in seconds ], frame2, frame3... ] }
 	    * @memberof Sprite2D
 	    */
 	    this.animations = opts.animations || {
@@ -95,8 +95,16 @@ define([
 	    */
 	    this.mode = Sprite2D.LOOP;
 	    
+	    /**
+	    * @property Number rate
+	    * @brief animation playback rate, defaults to 1
+	    * @memberof Sprite2D
+	    */
+	    this.rate = opts.rate !== undefined ? opts.rate : 1;
+	    
 	    this._last = 0;
-	    this._frame = 0
+	    this._frame = 0;
+	    this._order = 1;
 	    
 	    /**
 	    * @property Boolean playing
@@ -139,9 +147,11 @@ define([
 	    this.animation = this.animations["idle"];
 	    
 	    this.mode = other.mode;
+	    this.rate = other.rate;
 	    
 	    this._last = other._last;
 	    this._frame = other._frame;
+	    this._order = other._order;
 	    
 	    this.playing = other.playing;
 	    
@@ -155,10 +165,11 @@ define([
 	 * @param String name
 	 * @param Enum mode
 	 */
-	Sprite2D.prototype.play = function( name, mode ){
+	Sprite2D.prototype.play = function( name, mode, rate ){
 	    
-	    if( this.animations[ name ] ){
+	    if( name !== this.animation && this.animations[ name ] ){
 		this.animation = name;
+		this.rate = rate || this.rate;
 		
 		switch( mode ){
 		    
@@ -182,9 +193,7 @@ define([
 		}
 		
 		this.playing = true;
-	    }
-	    else{
-		console.warn("Sprite2D.play: no animation with name "+ name );
+		this.trigger("play", name );
 	    }
 	};
 	
@@ -195,19 +204,21 @@ define([
 	 */
 	Sprite2D.prototype.stop = function(){
 	    
+	    if( this.playing ) this.trigger("stop");
 	    this.playing = false;
 	};
 	
 	
 	Sprite2D.prototype.update = function(){
 	    var animation = this.animations[ this.animation ],
-		currentFrame = animation[ this._frame ],
-		rate = currentFrame[4],
+		frame = this._frame, frames = animation.length - 1, order = this._order,
+		currentFrame = animation[ frame ],
+		frameTime = currentFrame[4],
 		currentFrame;
 	    
 	    if( this.playing ){
 		
-		if( this._last + ( rate / Time.scale ) <= Time.time ){
+		if( this._last + ( ( frameTime / Time.scale ) / this.rate ) <= Time.time ){
 		    this._last = Time.time;
 		    
 		    if( currentFrame ){
@@ -217,16 +228,36 @@ define([
 			this.h = currentFrame[3];
 		    }
 		    
-		    if( this._frame >= animation.length - 1 ){
-			if( this.mode === Sprite2D.loop ){
-			    this._frame = 0;
+		    if( this.mode === Sprite2D.PINGPONG ){
+			if( order === 1 ){
+			    if( frame >= frames ){
+				this._order = -1;
+			    }
+			    else{
+				this._frame++;
+			    }
 			}
-			else if( this.mode === Sprite2D.ONCE ){
-			    this.stop();
+			else{
+			    if( frame <= 0 ){
+				this._order = 1;
+			    }
+			    else{
+				this._frame--;
+			    }
 			}
 		    }
 		    else{
-			this._frame++;
+			if( frame >= frames ){
+			    if( this.mode === Sprite2D.LOOP ){
+				this._frame = 0;
+			    }
+			    else if( this.mode === Sprite2D.ONCE ){
+				this.stop();
+			    }
+			}
+			else{
+			    this._frame++;
+			}
 		    }
 		}
 	    }

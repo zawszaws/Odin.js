@@ -11,13 +11,22 @@ define([
 	
 	var PI = Math.PI;
 	
-        
+        /**
+	 * @class PCircle2D
+	 * @extends PShape2D
+	 * @brief Circle shape class
+	 * @param Number radius
+	 */
 	function PCircle2D( radius ){
 	    
 	    PShape2D.call( this );
 	    
 	    this.type = PShape2D.CIRCLE;
 	    
+	    /**
+	    * @property Number radius
+	    * @memberof PCircle2D
+	    */
 	    this.radius = radius !== undefined ? radius : 0.5;
 	    
 	    this.calculateAABB();
@@ -37,7 +46,7 @@ define([
 	};
 	
 	
-	PCircle2D.prototype.calculateWorldAABB = function( position, rotation, aabb ){
+	PCircle2D.prototype.calculateWorldAABB = function( position, R, aabb ){
 	    var r = this.radius,
 		min = aabb.min, max = aabb.max,
 		x = position.x, y = position.y;

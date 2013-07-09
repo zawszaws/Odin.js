@@ -14,12 +14,22 @@ define([
 	    sin = Math.sin,
 	    TWO_PI = Math.PI * 2;
 	
-        
+        /**
+	 * @class Circle2D
+	 * @extends Renderable2D
+	 * @brief 2D Circle Component
+	 * @param Object opts sets Class properties from passed Object
+	 */
         function Circle2D( opts ){
             opts || ( opts = {} );
 	    
             Renderable2D.call( this, opts );
 	    
+	    /**
+	    * @property Number radius
+	    * @brief radius of the circle
+	    * @memberof Circle2D
+	    */
 	    this.radius = opts.radius !== undefined ? opts.radius : 0.5;
 	    this.calculateCircle();
         }

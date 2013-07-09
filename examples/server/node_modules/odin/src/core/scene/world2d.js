@@ -11,18 +11,43 @@ define([
     function( Class, Time, Color, Vec2, PWorld2D ){
         "use strict";
         
-        
+        /**
+	 * @class World2D
+	 * @extends Class
+	 * @brief holds world information for scene
+	 * @param Object opts sets Class properties from passed Object
+	 */
         function World2D( opts ){
 	    opts || ( opts = {} );
             
             Class.call( this );
             
+	    /**
+	    * @property String name
+	    * @brief name of this Object
+	    * @memberof World2D
+	    */
             this.name = opts.name || ( this._class +"-"+ this._id );
 	    
+	    /**
+	    * @property Color background
+	    * @brief background color of scene
+	    * @memberof World2D
+	    */
             this.background = opts.background instanceof Color ? opts.background : new Color( 0.5, 0.5, 0.5, 1 );
 	    
+	    /**
+	    * @property Vec2 gravity
+	    * @brief gravity in meters/second^2
+	    * @memberof World2D
+	    */
             this.gravity = opts.gravity instanceof Vec2 ? opts.gravity : new Vec2( 0, -9.801 );
 	    
+	    /**
+	    * @property PWorld2D pworld
+	    * @brief physics world
+	    * @memberof World2D
+	    */
 	    this.pworld = new PWorld2D( opts );
         }
         

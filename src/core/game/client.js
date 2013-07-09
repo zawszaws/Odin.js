@@ -42,13 +42,6 @@ define([
 	    this.connectTime = opts.connectTime !== undefined ? opts.connectTime : 0;
 	    
 	    /**
-	    * @property Number offset
-	    * @brief the clients time offset
-	    * @memberof Client
-	    */
-	    this.offset = 0;
-	    
-	    /**
 	    * @property Scene scene
 	    * @brief clients active scene 
 	    * @memberof Client
@@ -75,6 +68,48 @@ define([
 	    * @memberof Client
 	    */
 	    this.device = undefined;
+	    
+	    /**
+	    * @property Object input
+	    * @memberof Client
+	    */
+	    this.input = undefined;
+	    
+	    /**
+	    * @property Object keyboard
+	    * @memberof Client
+	    */
+	    this.keyboard = undefined;
+	    
+	    /**
+	    * @property Object mouse
+	    * @memberof Client
+	    */
+	    this.mouse = undefined;
+	    
+	    /**
+	    * @property Object touches
+	    * @memberof Client
+	    */
+	    this.touches = undefined;
+	    
+	    /**
+	    * @property Object accelerometer
+	    * @memberof Client
+	    */
+	    this.accelerometer = undefined;
+	    
+	    /**
+	    * @property Object orientation
+	    * @memberof Client
+	    */
+	    this.orientation = undefined;
+	    
+	    /**
+	    * @property String mode
+	    * @memberof Client
+	    */
+	    this.mode = undefined;
 	}
         
 	Class.extend( Client, Class );

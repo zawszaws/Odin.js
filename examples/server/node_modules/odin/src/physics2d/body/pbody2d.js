@@ -7,16 +7,36 @@ define([
     function( Class ){
         "use strict";
 	
-        
+        /**
+	 * @class PBody2D
+	 * @extends Class
+	 * @brief Base for 2D Physics Bodies
+	 * @param Object opts sets Class properties from passed Object
+	 */
 	function PBody2D( opts ){
 	    opts || ( opts = {} );
 	    
 	    Class.call( this, opts );
 	    
+	    /**
+	    * @property Number filterGroup
+	    * @brief only bodies with the same filter group collide
+	    * @memberof PBody2D
+	    */
 	    this.filterGroup = opts.filterGroup !== undefined ? opts.filterGroup : 0;
 	    
+	    /**
+	    * @property PWorld2D world
+	    * @brief reference to world this body is attached to
+	    * @memberof PBody2D
+	    */
 	    this.world = undefined;
 	    
+	    /**
+	    * @property undefined userData
+	    * @brief custom user data, when adding to a GameObject thourgh RigidBody2D component this is set to the RigidBody2D
+	    * @memberof PBody2D
+	    */
 	    this.userData = undefined;
 	}
 	

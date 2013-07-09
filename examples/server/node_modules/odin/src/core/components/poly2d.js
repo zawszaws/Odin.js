@@ -9,12 +9,22 @@ define([
     function( Class, Vec2, Renderable2D ){
         "use strict";
 	
-        
+        /**
+	 * @class Poly2D
+	 * @extends Renderable2D
+	 * @brief 2D Polygon Component
+	 * @param Object opts sets Class properties from passed Object
+	 */
         function Poly2D( opts ){
             opts || ( opts = {} );
 	    
             Renderable2D.call( this, opts );
 	    
+	    /**
+	    * @property Array vertices
+	    * @brief array of vectors representing this poly
+	    * @memberof Poly2D
+	    */
 	    this.vertices = opts.vertices instanceof Array ? opts.vertices : [
 		new Vec2( 0.5, 0.5 ),
 		new Vec2( -0.5, 0.5 ),

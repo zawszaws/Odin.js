@@ -12,14 +12,36 @@ define([
 	
 	var min = Math.min;
 	
-        
+        /**
+	 * @class PContact2D
+	 * @extends PEquation2D
+	 * @brief 2d contact equation
+	 * @param PBody2D bi
+	 * @param PBody2D bj
+	 */
 	function PContact2D( bi, bj ){
 	    
 	    PEquation2D.call( this, bi, bj, 0, 1e6 );
 	    
+	    /**
+	    * @property Vec2 n
+	    * @brief normal pointing from bodyi to bodyj
+	    * @memberof PEquation2D
+	    */
 	    this.n = new Vec2;
 	    
+	    /**
+	    * @property Vec2 ri
+	    * @brief contact point on bodyi
+	    * @memberof PEquation2D
+	    */
 	    this.ri = new Vec2;
+	    
+	    /**
+	    * @property Vec2 rj
+	    * @brief contact point on bodyj
+	    * @memberof PEquation2D
+	    */
 	    this.rj = new Vec2;
 	    
 	    this.rixn = 0;

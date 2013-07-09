@@ -9,11 +9,24 @@ define([
     function( Class, PConstraint2D, PContact2D ){
         "use strict";
 	
-        
+        /**
+	 * @class PDistanceConstraint2D
+	 * @extends PConstraint2D
+	 * @brief 2d distance constraint
+	 * @param PBody2D bi
+	 * @param PBody2D bj
+	 * @param Number distance
+	 * @param Number maxForce
+	 */
 	function PDistanceConstraint2D( bi, bj, distance, maxForce ){
 	    
 	    PConstraint2D.call( this, bi, bj );
 	    
+	    /**
+	    * @property Number distance
+	    * @brief the min distance that separates the bodies
+	    * @memberof PConstraint2D
+	    */
 	    this.distance = distance !== undefined ? distance : 1;
 	    this.maxForce = maxForce !== undefined ? maxForce : 1e6;
 	    

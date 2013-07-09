@@ -10,7 +10,7 @@ require(
 	Odin.globalize();
 	
 	game = new Game({
-	    debug: true,
+	    debug: true
 	});
 	
 	game.on("init", function(){
@@ -26,6 +26,7 @@ require(
 		position: new Vec2( 0, 2 ),
 		components: [
 		    new Sprite2D({
+			offset: new Vec2( 0, 0.25 ),
 			image: "../content/images/player.png",
 			x: 0,
 			y: 0,
@@ -45,8 +46,7 @@ require(
 		    new RigidBody2D({
 			mass: 1,
 			linearDamping: new Vec2( 0.9, 0.9 ),
-			angularDamping: 0.9,
-			extents: new Vec2( 0.5, 0.5 )
+			extents: new Vec2( 0.5, 0.3 )
 		    })
 		]
 	    });

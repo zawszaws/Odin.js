@@ -933,7 +933,6 @@ define("base/class", [], function() {
     Class.prototype.fromJSON = function() {
         return this;
     };
-    Class.prototype._super = void 0;
     Class.extend = function(child, parent) {
         var key, parentProto = parent.prototype, childProto = child.prototype = Object.create(parentProto);
         for (key in parentProto) childProto[key] = parentProto[key];
@@ -1199,9 +1198,6 @@ define("base/utils", [], function() {
     Utils.prototype.isRegExp = function(obj) {
         return "[object RegExp]" === toString.call(obj);
     };
-    Utils.prototype.isRegExp = function(obj) {
-        return "[object RegExp]" === toString.call(obj);
-    };
     Utils.prototype.isFloat32Array = function(obj) {
         return "[object Float32Array]" === toString.call(obj);
     };
@@ -1278,14 +1274,6 @@ define("math/mathf", [], function() {
     };
     Mathf.prototype.clamp01 = clamp01 = function(x) {
         return 0 > x ? 0 : x > 1 ? 1 : x;
-    };
-    Mathf.prototype.contains = function(x, min, max) {
-        var tmp = min;
-        if (min > max) {
-            min = max;
-            max = tmp;
-        }
-        return !(min > x || x > max);
     };
     Mathf.prototype.lerp = function(a, b, t) {
         return a + (b - a) * clamp01(t);
@@ -1466,58 +1454,6 @@ define("math/vec2", [ "math/mathf" ], function(Mathf) {
     Vec2.prototype.cross = function(other) {
         return this.x * other.y - this.y * other.x;
     };
-    Vec2.prototype.vproj = function(a, b) {
-        var ax = a.x, ay = a.y, bx = b.x, by = b.y, d = ax * bx + ay * by, l = bx * bx + by * by;
-        l = 0 !== l ? 1 / l : 0;
-        this.x = d * l * bx;
-        this.y = d * l * by;
-        return this;
-    };
-    Vec2.prototype.proj = function(other) {
-        var ax = this.x, ay = this.y, bx = other.x, by = other.y, d = ax * bx + ay * by, l = bx * bx + by * by;
-        l = 0 !== l ? 1 / l : 0;
-        this.x = d * l * bx;
-        this.y = d * l * by;
-        return this;
-    };
-    Vec2.prototype.vprojN = function(a, b) {
-        var bx = b.x, by = b.y, d = a.x * bx + a.y * by;
-        this.x = d * bx;
-        this.y = d * by;
-        return this;
-    };
-    Vec2.prototype.projN = function(other) {
-        var bx = other.x, by = other.y, d = this.x * bx + this.y * by;
-        this.x = d * bx;
-        this.y = d * by;
-        return this;
-    };
-    Vec2.prototype.vreflect = function(a, b) {
-        var bx = b.x, by = b.y, d = a.x * bx + a.y * by;
-        this.x = 2 * d * bx - 2;
-        this.y = 2 * d * by - 2;
-        return this;
-    };
-    Vec2.prototype.reflect = function(other) {
-        var bx = other.x, by = other.y, d = this.x * bx + this.y * by;
-        this.x = 2 * d * bx - 2;
-        this.y = 2 * d * by - 2;
-        return this;
-    };
-    Vec2.prototype.vreflectN = function(a, b) {
-        var bx = b.x, by = b.y, d = a.x * bx + a.y * by, l = bx * bx + by * by;
-        l = 0 !== l ? 1 / l : 0;
-        this.x = 2 * d * l * bx - 2;
-        this.y = 2 * d * l * by - 2;
-        return this;
-    };
-    Vec2.prototype.reflectN = function(other) {
-        var bx = other.x, by = other.y, d = this.x * bx + this.y * by, l = bx * bx + by * by;
-        l = 0 !== l ? 1 / l : 0;
-        this.x = 2 * d * l * bx - 2;
-        this.y = 2 * d * l * by - 2;
-        return this;
-    };
     Vec2.prototype.applyMat2 = function(m) {
         var me = m.elements, x = this.x, y = this.y;
         this.x = x * me[0] + y * me[2];
@@ -1669,12 +1605,13 @@ define("math/vec2", [ "math/mathf" ], function(Mathf) {
 
 if ("function" != typeof define) var define = require("amdefine")(module);
 
-define("math/aabb2", [ "math/vec2" ], function(Vec2) {
+define("math/aabb2", [ "math/mathf", "math/vec2" ], function(Mathf, Vec2) {
     function AABB2(min, max) {
         this.min = min instanceof Vec2 ? min : new Vec2();
         this.max = max instanceof Vec2 ? max : new Vec2();
     }
-    Vec2.equals, Math.abs, Math.cos, Math.sin;
+    var equals = Mathf.equals;
+    Math.abs, Math.cos, Math.sin;
     AABB2.prototype.fromJSON = function(json) {
         this.copy(json);
     };
@@ -1898,36 +1835,6 @@ define("math/vec3", [ "math/mathf" ], function(Mathf) {
         this.x = ay * bz - az * by;
         this.y = az * bx - ax * bz;
         this.z = ax * by - ay * bx;
-        return this;
-    };
-    Vec3.prototype.vproj = function(a, b) {
-        var dp = a.dot(b), l = b.dot(b);
-        l = 0 !== l ? 1 / l : 0;
-        this.x = dp * l * b.x;
-        this.y = dp * l * b.y;
-        this.z = dp * l * b.z;
-        return this;
-    };
-    Vec3.prototype.proj = function(other) {
-        var dp = this.dot(other), l = other.dot(other);
-        l = 0 !== l ? 1 / l : 0;
-        this.x = dp * l * other.x;
-        this.y = dp * l * other.y;
-        this.z = dp * l * other.z;
-        return this;
-    };
-    Vec3.prototype.vprojN = function(a, b) {
-        var dp = a.dot(b);
-        this.x = dp * b.x;
-        this.y = dp * b.y;
-        this.z = dp * b.z;
-        return this;
-    };
-    Vec3.prototype.projN = function(other) {
-        var dp = this.dot(other);
-        this.x = dp * other.x;
-        this.y = dp * other.y;
-        this.z = dp * other.z;
         return this;
     };
     Vec3.prototype.applyMat3 = function(m) {
@@ -2327,11 +2234,11 @@ define("math/color", [ "math/mathf" ], function(Mathf) {
     Color.prototype.toString = function() {
         return "Color( " + this.r + ", " + this.g + ", " + this.b + ", " + this.a + " )";
     };
-    Color.prototype.equals = function(other) {
-        return !!(equals(this.r, other.r) && equals(this.g, other.g) && equals(this.b, other.b) && equals(this.a, other.a));
+    Color.prototype.equals = function(other, e) {
+        return !!(equals(this.r, other.r, e) && equals(this.g, other.g, e) && equals(this.b, other.b, e) && equals(this.a, other.a, e));
     };
-    Color.equals = function(a, b) {
-        return !!(equals(a.r, b.r) && equals(a.g, b.g) && equals(a.b, b.b) && equals(a.a, b.a));
+    Color.equals = function(a, b, e) {
+        return !!(equals(a.r, b.r, e) && equals(a.g, b.g, e) && equals(a.b, b.b, e) && equals(a.a, b.a, e));
     };
     var colorNames = {
         aliceblue: "#f0f8ff",
@@ -3296,7 +3203,7 @@ define("math/mat32", [ "math/mathf", "math/vec2" ], function(Mathf) {
         var te = this.elements;
         v.x = te[4];
         v.y = te[5];
-        return this;
+        return v;
     };
     Mat32.prototype.getRotation = function() {
         var te = this.elements;
@@ -3851,7 +3758,7 @@ define("math/mat4", [ "math/mathf", "math/vec3" ], function(Mathf, Vec3) {
         te[11] *= z;
         return this;
     };
-    Mat4.prototype.frustum = function(left, right, bottom, top, near, far) {
+    Mat4.prototype.frustum = function(left, right, top, bottom, near, far) {
         var te = this.elements, x = 2 * near / (right - left), y = 2 * near / (top - bottom), a = (right + left) / (right - left), b = (top + bottom) / (top - bottom), c = -(far + near) / (far - near), d = -2 * far * near / (far - near);
         te[0] = x;
         te[4] = 0;
@@ -3873,7 +3780,7 @@ define("math/mat4", [ "math/mathf", "math/vec3" ], function(Mathf, Vec3) {
     };
     Mat4.prototype.perspective = function(fov, aspect, near, far) {
         var ymax = near * tan(degsToRads(.5 * fov)), ymin = -ymax, xmin = ymin * aspect, xmax = ymax * aspect;
-        return this.frustum(xmin, xmax, ymin, ymax, near, far);
+        return this.frustum(xmin, xmax, ymax, ymin, near, far);
     };
     Mat4.prototype.orthographic = function(left, right, top, bottom, near, far) {
         var te = this.elements, w = 1 / (right - left), h = 1 / (top - bottom), p = 1 / (far - near), x = (right + left) * w, y = (top + bottom) * h, z = (far + near) * p;
@@ -4412,14 +4319,6 @@ define("math/vec4", [ "math/mathf" ], function(Mathf) {
         this.w = clamp(this.w, min.w, max.w);
         return this;
     };
-    Vec4.distSq = Vec4.prototype.distSq = function(a, b) {
-        var x = b.x - a.x, y = b.y - a.y, z = b.z - a.z, w = b.w - a.w;
-        return x * x + y * y + z * z + w * w;
-    };
-    Vec4.dist = Vec4.prototype.dist = function(a, b) {
-        var x = b.x - a.x, y = b.y - a.y, z = b.z - a.z, w = b.w - a.w, d = x * x + y * y + z * z + w * w;
-        return 0 !== d ? sqrt(d) : 0;
-    };
     Vec4.prototype.toString = function() {
         return "Vec4( " + this.x + ", " + this.y + ", " + this.z + ", " + this.w + " )";
     };
@@ -4560,6 +4459,9 @@ define("physics2d/shape/pshape2d", [ "base/class", "math/vec2", "math/aabb2" ], 
         this.volume = 0;
         this.boundingRadius = 0;
     }
+    PShape2D.BOX = 1;
+    PShape2D.CIRCLE = 2;
+    PShape2D.CONVEX = 3;
     Class.extend(PShape2D, Class);
     PShape2D.prototype.calculateAABB = function() {
         throw Error("calculateAABB not implemented for shape type " + this.type);
@@ -4811,7 +4713,7 @@ define("physics2d/shape/pcircle2d", [ "base/class", "math/vec2", "physics2d/shap
         min.x = min.y = -r;
         max.x = max.y = r;
     };
-    PCircle2D.prototype.calculateWorldAABB = function(position, rotation, aabb) {
+    PCircle2D.prototype.calculateWorldAABB = function(position, R, aabb) {
         var r = this.radius, min = aabb.min, max = aabb.max, x = position.x, y = position.y;
         min.x = x - r;
         min.y = y - r;
@@ -4871,7 +4773,7 @@ define("physics2d/body/prigidbody2d", [ "base/class", "math/vec2", "math/mat2", 
         this.invInertia = this.inertia > 0 ? 1 / this.inertia : 0;
         this.density = this.mass / this.shape.volume;
         this.wlambda = 0;
-        this._sleepAngularVelocity = 1e-4;
+        this._sleepAngularVelocity = .001;
     }
     var objectTypes = {
         PBox2D: PBox2D,
@@ -5140,7 +5042,8 @@ define("physics2d/collision/pnearphase2d", [ "base/class", "math/mathf", "math/v
         }
     };
     PNearphase2D.prototype.convexConvex = function() {
-        var edgei = new Line2(), edgej = new Line2(), edgeOuti = [ 0 ], edgeOutj = [ 0 ], relativeTol = .98, absoluteTol = .001, axis = new Vec2(), vec = new Vec2();
+        var edgei = new Line2(), edgej = new Line2(), edgeOuti = [ 0 ], edgeOutj = [ 0 ], relativeTol = .98, absoluteTol = .001, vec = (new Vec2(), 
+        new Vec2());
         return function(bi, bj, si, sj, xi, xj, Ri, Rj, contacts) {
             var separationi, separationj, edgeIndexi, edgeIndexj, edgeiStart, edgeiEnd, edgejStart, edgejEnd, normal, x, y, nx, ny, offset, s, tmp, c, n, ri, rj;
             separationi = findMaxSeparation(si, sj, xi, xj, Ri, Rj, edgeOuti);
@@ -5149,14 +5052,12 @@ define("physics2d/collision/pnearphase2d", [ "base/class", "math/mathf", "math/v
                 separationj = findMaxSeparation(sj, si, xj, xi, Rj, Ri, edgeOutj);
                 edgeIndexj = edgeOutj[0];
                 if (!(separationj > 0)) {
-                    findEdge(si, xi, Ri, edgeIndexi, edgei);
-                    findEdge(sj, xj, Rj, edgeIndexj, edgej);
                     normal = si.normals[edgeIndexi];
                     x = normal.x;
                     y = normal.y;
-                    axis.x = nx = x * Ri[0] + y * Ri[2];
-                    axis.y = ny = x * Ri[1] + y * Ri[3];
-                    if (edgej.dot(axis) > edgei.dot(axis) * relativeTol + absoluteTol) {
+                    nx = x * Ri[0] + y * Ri[2];
+                    ny = x * Ri[1] + y * Ri[3];
+                    if (separationj > separationi * relativeTol + absoluteTol) {
                         tmp = bj;
                         bj = bi;
                         bi = tmp;
@@ -5172,12 +5073,11 @@ define("physics2d/collision/pnearphase2d", [ "base/class", "math/mathf", "math/v
                         tmp = edgeIndexj;
                         edgeIndexj = edgeIndexi;
                         edgeIndexi = tmp;
-                        tmp = edgej;
-                        edgej = edgei;
-                        edgei = tmp;
-                        nx = -axis.x;
-                        ny = -axis.y;
+                        nx = -nx;
+                        ny = -ny;
                     }
+                    findEdge(si, xi, Ri, edgeIndexi, edgei);
+                    findEdge(sj, xj, Rj, edgeIndexj, edgej);
                     edgeiStart = edgei.start;
                     edgeiEnd = edgei.end;
                     edgejStart = edgej.start;
@@ -5478,19 +5378,20 @@ define("physics2d/constraints/pfriction2d", [ "base/class", "math/vec2", "physic
 if ("function" != typeof define) var define = require("amdefine")(module);
 
 define("physics2d/psolver2d", [ "base/class" ], function(Class) {
-    function PSolver2D() {
+    function PSolver2D(opts) {
+        opts || (opts = {});
         Class.call(this);
-        this.constraints = [];
-        this.iterations = 10;
-        this.tolerance = 1e-6;
+        this.equations = [];
+        this.iterations = void 0 !== opts.iterations ? opts.iterations : 10;
+        this.tolerance = void 0 !== opts.tolerance ? opts.tolerance : 1e-6;
     }
     var abs = Math.abs;
     Class.extend(PSolver2D, Class);
     PSolver2D.prototype.solve = function() {
         var lambdas = [], invCs = [], Bs = [];
         return function(world, dt) {
-            var B, invC, GWlambda, deltalambda, deltalambdaTotal, lambda, body, velocity, vlambda, c, i, iter, iterations = this.iterations, tolerance = this.tolerance, toleranceSq = tolerance * tolerance, constraints = this.constraints, constraintsLen = constraints.length, bodies = world.bodies, bodiesLen = bodies.length;
-            if (constraintsLen) {
+            var B, invC, GWlambda, deltalambda, deltalambdaTotal, lambda, body, velocity, vlambda, c, i, iter, iterations = this.iterations, tolerance = this.tolerance, toleranceSq = tolerance * tolerance, equations = this.equations, equationsLen = equations.length, bodies = world.bodies, bodiesLen = bodies.length;
+            if (equationsLen) {
                 for (i = bodiesLen; i--; ) {
                     body = bodies[i];
                     vlambda = body.vlambda;
@@ -5498,8 +5399,8 @@ define("physics2d/psolver2d", [ "base/class" ], function(Class) {
                     vlambda.y = 0;
                     void 0 !== body.wlambda && (body.wlambda = 0);
                 }
-                for (i = constraintsLen; i--; ) {
-                    c = constraints[i];
+                for (i = equationsLen; i--; ) {
+                    c = equations[i];
                     c.calculateConstants(dt);
                     lambdas[i] = 0;
                     Bs[i] = c.calculateB(dt);
@@ -5507,8 +5408,8 @@ define("physics2d/psolver2d", [ "base/class" ], function(Class) {
                 }
                 for (iter = 0; iterations > iter; iter++) {
                     deltalambdaTotal = 0;
-                    for (i = constraintsLen; i--; ) {
-                        c = constraints[i];
+                    for (i = equationsLen; i--; ) {
+                        c = equations[i];
                         B = Bs[i];
                         invC = invCs[i];
                         lambda = lambdas[i];
@@ -5533,15 +5434,15 @@ define("physics2d/psolver2d", [ "base/class" ], function(Class) {
             return iter;
         };
     }();
-    PSolver2D.prototype.add = function(constraint) {
-        this.constraints.push(constraint);
+    PSolver2D.prototype.add = function(equation) {
+        this.equations.push(equation);
     };
-    PSolver2D.prototype.remove = function(constraint) {
-        var constraints = this.constraints, idx = constraints.indexOf(constraint);
-        -1 !== idx && constraints.splice(idx, constraint);
+    PSolver2D.prototype.remove = function(equation) {
+        var equations = this.equations, idx = equations.indexOf(equation);
+        -1 !== idx && equations.splice(idx, equation);
     };
     PSolver2D.prototype.clear = function() {
-        this.constraints.length = 0;
+        this.equations.length = 0;
     };
     return PSolver2D;
 });
@@ -5553,8 +5454,7 @@ define("physics2d/pworld2d", [ "base/class", "math/mathf", "math/vec2", "physics
         opts || (opts = {});
         Class.call(this);
         this.allowSleep = void 0 !== opts.allowSleep ? opts.allowSleep : !0;
-        this.dt = 1 / 60;
-        this.time = 0;
+        this._time = 0;
         this.bodies = [];
         this.contacts = [];
         this.frictions = [];
@@ -5562,7 +5462,7 @@ define("physics2d/pworld2d", [ "base/class", "math/mathf", "math/vec2", "physics
         this.pairsi = [];
         this.pairsj = [];
         this.gravity = opts.gravity instanceof Vec2 ? opts.gravity : new Vec2(0, -9.801);
-        this.solver = new PSolver2D();
+        this.solver = new PSolver2D(opts);
         this.broadphase = new PBroadphase2D(opts);
         this.nearphase = new PNearphase2D();
         this.debug = void 0 !== opts.debug ? opts.debug : !0;
@@ -5575,13 +5475,22 @@ define("physics2d/pworld2d", [ "base/class", "math/mathf", "math/vec2", "physics
         };
         this._removeList = [];
     }
-    var objectTypes = {
+    var now, objectTypes = {
         PParticle2D: PParticle2D,
         PBody2D: PBody2D,
         PRigidbody2D: PRigidbody2D
     }, pow = Math.pow, min = Math.min, SLEEPING = (Mathf.clamp, PShape2D.CIRCLE, PShape2D.BOX, 
     PShape2D.CONVEX, PParticle2D.AWAKE, PParticle2D.SLEEPY, PParticle2D.SLEEPING), DYNAMIC = PBody2D.DYNAMIC, KINEMATIC = (PBody2D.STATIC, 
-    PBody2D.KINEMATIC), frictionPool = [];
+    PBody2D.KINEMATIC), LOW = 1e-6, HIGH = .1, frictionPool = [], now = function() {
+        var startTime = Date.now(), w = "undefined" != typeof window ? window : {}, performance = w.performance !== void 0 ? w.performance : {
+            now: function() {
+                return Date.now() - startTime;
+            }
+        };
+        return function() {
+            return .001 * performance.now();
+        };
+    }();
     Class.extend(PWorld2D, Class);
     PWorld2D.prototype.add = function(body) {
         var bodies = this.bodies, index = bodies.indexOf(body);
@@ -5614,19 +5523,9 @@ define("physics2d/pworld2d", [ "base/class", "math/mathf", "math/vec2", "physics
         var constraints = this.constraints, index = constraints.indexOf(constraint);
         -1 !== index && constraints.splice(index, 1);
     };
-    PWorld2D.prototype.now = function() {
-        var startTime = Date.now(), w = "undefined" != typeof window ? window : {}, performance = w.performance !== void 0 ? w.performance : {
-            now: function() {
-                return Date.now() - startTime;
-            }
-        };
-        return function() {
-            return .001 * performance.now();
-        };
-    }();
     PWorld2D.prototype.step = function(dt) {
-        var profileStart, c, bi, bj, um, umg, c1, c2, body, shape, shapeType, type, force, vel, aVel, linearDamping, pos, mass, invMass, i, j, debug = this.debug, now = this.now, profile = this.profile, start = now(), gravity = this.gravity, gn = gravity.len(), bodies = this.bodies, solver = this.solver, solverConstraints = solver.constraints, pairsi = this.pairsi, pairsj = this.pairsj, contacts = this.contacts, frictions = this.frictions, constraints = this.constraints;
-        this.time += dt;
+        var profileStart, c, bi, bj, um, umg, c1, c2, body, shape, shapeType, type, force, vel, aVel, linearDamping, pos, mass, invMass, i, j, debug = this.debug, profile = this.profile, start = now(), gravity = this.gravity, gn = gravity.len(), bodies = this.bodies, solver = this.solver, solverEquations = solver.equations, pairsi = this.pairsi, pairsj = this.pairsj, contacts = this.contacts, frictions = this.frictions, constraints = this.constraints;
+        this._time += LOW > dt ? LOW : dt > HIGH ? HIGH : dt;
         for (i = bodies.length; i--; ) {
             body = bodies[i];
             force = body.force;
@@ -5647,7 +5546,7 @@ define("physics2d/pworld2d", [ "base/class", "math/mathf", "math/vec2", "physics
             c = contacts[i];
             bi = c.bi;
             bj = c.bj;
-            solverConstraints.push(c);
+            solverEquations.push(c);
             um = min(bi.friction, bj.friction);
             if (um > 0) {
                 umg = um * gn;
@@ -5666,7 +5565,7 @@ define("physics2d/pworld2d", [ "base/class", "math/mathf", "math/vec2", "physics
                 c2.rj.copy(c.rj);
                 c1.t.copy(c.n).perpL();
                 c2.t.copy(c.n).perpR();
-                solverConstraints.push(c1, c2);
+                solverEquations.push(c1, c2);
             }
         }
         debug && (profile.nearphase = now() - profileStart);
@@ -5674,10 +5573,10 @@ define("physics2d/pworld2d", [ "base/class", "math/mathf", "math/vec2", "physics
         for (i = constraints.length; i--; ) {
             c = constraints[i];
             c.update();
-            for (j = c.equations.length; j--; ) solverConstraints.push(c.equations[j]);
+            for (j = c.equations.length; j--; ) solverEquations.push(c.equations[j]);
         }
         solver.solve(this, dt);
-        solverConstraints.length = 0;
+        solverEquations.length = 0;
         debug && (profile.solve = now() - profileStart);
         debug && (profileStart = now());
         for (i = bodies.length; i--; ) {
@@ -5692,12 +5591,10 @@ define("physics2d/pworld2d", [ "base/class", "math/mathf", "math/vec2", "physics
             pos = body.position;
             invMass = body.invMass;
             body.trigger("preStep");
-            if (type === DYNAMIC) {
+            if (type === DYNAMIC || type === KINEMATIC) {
                 vel.x *= pow(1 - linearDamping.x, dt);
                 vel.y *= pow(1 - linearDamping.y, dt);
                 void 0 !== aVel && (body.angularVelocity *= pow(1 - body.angularDamping, dt));
-            }
-            if (type === DYNAMIC || type === KINEMATIC) {
                 vel.x += force.x * invMass * dt;
                 vel.y += force.y * invMass * dt;
                 void 0 !== aVel && (body.angularVelocity += body.torque * body.invInertia * dt);
@@ -5712,7 +5609,7 @@ define("physics2d/pworld2d", [ "base/class", "math/mathf", "math/vec2", "physics
             force.x = 0;
             force.y = 0;
             body.torque && (body.torque = 0);
-            this.allowSleep && body.sleepTick(this.time);
+            this.allowSleep && body.sleepTick(this._time);
             body.trigger("postStep");
         }
         debug && (profile.integration = now() - profileStart);
@@ -6047,6 +5944,7 @@ define("core/components/rigidbody2d", [ "base/class", "base/time", "core/compone
         }, this);
         this.line = !0;
         this.alpha = .25;
+        this.visible = !1;
         switch (this.body.type) {
           case RigidBody2D.DYNAMIC:
             this.color.setArgs(0, 1, 0, 1);
@@ -6082,13 +5980,8 @@ define("core/components/rigidbody2d", [ "base/class", "base/time", "core/compone
     };
     RigidBody2D.prototype.update = function() {
         var body = this.body, gameObject = this.gameObject;
-        if (body.mass > 0) {
-            gameObject.position.copy(body.position);
-            gameObject.rotation = body.rotation;
-        } else {
-            body.position.copy(gameObject.position);
-            body.rotation = gameObject.rotation;
-        }
+        gameObject.position.copy(body.position);
+        gameObject.rotation = body.rotation;
     };
     RigidBody2D.prototype.applyForce = function(force, worldPoint, wake) {
         this.body.applyForce(force, worldPoint, wake);
@@ -6153,7 +6046,7 @@ define("core/components/sprite2d", [ "base/class", "base/time", "core/components
             idle: [ [ this.x, this.y, this.w, this.h, .25 ] ]
         };
         this.animation = "idle";
-        this.mode = Sprite2D.loop;
+        this.mode = Sprite2D.LOOP;
         this._last = 0;
         this._frame = 0;
         this.playing = void 0 !== this.animations[this.animation] ? !0 : !1;
@@ -6176,14 +6069,16 @@ define("core/components/sprite2d", [ "base/class", "base/time", "core/components
         }
         this.animation = this.animations.idle;
         this.mode = other.mode;
+        this.rate = 1;
         this._last = other._last;
         this._frame = other._frame;
         this.playing = other.playing;
         return this;
     };
-    Sprite2D.prototype.play = function(name, mode) {
-        if (this.animations[name]) {
+    Sprite2D.prototype.play = function(name, mode, rate) {
+        if (name !== this.animation && this.animations[name]) {
             this.animation = name;
+            this.rate = rate || 1;
             switch (mode) {
               case Sprite2D.LOOP:
               case "loop":
@@ -6204,14 +6099,16 @@ define("core/components/sprite2d", [ "base/class", "base/time", "core/components
                 this.mode = Sprite2D.LOOP;
             }
             this.playing = !0;
-        } else console.warn("Sprite2D.play: no animation with name " + name);
+            this.trigger("play", name);
+        }
     };
     Sprite2D.prototype.stop = function() {
+        this.playing && this.trigger("stop");
         this.playing = !1;
     };
     Sprite2D.prototype.update = function() {
-        var currentFrame, animation = this.animations[this.animation], currentFrame = animation[this._frame], rate = currentFrame[4];
-        if (this.playing && this._last + rate / Time.scale <= Time.time) {
+        var currentFrame, animation = this.animations[this.animation], currentFrame = animation[this._frame], frameTime = currentFrame[4];
+        if (this.playing && this._last + this.rate * (frameTime / Time.scale) <= Time.time) {
             this._last = Time.time;
             if (currentFrame) {
                 this.x = currentFrame[0];
@@ -6340,7 +6237,7 @@ define("core/input/mouse", [ "base/class", "base/time", "math/vec2" ], function(
         }
     };
     Mouse.prototype.getPosition = function(e) {
-        var element = e.target || e.srcElement, offsetX = element.offsetLeft, offsetY = element.offsetTop, x = (e.pageX || e.clientX) - offsetX, y = window.innerHeight - (e.pageY || e.clientY) - offsetY;
+        var element = e.target || e.srcElement, offsetX = element.offsetLeft, offsetY = element.offsetTop, x = (e.pageX || e.clientX) - offsetX, y = (e.pageY || e.clientY) - offsetY;
         this.position.set(x, y);
     };
     Mouse.prototype.handle_mousedown = function(e) {
@@ -6371,10 +6268,12 @@ define("core/input/mouse", [ "base/class", "base/time", "math/vec2" ], function(
         }
     };
     Mouse.prototype.handle_mousemove = function(e) {
+        var delta = this.delta, position = this.position;
         if (moveNeedsUpdate) {
             last.copy(this.position);
             this.getPosition(e);
-            this.delta.vsub(this.position, last);
+            delta.x = position.x - last.x;
+            delta.y = -(position.y - last.y);
             this.trigger("move");
             moveNeedsUpdate = !1;
         }
@@ -6459,6 +6358,7 @@ define("core/input/touch", [ "base/class", "math/vec2" ], function(Class, Vec2) 
         this.startTime = 0;
         this.deltaTime = 0;
         this.endTime = 0;
+        this._last = new Vec2();
     }
     Class.extend(Touch, Class);
     Touch.prototype.clear = function() {
@@ -6470,9 +6370,10 @@ define("core/input/touch", [ "base/class", "math/vec2" ], function(Class, Vec2) 
         this.startTime = 0;
         this.deltaTime = 0;
         this.endTime = 0;
+        this._last.set(0, 0);
     };
     Touch.prototype.getPosition = function(e) {
-        var element = e.target || e.srcElement, offsetX = element.offsetLeft, offsetY = element.offsetTop, x = (e.pageX || e.clientX) - offsetX, y = window.innerHeight - (e.pageY || e.clientY) - offsetY;
+        var element = e.target || e.srcElement, offsetX = element.offsetLeft, offsetY = element.offsetTop, x = (e.pageX || e.clientX) - offsetX, y = (e.pageY || e.clientY) - offsetY;
         this.position.set(x, y);
     };
     Touch.prototype.toJSON = function() {
@@ -6498,7 +6399,7 @@ define("core/input/touches", [ "base/class", "base/time", "math/vec2", "core/inp
         this.array = [];
         for (var i = 0; 11 > i; i++) this.array.push(new Touch());
     }
-    var touches, touch, count, i, j, evtTouches, evtTouch, startNeedsUpdate = !0, moveNeedsUpdate = !0, endNeedsUpdate = !0, last = new Vec2();
+    var startNeedsUpdate = !0, moveNeedsUpdate = !0, endNeedsUpdate = !0;
     Class.extend(Touches, Class);
     Touches.prototype.clear = function() {
         var i, il, array = this.array;
@@ -6557,11 +6458,12 @@ define("core/input/touches", [ "base/class", "base/time", "math/vec2", "core/inp
         }
     };
     Touches.prototype.handle_touchstart = function(e) {
+        var touches, count, evtTouches, touch, evtTouch, i;
         if (startNeedsUpdate) {
             touches = this.array;
             evtTouches = e.touches;
             count = evtTouches.length;
-            if (touches.length >= count) for (i = 0; count > i; i++) {
+            if (touches.length >= count) for (i = count; i--; ) {
                 evtTouch = evtTouches[i];
                 touch = touches[i];
                 touch.identifier = evtTouch.identifier;
@@ -6578,18 +6480,23 @@ define("core/input/touches", [ "base/class", "base/time", "math/vec2", "core/inp
         }
     };
     Touches.prototype.handle_touchmove = function(e) {
+        var touches, count, evtTouches, touch, evtTouch, delta, position, last, i, j;
         if (moveNeedsUpdate) {
             touches = this.array;
             evtTouches = e.changedTouches;
             count = evtTouches.length;
-            for (i = 0; count > i; i++) {
+            for (i = count; i--; ) {
                 evtTouch = evtTouches[i];
-                for (j = 0; touches.length > j; j++) {
+                for (j = touches.length; j--; ) {
                     touch = touches[j];
                     if (touch.identifier === evtTouch.identifier) {
+                        delta = touch.delta;
+                        position = touch.position;
+                        last = touch._last;
                         last.copy(touch.position);
                         touch.getPosition(evtTouch);
-                        touch.delta.vsub(touch.position, last);
+                        delta.x = position.x - last.x;
+                        delta.y = -(position.y - last.y);
                         this.trigger("move", touch);
                     }
                 }
@@ -6598,16 +6505,17 @@ define("core/input/touches", [ "base/class", "base/time", "math/vec2", "core/inp
         }
     };
     Touches.prototype.handle_touchend = function(e) {
+        var touches, count, evtTouches, touch, evtTouch, i, j;
         if (endNeedsUpdate) {
             touches = this.array;
             evtTouches = e.changedTouches;
             count = evtTouches.length;
-            for (i = 0; count > i; i++) {
+            for (i = count; i--; ) {
                 evtTouch = evtTouches[i];
-                for (j = 0; touches.length > j; j++) {
+                for (j = touches.length; j--; ) {
                     touch = touches[j];
                     if (touch.identifier === evtTouch.identifier) {
-                        last.copy(touch.position);
+                        touch._last.copy(touch.position);
                         touch.getPosition(evtTouch);
                         if (!touch._first) {
                             touch._upFrame = Time.frame;
@@ -6629,7 +6537,7 @@ define("core/input/touches", [ "base/class", "base/time", "math/vec2", "core/inp
     };
     Touches.prototype.toJSON = function() {
         var json = this._JSON;
-        json.array = this.array;
+        json.array = this.getTouches();
         return json;
     };
     return new Touches();
@@ -7111,7 +7019,7 @@ define("core/input/input", [ "base/class", "base/dom", "base/time", "core/input/
                 this.trigger("transform", scale, rotation);
             }
             if ("touchend" === type || "mouseup" === type) {
-                transformTriggered && inst.trigger("onTransformend", scale, rotation);
+                transformTriggered && this.trigger("transformend", scale, rotation);
                 transformTriggered = !1;
             }
         }
@@ -7264,6 +7172,7 @@ define("core/objects/transform2d", [ "base/class", "base/utils", "math/mathf", "
         };
     }();
     Transform2D.prototype.rotate = function(angle, relativeTo) {
+        relativeTo instanceof Transform2D ? angle += relativeTo.rotation : isNumber(relativeTo) && (angle += relativeTo);
         relativeTo && (angle += relativeTo.rotation);
         this.rotation += angle;
     };
@@ -7527,11 +7436,6 @@ define("core/objects/camera2d", [ "base/class", "math/mathf", "math/vec2", "math
     }
     var clampBottom = Mathf.clampBottom;
     Class.extend(Camera2D, GameObject2D);
-    Camera2D.prototype.clone = function() {
-        var clone = new Camera2D();
-        clone.copy(this);
-        return clone;
-    };
     Camera2D.prototype.copy = function(other) {
         GameObject2D.call(this, other);
         this.width = other.width;
@@ -7560,12 +7464,6 @@ define("core/objects/camera2d", [ "base/class", "math/mathf", "math/vec2", "math
         this.trigger("zoom");
         this.needsUpdate = !0;
     };
-    Camera2D.prototype.toWorld = function() {
-        var vec = new Vec2();
-        return function() {
-            return vec;
-        };
-    }();
     Camera2D.prototype.updateMatrixProjection = function() {
         var zoom = clampBottom(this.zoom, .001), w = this.width, h = this.height, right = .5 * w * zoom, left = -right, top = .5 * h * zoom, bottom = -top;
         this.matrixProjection.orthographic(left, right, top, bottom);
@@ -7808,6 +7706,9 @@ define("core/canvas", [ "base/class", "base/device", "base/dom" ], function(Clas
         addMeta(this.viewportId + "-height", "viewport", "height=device-height");
         var element = document.createElement("canvas");
         this.element = element;
+        this.fullScreen = !1;
+        this.width = 960;
+        this.height = 640;
         if (width || height) {
             this.width = void 0 !== width ? width : 960;
             this.height = void 0 !== height ? height : 640;
@@ -7891,11 +7792,11 @@ define("core/canvasrenderer2d", [ "base/class", "base/dom", "base/device", "base
         opts || (opts = {});
         Class.call(this);
         this.debug = void 0 !== opts.debug ? !!opts.debug : !1;
-        this.pixelRatio = void 0 !== opts.pixelRatio ? opts.pixelRatio : 128;
-        this.invPixelRatio = 1 / this.pixelRatio;
+        this.pixelRatio = (void 0 !== opts.pixelRatio ? opts.pixelRatio : 128) * Device.pixelRatio;
+        this._invPixelRatio = 1 / this.pixelRatio;
         this.canvas = opts.canvas instanceof Canvas ? opts.canvas : new Canvas(opts.width, opts.height);
-        this.autoClear = void 0 !== opts.autoClear ? opts.autoClear : !0;
         this.context = Dom.get2DContext(this.canvas.element);
+        this.autoClear = void 0 !== opts.autoClear ? opts.autoClear : !0;
         this.time = 0;
         this._data = {
             images: {
@@ -7943,7 +7844,7 @@ define("core/canvasrenderer2d", [ "base/class", "base/dom", "base/device", "base
             this.autoClear && this.clear();
             if (this.debug) for (i = rigidbodies.length; i--; ) {
                 rigidbody = rigidbodies[i];
-                rigidbody.visible && this.renderComponent(rigidbody, camera);
+                this.renderComponent(rigidbody, camera);
             }
             for (i = renderables.length; i--; ) {
                 renderable = renderables[i];
@@ -7953,7 +7854,7 @@ define("core/canvasrenderer2d", [ "base/class", "base/dom", "base/device", "base
         };
     }();
     CanvasRenderer2D.prototype.renderComponent = function() {
-        var modelViewProj = new Mat32(), mvp = modelViewProj.elements;
+        var model = new Mat32(), modelView = new Mat32(), modelViewProj = new Mat32(), mvp = modelViewProj.elements;
         return function(component, camera) {
             var sleepState, vertex, x, y, i, ctx = this.context, images = this._data.images, gameObject = component.gameObject, offset = component.offset, imageSrc = component.image, radius = component.radius, extents = component.extents, vertices = component.vertices, body = component.body, image = images[imageSrc];
             if (!image && imageSrc) if ("default" === imageSrc) image = images["default"]; else {
@@ -7961,8 +7862,9 @@ define("core/canvasrenderer2d", [ "base/class", "base/dom", "base/device", "base
                 image.src = imageSrc;
                 images[imageSrc] = image;
             }
-            gameObject.matrixModelView.mmul(gameObject.matrixWorld, camera.matrixWorldInverse);
-            modelViewProj.mmul(gameObject.matrixModelView, camera.matrixProjection);
+            model.copy(gameObject.matrixWorld);
+            modelView.mmul(model, camera.matrixWorldInverse);
+            modelViewProj.mmul(modelView, camera.matrixProjection);
             ctx.save();
             ctx.transform(mvp[0], -mvp[2], -mvp[1], mvp[3], mvp[4], mvp[5]);
             ctx.scale(1, -1);
@@ -7974,22 +7876,22 @@ define("core/canvasrenderer2d", [ "base/class", "base/dom", "base/device", "base
                 3 === sleepState && (ctx.globalAlpha *= .5);
                 if (component.line) {
                     ctx.strokeStyle = component.lineColor ? component.lineColor.rgba() : "#000000";
-                    ctx.lineWidth = component.lineWidth || this.invPixelRatio;
+                    ctx.lineWidth = component.lineWidth || this._invPixelRatio;
                 }
                 ctx.beginPath();
                 if (radius) {
                     component.body && ctx.lineTo(0, 0);
-                    ctx.arc(0, 0, radius, 0, TWO_PI);
+                    ctx.arc(offset.x, -offset.y, radius, 0, TWO_PI);
                 } else if (extents) {
-                    x = extents.x;
-                    y = extents.y;
+                    x = offset.x + extents.x;
+                    y = extents.y - offset.y;
                     ctx.lineTo(x, y);
                     ctx.lineTo(-x, y);
                     ctx.lineTo(-x, -y);
                     ctx.lineTo(x, -y);
                 } else if (vertices) for (i = vertices.length; i--; ) {
                     vertex = vertices[i];
-                    ctx.lineTo(vertex.x, vertex.y);
+                    ctx.lineTo(offset.x + vertex.x, vertex.y - offset.y);
                 }
                 ctx.closePath();
                 component.fill && ctx.fill();
@@ -8043,9 +7945,11 @@ define("core/webglrenderer2d", [ "base/class", "base/dom", "base/device", "base/
         opts || (opts = {});
         Class.call(this);
         this.debug = void 0 !== opts.debug ? !!opts.debug : !1;
-        this.pixelRatio = void 0 !== opts.pixelRatio ? opts.pixelRatio : 128;
-        this.invPixelRatio = 1 / this.pixelRatio;
+        this.pixelRatio = (void 0 !== opts.pixelRatio ? opts.pixelRatio : 128) * Device.pixelRatio;
+        this._invPixelRatio = 1 / this.pixelRatio;
         this.canvas = opts.canvas instanceof Canvas ? opts.canvas : new Canvas(opts.width, opts.height);
+        opts.attributes || (opts.attributes = {});
+        opts.attributes.depth = !1;
         this.context = Dom.getWebGLContext(this.canvas.element, opts.attributes);
         this.autoClear = void 0 !== opts.autoClear ? opts.autoClear : !0;
         this.time = 0;
@@ -8241,7 +8145,7 @@ define("core/webglrenderer2d", [ "base/class", "base/dom", "base/device", "base/
             this.autoClear && this.clear();
             if (this.debug) for (i = rigidbodies.length; i--; ) {
                 rigidbody = rigidbodies[i];
-                rigidbody.visible && this.renderComponent(rigidbody, camera);
+                this.renderComponent(rigidbody, camera);
             }
             for (i = renderables.length; i--; ) {
                 renderable = renderables[i];
@@ -8251,18 +8155,19 @@ define("core/webglrenderer2d", [ "base/class", "base/dom", "base/device", "base/
         };
     }();
     WebGLRenderer2D.prototype.renderComponent = function() {
-        var modelView = new Mat4(), modelViewProj = new Mat4(), mvp = modelViewProj.elements;
+        var model32 = new Mat32(), modelView32 = new Mat32(), modelView4 = new Mat4(), modelViewProj4 = new Mat4(), mvp = modelViewProj4.elements;
         return function(component, camera) {
-            var sleepState, uniforms, attributes, w, h, gl = this.context, data = this._data, imageSrc = component.image, image = data.images[imageSrc], texture = data.textures[imageSrc], componentData = component._data, color = component.color, lineColor = component.lineColor, alpha = component.alpha, gameObject = component.gameObject, body = component.body, sprite = data.sprite, basic = data.basic;
+            var sleepState, uniforms, attributes, w, h, gl = this.context, data = this._data, imageSrc = component.image, image = data.images[imageSrc], texture = data.textures[imageSrc], componentData = component._data, offset = component.offset, color = component.color, lineColor = component.lineColor, alpha = component.alpha, gameObject = component.gameObject, body = component.body, sprite = data.sprite, basic = data.basic;
             if (!texture && imageSrc) {
                 this.createImage(imageSrc);
                 image = data.images["default"];
                 texture = data.textures["default"];
             }
             componentData.needsUpdate && this.setupBuffers(componentData);
-            gameObject.matrixModelView.mmul(gameObject.matrixWorld, camera.matrixWorldInverse);
-            modelView.fromMat32(gameObject.matrixModelView);
-            modelViewProj.mmul(camera._matrixProjection3D, modelView);
+            model32.copy(gameObject.matrixWorld).translate(offset);
+            modelView32.mmul(model32, camera.matrixWorldInverse);
+            modelView4.fromMat32(modelView32);
+            modelViewProj4.mmul(camera._matrixProjection3D, modelView4);
             if (componentData.uvBuffer) {
                 gl.useProgram(sprite.program);
                 w = 1 / image.width;
@@ -8288,7 +8193,7 @@ define("core/webglrenderer2d", [ "base/class", "base/dom", "base/device", "base/
             if (component.line) {
                 gl.useProgram(basic.program);
                 this.bindBuffers(attributes, componentData);
-                this.setLineWidth(component.lineWidth || this.invPixelRatio);
+                this.setLineWidth(component.lineWidth || this._invPixelRatio);
                 uniforms = basic.uniforms;
                 attributes = basic.attributes;
                 gl.bindTexture(gl.TEXTURE_2D, null);
@@ -8507,9 +8412,6 @@ define("core/game/clientgame", [ "require", "base/class", "base/time", "base/dev
                 object.fromJSON(jsonObject);
                 self.addScene(object);
             }
-            socket.on("sync", function(timeStamp) {
-                socket.emit("clientOffset", Time.stamp() - timeStamp);
-            });
             socket.on("cameraZoom", function(scene, gameObject, zoom) {
                 scene = self.findSceneByServerId(scene);
                 if (scene) {
@@ -8603,9 +8505,6 @@ define("core/game/clientgame", [ "require", "base/class", "base/time", "base/dev
             socket.on("log", function() {
                 console.log.apply(console, arguments);
             });
-            socket.on("error", function(error) {
-                console.log("ClientGame: " + error);
-            });
             Accelerometer.on("accelerometer", function() {
                 socket.emit("accelerometer", Accelerometer);
             });
@@ -8616,19 +8515,19 @@ define("core/game/clientgame", [ "require", "base/class", "base/time", "base/dev
                 socket.emit("orientationchange", mode, orientation);
             });
             Keyboard.on("keydown", function(key) {
-                socket.emit("keydown", key);
+                socket.emit("keydown", Keyboard, key);
             });
             Keyboard.on("keyup", function(key) {
-                socket.emit("keyup", key);
+                socket.emit("keyup", Keyboard, key);
             });
             Touches.on("start", function(touch) {
-                socket.emit("touchstart", touch);
+                socket.emit("touchstart", Touches, touch);
             });
             Touches.on("end", function(touch) {
-                socket.emit("touchend", touch);
+                socket.emit("touchend", Touches, touch);
             });
             Touches.on("move", function(touch) {
-                socket.emit("touchmove", touch);
+                socket.emit("touchmove", Touches, touch);
             });
             Mouse.on("down", function() {
                 socket.emit("mousedown", Mouse);

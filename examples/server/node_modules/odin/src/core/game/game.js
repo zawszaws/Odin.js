@@ -20,27 +20,82 @@ define([
 	    floor = Math.floor,
 	    addEvent = Dom.addEvent;
 	
-	
+	/**
+	 * @class Game
+	 * @extends Class
+	 * @brief used for client side game
+	 * @param Object opts sets Class properties from passed Object
+	 * @event update called before update
+	 * @event lateUpdate called after update
+	 */
 	function Game( opts ){
 	    opts || ( opts = {} );
 	    
 	    Class.call( this, opts );
 	    
+	    /**
+	    * @property Boolean debug
+	    * @brief game debug value
+	    * @memberof Game
+	    */
 	    this.debug = opts.debug !== undefined ? !!opts.debug : false;
+	    
+	    /**
+	    * @property Boolean forceCanvas
+	    * @brief force canvas renderer
+	    * @memberof Game
+	    */
 	    this.forceCanvas = opts.forceCanvas !== undefined ? !!opts.forceCanvas : false;
 	    
+	    /**
+	    * @property Camera camera
+	    * @brief game's camera
+	    * @memberof Game
+	    */
 	    this.camera = undefined;
+	    
+	    /**
+	    * @property Scene scene
+	    * @brief game's active scene
+	    * @memberof Game
+	    */
             this.scene = undefined;
 	    
+	    /**
+	    * @property Array scenes
+	    * @brief game's list of all scenes
+	    * @memberof Game
+	    */
 	    this.scenes = [];
 	    
+	    /**
+	    * @property WebGLRenderer2D WebGLRenderer2D
+	    * @brief reference to WebGL 2D Renderer
+	    * @memberof Game
+	    */
 	    this.WebGLRenderer2D = new WebGLRenderer2D( opts );
+	    
+	    /**
+	    * @property CanvasRenderer2D CanvasRenderer2D
+	    * @brief reference to Canvas 2D Renderer
+	    * @memberof Game
+	    */
 	    this.CanvasRenderer2D = new CanvasRenderer2D( opts );
 	    
+	    /**
+	    * @property Renderer renderer
+	    * @brief reference to game's active renderer
+	    * @memberof Game
+	    */
 	    this.renderer = this.WebGLRenderer2D;
 	    
 	    Input.init( this.renderer.canvas.element );
             
+	    /**
+	    * @property Boolean pause
+	    * @brief game's paused value
+	    * @memberof Game
+	    */
 	    this.pause = false;
 	    
             addEvent( window, "focus", this.handleFocus, this );
@@ -49,14 +104,23 @@ define([
         
 	Class.extend( Game, Class );
 	
-	
+	/**
+	 * @method init
+	 * @memberof Game
+	 * @brief call this to start game
+	 */
 	Game.prototype.init = function(){
 	    
 	    this.trigger("init");
 	    this.animate();
 	};
 	
-	
+	/**
+	 * @method updateRenderer
+	 * @memberof Game
+	 * @brief updates game's renderer based on scene
+	 * @param Scene scene
+	 */
 	Game.prototype.updateRenderer = function( scene ){
 	    
 	    this.renderer.canvas.element.style.zIndex = -1;
@@ -79,7 +143,11 @@ define([
 	    this.renderer.canvas.element.style.zIndex = 1;
         };
 	
-	
+	/**
+	 * @method addScene
+	 * @memberof Game
+	 * @brief adds all scenes in arguments to game
+	 */
 	Game.prototype.addScene = function(){
             var scenes = this.scenes,
                 scene, index, i;
@@ -101,7 +169,11 @@ define([
             }
         };
         
-        
+        /**
+	 * @method removeScene
+	 * @memberof Game
+	 * @brief removes all scenes in arguments from game
+	 */
         Game.prototype.removeScene = function(){
             var scenes = this.scenes,
                 scene, index, i;
@@ -123,7 +195,12 @@ define([
             }
         };
 	
-	
+	/**
+	 * @method setScene
+	 * @memberof Game
+	 * @brief sets game's active scene
+	 * @param Scene scene
+	 */
 	Game.prototype.setScene = function( scene ){
 	    var type = typeof scene,
 		index;
@@ -152,7 +229,12 @@ define([
 	    }
         };
 	
-	
+	/**
+	 * @method setCamera
+	 * @memberof Game
+	 * @brief sets game's active camera
+	 * @param Camera camera
+	 */
 	Game.prototype.setCamera = function( camera ){
             var type = typeof camera,
 		scene = this.scene,
@@ -185,7 +267,12 @@ define([
             }
         };
 	
-	
+	/**
+	 * @method findSceneByName
+	 * @memberof Game
+	 * @brief finds scene by name
+	 * @param String name
+	 */
 	Game.prototype.findSceneByName = function( name ){
             var scenes = this.scenes,
                 scene, i;
@@ -202,7 +289,12 @@ define([
             return undefined;
         };
         
-        
+        /**
+	 * @method findSceneById
+	 * @memberof Game
+	 * @brief finds scene by id
+	 * @param Number id
+	 */
         Game.prototype.findSceneById = function( id ){
             var scenes = this.scenes,
                 scene, i;
@@ -216,7 +308,12 @@ define([
             return undefined;
         };
         
-        
+        /**
+	 * @method findSceneByServerId
+	 * @memberof Game
+	 * @brief finds scene by its Server ID
+	 * @param Number id
+	 */
         Game.prototype.findSceneByServerId = function( id ){
             var scenes = this.scenes,
                 scene, i;
@@ -230,7 +327,11 @@ define([
             return undefined;
         };
 	
-	
+	/**
+	 * @method update
+	 * @memberof Game
+	 * @brief updates actice scene and Time
+	 */
 	Game.prototype.update = function(){
 	    var scene = this.scene;
             
@@ -250,7 +351,11 @@ define([
 	    }
 	};
 	
-	
+	/**
+	 * @method render
+	 * @memberof Game
+	 * @brief renders active scene from game's camera
+	 */
 	Game.prototype.render = function(){
 	    var scene = this.scene,
 		camera = this.camera;
@@ -260,7 +365,11 @@ define([
             }
 	};
 	
-	
+	/**
+	 * @method animate
+	 * @memberof Game
+	 * @brief starts the game called in Game.init
+	 */
 	Game.prototype.animate = function(){
 	    var fpsDisplay = document.createElement("p"),
 		last = 0;

@@ -8310,6 +8310,7 @@ define("physics2d/constraints/pfriction2d", [ "base/class", "math/vec2", "physic
 	 * @brief 2d friction equation
 	 * @param PBody2D bi
 	 * @param PBody2D bj
+	 * @param Number slipForce
 	 */
     function PFriction2D(bi, bj, slipForce) {
         PEquation2D.call(this, bi, bj, -slipForce, slipForce);

@@ -84,12 +84,6 @@ define([
 		}
 		
 		
-		socket.on("sync", function( timeStamp ){
-		    
-		    socket.emit("clientOffset", Time.stamp() - timeStamp );
-		});
-		
-		
 		socket.on("cameraZoom", function( scene, gameObject, zoom ){
 		    scene = self.findSceneByServerId( scene );
 		    if( !scene ) return;
@@ -212,12 +206,12 @@ define([
 		Orientation.on("orientation", function( orientation ){ socket.emit("orientation", orientation ); });
 		Orientation.on("orientationchange", function( mode, orientation ){ socket.emit("orientationchange", mode, orientation ); });
 		
-		Keyboard.on("keydown", function( key ){ socket.emit("keydown", key ); });
-		Keyboard.on("keyup", function( key ){ socket.emit("keyup", key ); });
+		Keyboard.on("keydown", function( key ){ socket.emit("keydown", Keyboard, key ); });
+		Keyboard.on("keyup", function( key ){ socket.emit("keyup", Keyboard, key ); });
 		
-		Touches.on("start", function( touch ){ socket.emit("touchstart", touch ); });
-		Touches.on("end", function( touch ){ socket.emit("touchend", touch ); });
-		Touches.on("move", function( touch ){ socket.emit("touchmove", touch ); });
+		Touches.on("start", function( touch ){ socket.emit("touchstart", Touches, touch ); });
+		Touches.on("end", function( touch ){ socket.emit("touchend", Touches, touch ); });
+		Touches.on("move", function( touch ){ socket.emit("touchmove", Touches, touch ); });
 		
 		Mouse.on("down", function(){ socket.emit("mousedown", Mouse ); });
 		Mouse.on("up", function(){ socket.emit("mouseup", Mouse ); });

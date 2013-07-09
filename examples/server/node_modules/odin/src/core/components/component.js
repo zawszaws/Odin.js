@@ -7,11 +7,20 @@ define([
     function( Class ){
         "use strict";
         
-        
+        /**
+	 * @class Component
+	 * @extends Class
+	 * @brief Base class for everything attached to GameObjects
+	 */
         function Component(){
             
             Class.call( this );
-            
+	    
+	    /**
+	    * @property GameObject gameObject
+	    * @brief reference to GameObject this component is attached too
+	    * @memberof Component
+	    */
             this.gameObject = undefined;
         }
         

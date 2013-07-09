@@ -15,8 +15,20 @@ define([
 	    lerp = Mathf.lerp,
 	    equals= Mathf.equals;
 	
-	
+	/**
+	 * @class Mat2
+	 * @brief Matrix for 2D rotations
+	 * @param Number m11
+	 * @param Number m12
+	 * @param Number m21
+	 * @param Number m22
+	 */
 	function Mat2( m11, m12, m21, m22 ){
+	    
+	    /**
+	    * @property Float32Array elements
+	    * @memberof Mat2
+	    */
 	    this.elements = new Float32Array(4);
 	    var te = this.elements;
 	    
@@ -30,7 +42,12 @@ define([
 	    this.copy( json );
 	};
         
-        
+        /**
+	 * @method clone
+	 * @memberof Mat2
+	 * @brief returns new copy of this
+	 * @return Mat2
+	 */
         Mat2.prototype.clone = function(){
             var te = this.elements;
 	    
@@ -40,7 +57,12 @@ define([
 	    );
         };
         
-        
+        /**
+	 * @method copy
+	 * @memberof Mat2
+	 * @brief copies other matrix
+	 * @return Mat2
+	 */
         Mat2.prototype.copy = function( other ){
             var te = this.elements,
 		me = other.elements;
@@ -53,7 +75,16 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method set
+	 * @memberof Mat2
+	 * @brief sets matrix elements
+	 * @param Number m11
+	 * @param Number m12
+	 * @param Number m21
+	 * @param Number m22
+	 * @return Mat2
+	 */
         Mat2.prototype.set = function( m11, m12, m21, m22 ){
             var te = this.elements;
 	    
@@ -63,7 +94,12 @@ define([
             return this;
         };
 	
-	
+	/**
+	 * @method identity
+	 * @memberof Mat2
+	 * @brief sets matrix to identity matrix
+	 * @return Mat2
+	 */
 	Mat2.prototype.identity = function(){
             var te = this.elements;
 	    
@@ -75,7 +111,12 @@ define([
             return this;
         };
 	
-	
+	/**
+	 * @method zero
+	 * @memberof Mat2
+	 * @brief sets matrix to zero matrix
+	 * @return Mat2
+	 */
 	Mat2.prototype.zero = function(){
             var te = this.elements;
 	    
@@ -87,7 +128,14 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method mmul
+	 * @memberof Mat2
+	 * @brief mutilples a and b
+	 * @param Mat2 a
+	 * @param Mat2 b
+	 * @return Mat2
+	 */
         Mat2.prototype.mmul = function( a, b ){
 	    var te = this.elements,
 		ae = a.elements,
@@ -108,7 +156,13 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method mul
+	 * @memberof Mat2
+	 * @brief mutilples this and other
+	 * @param Mat2 other
+	 * @return Mat2
+	 */
         Mat2.prototype.mul = function( other ){
 	    var ae = this.elements,
 		be = other.elements,
@@ -128,7 +182,13 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method smul
+	 * @memberof Mat2
+	 * @brief mutilples this by scalar
+	 * @param Number s
+	 * @return Mat2
+	 */
         Mat2.prototype.smul = function( s ){
             var te = this.elements;
 	    
@@ -140,7 +200,13 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method sdiv
+	 * @memberof Mat2
+	 * @brief divides this by scalar
+	 * @param Number s
+	 * @return Mat2
+	 */
         Mat2.prototype.sdiv = function( s ){
 	    var te = this.elements;
 	    
@@ -154,7 +220,12 @@ define([
             return this;
         };
 	
-	
+	/**
+	 * @method transpose
+	 * @memberof Mat2
+	 * @brief transposes this matrix
+	 * @return Mat2
+	 */
 	Mat2.prototype.transpose = function(){
             var te = this.elements, tmp;
 	    
@@ -163,7 +234,13 @@ define([
 	    return this;
         };
 	
-	
+	/**
+	 * @method setTrace
+	 * @memberof Mat2
+	 * @brief sets the diagonal of matrix
+	 * @param Vec2 v
+	 * @return Mat2
+	 */
 	Mat2.prototype.setTrace = function( v ){
             var te = this.elements;
 	    
@@ -173,7 +250,13 @@ define([
 	    return this;
         };
 	
-	
+	/**
+	 * @method minv
+	 * @memberof Mat2
+	 * @brief gets the inverse of another matrix saves it in this
+	 * @param Mat2 other
+	 * @return Mat2
+	 */
 	Mat2.prototype.minv = function( other ){
 	    var te = this.elements,
 		me = other.elements,
@@ -193,7 +276,12 @@ define([
             return this;
 	};
 	
-	
+	/**
+	 * @method inv
+	 * @memberof Mat2
+	 * @brief gets the inverse of this matrix
+	 * @return Mat2
+	 */
 	Mat2.prototype.inv = function(){
 	    var te = this.elements,
 		
@@ -212,7 +300,15 @@ define([
             return this;
 	};
         
-        
+        /**
+	 * @method mlerp
+	 * @memberof Mat2
+	 * @brief linear interpolation between a matrix and b matrix by t
+	 * @param Mat2 a
+	 * @param Mat2 b
+	 * @param Number t
+	 * @return Mat2
+	 */
         Mat2.prototype.mlerp = function( a, b, t ){
 	    var te = this.elements,
 		ae = a.elements,
@@ -226,7 +322,14 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method lerp
+	 * @memberof Mat2
+	 * @brief linear interpolation between this and other matrix by t
+	 * @param Mat2 other
+	 * @param Number t
+	 * @return Mat2
+	 */
         Mat2.prototype.lerp = function( other, t ){
 	    var ae = this.elements,
 		be = other.elements;
@@ -239,7 +342,12 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method abs
+	 * @memberof Mat2
+	 * @brief gets absolute values of matrix
+	 * @return Mat2
+	 */
         Mat2.prototype.abs = function(){
 	    var te = this.elements;
             
@@ -251,7 +359,13 @@ define([
             return this;
         };
         
-        
+        /**
+	 * @method setRotation
+	 * @memberof Mat2
+	 * @brief sets rotation of matrix
+	 * @param Number a
+	 * @return Mat2
+	 */
         Mat2.prototype.setRotation = function( a ){
             var te = this.elements,
 		c = cos( a ), s = sin( a );
@@ -264,14 +378,25 @@ define([
             return this;
         };
 	
-	
+	/**
+	 * @method getRotation
+	 * @memberof Mat2
+	 * @brief returns the rotation of the matrix
+	 * @return Number
+	 */
 	Mat2.prototype.getRotation = function(){
 	    var te = this.elements;
 	    
 	    return atan2( te[1], te[0] );
         };
 	
-	
+	/**
+	 * @method rotate
+	 * @memberof Mat2
+	 * @brief rotates the matrix by angle
+	 * @param Number angle
+	 * @return Mat2
+	 */
 	Mat2.prototype.rotate = function( angle ){
 	    var te = this.elements,
 		
@@ -288,7 +413,12 @@ define([
 	    return this;
         };
 	
-        
+        /**
+	 * @method toString
+	 * @memberof Mat2
+	 * @brief returns string value of this "Mat2[ 1, 0, 0, 1 ]"
+	 * @return String
+	 */
         Mat2.prototype.toString = function(){
             var te = this.elements;
 	    
@@ -298,7 +428,13 @@ define([
 	    );
         };
 	
-        
+        /**
+	 * @method equals
+	 * @memberof Mat2
+	 * @brief checks if this matrix equals other matrix
+	 * @param Mat2 other
+	 * @return Boolean
+	 */
         Mat2.prototype.equals = function( other ){
             var ae = this.elements,
 		be = other.elements;
@@ -311,7 +447,14 @@ define([
             );
         };
         
-        
+        /**
+	 * @method Mat2.equals
+	 * @memberof Mat2
+	 * @brief checks if a matrix equals b matrix
+	 * @param Mat2 a
+	 * @param Mat2 b
+	 * @return Boolean
+	 */
         Mat2.equals = function( a, b ){
 	    var ae = a.elements,
 		be = b.elements;

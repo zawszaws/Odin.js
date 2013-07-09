@@ -7,15 +7,43 @@ define([
     function( Class ){
 	"use strict";
         
-        
-        function Orientation( max ){
+        /**
+	 * @class Orientation
+	 * @extends Class
+	 * @brief Orientation helper
+	 * @event orientation called when orientation changes
+	 * @event orientationchange called orientation mode changes ( landscape or portrait )
+	 */
+        function Orientation(){
             
             Class.call( this );
             
+	    /**
+	    * @property Number alpha
+	    * @brief the alpha value
+	    * @memberof Orientation
+	    */
             this.alpha = 0;
+	    
+	    /**
+	    * @property Number beta
+	    * @brief the beta value
+	    * @memberof Orientation
+	    */
 	    this.beta = 0;
+	    
+	    /**
+	    * @property Number gamma
+	    * @brief the gamma value
+	    * @memberof Orientation
+	    */
 	    this.gamma = 0;
 	    
+	    /**
+	    * @property Number mode
+	    * @brief the mode of the orientation ( portrait_up, portrait_down, landscape_left, or landscape_right )
+	    * @memberof Orientation
+	    */
 	    this.mode = "portrait_up";
         };
         

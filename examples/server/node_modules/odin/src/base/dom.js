@@ -8,10 +8,21 @@ define(
 	var splitter = /\s*[\s,]\s*/,
 	    createShader;
 	
-	
+	/**
+	 * @class Dom
+	 * @brief dom functions
+	 */
 	function Dom(){}
 	
-	
+	/**
+	 * @method addEvent
+	 * @memberof Dom
+	 * @brief adds event to object
+	 * @param Object context object to add event to
+	 * @param String name event name or list of events separated by a space
+	 * @param Function callback event handler function
+	 * @param Object ctx context of callback
+	 */
 	Dom.prototype.addEvent = function( context, name, callback, ctx ){
 	    var names = name.split( splitter ), i, il,
 		scope = ctx || context,
@@ -35,7 +46,15 @@ define(
 	    }
 	};
 	
-	
+	/**
+	 * @method removeEvent
+	 * @memberof Dom
+	 * @brief removes event from object
+	 * @param Object context object to remove event from
+	 * @param String name event name or list of events separated by a space
+	 * @param Function callback event handler function
+	 * @param Object ctx context of callback
+	 */
 	Dom.prototype.removeEvent = function( context, name, callback, ctx ){
 	    var names = name.split( splitter ), i, il,
 		scope = ctx || context,
@@ -59,7 +78,14 @@ define(
 	    }
 	};
 	
-	
+	/**
+	 * @method addMeta
+	 * @memberof Dom
+	 * @brief removes event from object
+	 * @param String id id of the element
+	 * @param String name meta name
+	 * @param String content content of meta
+	 */
 	Dom.prototype.addMeta = function( id, name, content ){
 	    var meta = document.createElement("meta"),
 		head = document.getElementsByTagName("head")[0];
@@ -71,7 +97,11 @@ define(
 	    head.insertBefore( meta, head.firstChild );
         };
 	
-	
+	/**
+	 * @property Object audioContext
+	 * @memberof Dom
+	 * @brief audio context of dom
+	 */
 	Dom.prototype.audioContext = function(){
 	    return (
 		window.audioContext || 
@@ -82,7 +112,12 @@ define(
 	    );
 	}();
 	
-	
+	/**
+	 * @method requestAnimFrame
+	 * @memberof Dom
+	 * @brief request Animation Frame
+	 * @param Function callback function to be called
+	 */
 	Dom.prototype.requestAnimFrame = function(){
 	    var request = (
 		window.requestAnimationFrame || 
@@ -102,12 +137,22 @@ define(
 	    };
 	}();
 	
-	
+	/**
+	 * @method cancelAnimFrame
+	 * @memberof Dom
+	 * @brief cancel Animation Frame
+	 */
 	Dom.prototype.cancelAnimFrame = function( id ){
 	    window.clearTimeout( id );
 	};
 	
-	
+	/**
+	 * @method getWebGLContext
+	 * @memberof Dom
+	 * @brief gets webgl context from canvas
+	 * @param HTMLCanvasElement canvas html canvas element
+	 * @param Object attributes webgl attributes list
+	 */
 	Dom.prototype.getWebGLContext = function(){
 	    var defaultAttributes = {
 		alpha: true,
@@ -141,7 +186,12 @@ define(
 	    };
 	}();
 	
-	
+	/**
+	 * @method get2DContext
+	 * @memberof Dom
+	 * @brief gets 2d context of canvas
+	 * @param HTMLCanvasElement canvas html canvas element
+	 */
 	Dom.prototype.get2DContext = function( canvas ){
 	    var gl = canvas.getContext("2d");
 	    
@@ -152,7 +202,14 @@ define(
 	    return gl;
 	};
 	
-	
+	/**
+	 * @method createShader
+	 * @memberof Dom
+	 * @brief creates shader from string
+	 * @param Object gl webgl context
+	 * @param Object type webgl shader type( gl.FRAGMENT_SHADER or gl.VERTEX_SHADER )
+	 * @param String source shader source
+	 */
         Dom.prototype.createShader = createShader = function( gl, type, source ){
             var shader;
             
@@ -178,7 +235,14 @@ define(
             return shader;
         };
         
-        
+        /**
+	 * @method createProgram
+	 * @memberof Dom
+	 * @brief creates program from vertex shader and fragment shader
+	 * @param Object gl webgl context
+	 * @param String vertex vertex shader source
+	 * @param String fragment fragment shader source
+	 */
         Dom.prototype.createProgram = function( gl, vertex, fragment ){
             var program = gl.createProgram(),
                 shader;
