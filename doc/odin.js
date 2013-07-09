@@ -3387,7 +3387,7 @@ define("math/line2", [ "math/mathf", "math/vec2" ], function(Mathf, Vec2) {
     /**
 	 * @method mul
 	 * @memberof Line2
-	 * @brief multiples other start and end by this start and end
+	 * @brief multiples this start and end by other start and end
 	 * @param Line2 other
 	 * @return Line2
 	 */
@@ -12688,7 +12688,36 @@ define("odindoc", [ "require", "base/class", "base/device", "base/dom", "base/ob
 	* @version 0.0.12
 	* @brief Node.js Canvas/WebGL Javascript Game Engine
 	*/
+    /**
+	 * @class Odin
+	 * @brief Holds all Classes
+	 */
     var Odin = {};
+    /**
+	 * @method globalize
+	 * @memberof Odin
+	 * @brief globalizes Odin Classes
+	 */
+    Odin.globalize = function() {
+        for (var key in this) window[key] = this[key];
+        window.Odin = this;
+    };
+    /**
+	 * @method test
+	 * @memberof Odin
+	 * @brief test function a nth numeber of times and console.logs the time it took
+	 * @param String name
+	 * @param Number times
+	 * @param Function fn
+	 */
+    Odin.test = function() {
+        var start, i, now = Date.now;
+        return function(name, times, fn) {
+            start = now();
+            for (i = 0; times > i; i++) fn();
+            console.log(name + ": " + (now() - start) + "ms");
+        };
+    }();
     Odin.Class = require("base/class");
     Odin.Device = require("base/device");
     Odin.Dom = require("base/dom");

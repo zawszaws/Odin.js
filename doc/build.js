@@ -16,5 +16,5 @@
 	mangle: false
     },
     
-    out: "./odindoc.js",
+    out: "./odin.js",
 })
