@@ -100,6 +100,26 @@ define([
 	Class.extend( Renderable2D, Component );
         
 	
+	Renderable2D.prototype.copy = function( other ){
+	    var otherData = other._data,
+		data = this._data;
+	    
+	    this.visible = other.visible;
+	    this.offset.copy( other.offset );
+	    
+	    this.alpha = other.alpha;
+	    
+	    this.fill = other.fill;
+	    this.color.copy( other.color );
+	    
+	    this.line = other.line;
+	    this.lineColor.copy( other.lineColor );
+	    this.lineWidth = other.lineWidth;
+	    
+	    return this;
+	};
+        
+	
 	Renderable2D.prototype.calculateSprite = function(){
 	    var data = this._data,
 		w = this.width * 0.5,
@@ -196,24 +216,6 @@ define([
 	    for( i = 2, il = vertices.length; i < il; i++ ){
 		indices.push( 0, i - 1, i );
 	    }
-	};
-        
-	
-	Renderable2D.prototype.copy = function( other ){
-	    
-	    this.visible = other.visible;
-	    this.offset.copy( other.offset );
-	    
-	    this.alpha = other.alpha;
-	    
-	    this.fill = other.fill;
-	    this.color.copy( other.color );
-	    
-	    this.line = other.line;
-	    this.lineColor.copy( other.lineColor );
-	    this.lineWidth = other.lineWidth;
-	    
-	    return this;
 	};
         
         

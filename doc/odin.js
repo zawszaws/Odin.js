@@ -106,7 +106,7 @@ define("base/class", [], function() {
     /**
 	 * @method listenTo
 	 * @memberof Class
-	 * @brief listen to anothers objects event
+	 * @brief listen to another objects event
 	 * @param Class obj object to listen to
 	 * @param String name name of the event
 	 * @param Function callback function to call on event
@@ -155,15 +155,23 @@ define("base/class", [], function() {
         return this;
     };
     /**
-	 * @method extend
+	* @property Object Class.types
+	* @brief holds reference to all extended classes
+	* @memberof Class
+	*/
+    Class.types = {
+        Class: Class
+    };
+    /**
+	 * @method Class.extend
 	 * @memberof Class
 	 * @brief makes child inherit parent
 	 */
     Class.extend = function(child, parent) {
         var key, parentProto = parent.prototype, childProto = child.prototype = Object.create(parentProto);
         for (key in parentProto) childProto[key] = parentProto[key];
-        childProto._super = parent;
         childProto.constructor = child;
+        Class.types[childProto.constructor.name] = childProto.constructor;
     };
     return Class;
 });
@@ -5456,9 +5464,9 @@ define("math/mat4", [ "math/mathf", "math/vec3" ], function(Mathf, Vec3) {
 	 * @method lookAt
 	 * @memberof Mat4
 	 * @brief makes matrix look from eye at target along up vector
-	 * @param Vec2 eye
-	 * @param Vec2 target
-	 * @param Vec2 up
+	 * @param Vec3 eye
+	 * @param Vec3 target
+	 * @param Vec3 up
 	 * @return Mat4
 	 */
     Mat4.prototype.lookAt = function() {
@@ -6084,7 +6092,7 @@ define("math/quat", [ "math/mathf", "math/vec3" ], function(Mathf, Vec3) {
     /**
 	 * @method setVec3s
 	 * @memberof Quat
-	 * @brief sets quat from to vectors
+	 * @brief sets quat from two vectors
 	 * @param Vec3 u
 	 * @param Vec3 v
 	 * @return Quat
@@ -7049,9 +7057,6 @@ define("physics2d/shape/pshape2d", [ "base/class", "math/vec2", "math/aabb2" ], 
 	    */
         this.boundingRadius = 0;
     }
-    PShape2D.BOX = 1;
-    PShape2D.CIRCLE = 2;
-    PShape2D.CONVEX = 3;
     Class.extend(PShape2D, Class);
     /**
 	 * @method calculateAABB
@@ -7490,12 +7495,7 @@ define("physics2d/body/prigidbody2d", [ "base/class", "math/vec2", "math/mat2", 
         this.wlambda = 0;
         this._sleepAngularVelocity = .001;
     }
-    var objectTypes = {
-        PBox2D: PBox2D,
-        PCircle2D: PCircle2D,
-        PConvex2D: PConvex2D,
-        PShape2D: PShape2D
-    }, AWAKE = PParticle2D.AWAKE, SLEEPY = PParticle2D.SLEEPY, SLEEPING = PParticle2D.SLEEPING, STATIC = (PBody2D.DYNAMIC, 
+    var AWAKE = PParticle2D.AWAKE, SLEEPY = PParticle2D.SLEEPY, SLEEPING = PParticle2D.SLEEPING, STATIC = (PBody2D.DYNAMIC, 
     PBody2D.STATIC);
     PBody2D.KINEMATIC;
     Class.extend(PRigidBody2D, PParticle2D);
@@ -7576,7 +7576,7 @@ define("physics2d/body/prigidbody2d", [ "base/class", "math/vec2", "math/mat2", 
     };
     PRigidBody2D.prototype.toJSON = function() {
         var json = this._JSON;
-        json.type = "PRigidbody2D";
+        json.type = "PRigidBody2D";
         json._SERVER_ID = this._id;
         json.filterGroup = this.filterGroup;
         json.position = this.position;
@@ -7612,7 +7612,7 @@ define("physics2d/body/prigidbody2d", [ "base/class", "math/vec2", "math/mat2", 
         this.elasticity = json.elasticity;
         this.friction = json.friction;
         this.allowSleep = json.allowSleep;
-        this.shape = new objectTypes[json.shape.type]();
+        this.shape = new Class.types[json.shape.type]();
         this.shape.fromJSON(json.shape);
         this.shape.body = this;
         this.rotation = json.rotation;
@@ -7860,7 +7860,8 @@ define("physics2d/collision/pnearphase2d", [ "base/class", "math/mathf", "math/v
 	 * @param Array Rj
 	 */
     PNearphase2D.prototype.convexConvex = function() {
-        var edgei = new Line2(), edgej = new Line2(), edgeOuti = [ 0 ], edgeOutj = [ 0 ], relativeTol = .98, absoluteTol = .001, axis = new Vec2(), vec = new Vec2();
+        var edgei = new Line2(), edgej = new Line2(), edgeOuti = [ 0 ], edgeOutj = [ 0 ], relativeTol = .98, absoluteTol = .001, vec = (new Vec2(), 
+        new Vec2());
         return function(bi, bj, si, sj, xi, xj, Ri, Rj, contacts) {
             var separationi, separationj, edgeIndexi, edgeIndexj, edgeiStart, edgeiEnd, edgejStart, edgejEnd, normal, x, y, nx, ny, offset, s, tmp, c, n, ri, rj;
             separationi = findMaxSeparation(si, sj, xi, xj, Ri, Rj, edgeOuti);
@@ -7869,14 +7870,12 @@ define("physics2d/collision/pnearphase2d", [ "base/class", "math/mathf", "math/v
                 separationj = findMaxSeparation(sj, si, xj, xi, Rj, Ri, edgeOutj);
                 edgeIndexj = edgeOutj[0];
                 if (!(separationj > 0)) {
-                    findEdge(si, xi, Ri, edgeIndexi, edgei);
-                    findEdge(sj, xj, Rj, edgeIndexj, edgej);
                     normal = si.normals[edgeIndexi];
                     x = normal.x;
                     y = normal.y;
-                    axis.x = nx = x * Ri[0] + y * Ri[2];
-                    axis.y = ny = x * Ri[1] + y * Ri[3];
-                    if (edgej.dot(axis) > edgei.dot(axis) * relativeTol + absoluteTol) {
+                    nx = x * Ri[0] + y * Ri[2];
+                    ny = x * Ri[1] + y * Ri[3];
+                    if (separationj > separationi * relativeTol + absoluteTol) {
                         tmp = bj;
                         bj = bi;
                         bi = tmp;
@@ -7892,12 +7891,11 @@ define("physics2d/collision/pnearphase2d", [ "base/class", "math/mathf", "math/v
                         tmp = edgeIndexj;
                         edgeIndexj = edgeIndexi;
                         edgeIndexi = tmp;
-                        tmp = edgej;
-                        edgej = edgei;
-                        edgei = tmp;
-                        nx = -axis.x;
-                        ny = -axis.y;
+                        nx = -nx;
+                        ny = -ny;
                     }
+                    findEdge(si, xi, Ri, edgeIndexi, edgei);
+                    findEdge(sj, xj, Rj, edgeIndexj, edgej);
                     edgeiStart = edgei.start;
                     edgeiEnd = edgei.end;
                     edgejStart = edgej.start;
@@ -8489,7 +8487,7 @@ define("physics2d/psolver2d", [ "base/class" ], function(Class) {
 
 if ("function" != typeof define) var define = require("amdefine")(module);
 
-define("physics2d/pworld2d", [ "base/class", "math/mathf", "math/vec2", "physics2d/psolver2d", "physics2d/constraints/pfriction2d", "physics2d/collision/pbroadphase2d", "physics2d/collision/pnearphase2d", "physics2d/shape/pshape2d", "physics2d/body/pparticle2d", "physics2d/body/pbody2d", "physics2d/body/prigidbody2d" ], function(Class, Mathf, Vec2, PSolver2D, PFriction2D, PBroadphase2D, PNearphase2D, PShape2D, PParticle2D, PBody2D, PRigidbody2D) {
+define("physics2d/pworld2d", [ "base/class", "math/mathf", "math/vec2", "physics2d/psolver2d", "physics2d/constraints/pfriction2d", "physics2d/collision/pbroadphase2d", "physics2d/collision/pnearphase2d", "physics2d/shape/pshape2d", "physics2d/body/pparticle2d", "physics2d/body/pbody2d", "physics2d/body/prigidbody2d" ], function(Class, Mathf, Vec2, PSolver2D, PFriction2D, PBroadphase2D, PNearphase2D, PShape2D, PParticle2D, PBody2D) {
     /**
 	 * @class PWorld2D
 	 * @extends Class
@@ -8571,12 +8569,8 @@ define("physics2d/pworld2d", [ "base/class", "math/mathf", "math/vec2", "physics
         };
         this._removeList = [];
     }
-    var now, objectTypes = {
-        PParticle2D: PParticle2D,
-        PBody2D: PBody2D,
-        PRigidbody2D: PRigidbody2D
-    }, pow = Math.pow, min = Math.min, SLEEPING = (Mathf.clamp, PShape2D.CIRCLE, PShape2D.BOX, 
-    PShape2D.CONVEX, PParticle2D.AWAKE, PParticle2D.SLEEPY, PParticle2D.SLEEPING), DYNAMIC = PBody2D.DYNAMIC, KINEMATIC = (PBody2D.STATIC, 
+    var now, pow = Math.pow, min = Math.min, SLEEPING = (Mathf.clamp, PShape2D.CIRCLE, 
+    PShape2D.BOX, PShape2D.CONVEX, PParticle2D.AWAKE, PParticle2D.SLEEPY, PParticle2D.SLEEPING), DYNAMIC = PBody2D.DYNAMIC, KINEMATIC = (PBody2D.STATIC, 
     PBody2D.KINEMATIC), LOW = 1e-6, HIGH = .1, frictionPool = [], now = function() {
         var startTime = Date.now(), w = "undefined" != typeof window ? window : {}, performance = w.performance !== void 0 ? w.performance : {
             now: function() {
@@ -8757,7 +8751,7 @@ define("physics2d/pworld2d", [ "base/class", "math/mathf", "math/vec2", "physics
         this.debug = json.debug;
         for (i = bodies.length; i--; ) {
             jsonObject = bodies[i];
-            object = new objectTypes[jsonObject.type]();
+            object = new Class.types[jsonObject.type]();
             this.add(object.fromJSON(jsonObject));
         }
         return this;
@@ -8783,7 +8777,17 @@ define("core/components/component", [ "base/class" ], function(Class) {
         this.gameObject = void 0;
     }
     Class.extend(Component, Class);
+    /**
+	 * @method init
+	 * @memberof Component
+	 * @brief called when add to a GameObject
+	 */
     Component.prototype.init = function() {};
+    /**
+	 * @method update
+	 * @memberof Component
+	 * @brief called before GameObject updates
+	 */
     Component.prototype.update = function() {};
     return Component;
 });
@@ -8861,6 +8865,18 @@ define("core/components/renderable2d", [ "base/class", "base/utils", "core/compo
     }
     var ceil = (Utils.has, Math.ceil), sqrt = Math.sqrt, cos = Math.cos, sin = Math.sin, TWO_PI = 2 * Math.PI;
     Class.extend(Renderable2D, Component);
+    Renderable2D.prototype.copy = function(other) {
+        other._data, this._data;
+        this.visible = other.visible;
+        this.offset.copy(other.offset);
+        this.alpha = other.alpha;
+        this.fill = other.fill;
+        this.color.copy(other.color);
+        this.line = other.line;
+        this.lineColor.copy(other.lineColor);
+        this.lineWidth = other.lineWidth;
+        return this;
+    };
     Renderable2D.prototype.calculateSprite = function() {
         var data = this._data, w = .5 * this.width, h = .5 * this.height, uvs = data.uvs || [], vertices = data.vertices, indices = data.indices;
         vertices.length = indices.length = uvs.length = 0;
@@ -8877,7 +8893,7 @@ define("core/components/renderable2d", [ "base/class", "base/utils", "core/compo
         indices.push(0, 1, 2, 0, 2, 3);
     };
     Renderable2D.prototype.calculateCircle = function() {
-        var segment, i, data = this._data, radius = this.radius, vertices = data.vertices, indices = data.indices, segments = ceil(sqrt(512 * radius));
+        var segment, i, data = this._data, radius = this.radius, vertices = data.vertices, indices = data.indices, segments = ceil(sqrt(1024 * radius));
         vertices.length = indices.length = data.uvs.length = 0;
         data.vertexBuffer = data.indexBuffer = data.uvBuffer = void 0;
         vertices.push(0, 0);
@@ -8897,17 +8913,6 @@ define("core/components/renderable2d", [ "base/class", "base/utils", "core/compo
             vertices.push(vertex.x, vertex.y);
         }
         for (i = 2, il = vertices.length; il > i; i++) indices.push(0, i - 1, i);
-    };
-    Renderable2D.prototype.copy = function(other) {
-        this.visible = other.visible;
-        this.offset.copy(other.offset);
-        this.alpha = other.alpha;
-        this.fill = other.fill;
-        this.color.copy(other.color);
-        this.line = other.line;
-        this.lineColor.copy(other.lineColor);
-        this.lineWidth = other.lineWidth;
-        return this;
     };
     Renderable2D.prototype.toJSON = function() {
         var json = this._JSON;
@@ -9134,7 +9139,7 @@ define("core/components/rigidbody2d", [ "base/class", "base/time", "core/compone
 	 */
     function RigidBody2D(opts) {
         opts || (opts = {});
-        Renderable2D.call(this);
+        Renderable2D.call(this, opts);
         /**
 	    * @property Number radius
 	    * @brief if passed shape will be a Circle, radius of the RigidBody
@@ -9176,9 +9181,6 @@ define("core/components/rigidbody2d", [ "base/class", "base/time", "core/compone
 	    */
         opts.shape = shape instanceof PShape2D ? shape : void 0;
         this.body = new PRigidBody2D(opts);
-        this.listenTo(this.body, "collide", function(pbody2d) {
-            this.trigger("collide", pbody2d.userData, Time.time);
-        }, this);
         this.line = !0;
         this.alpha = .25;
         this.visible = !1;
@@ -9199,11 +9201,20 @@ define("core/components/rigidbody2d", [ "base/class", "base/time", "core/compone
     RigidBody2D.prototype.copy = function(other) {
         var vertex, i, vertices = other.vertices;
         Renderable2D.call(this, other);
-        this.radius = other.radius;
-        other.extents && (this.extents = new Vec2().copy(other.extents));
-        if (vertices) for (i = vertices.length; i--; ) {
-            vertex = this.vertices[i] || new Vec2();
-            vertex.copy(vertices[i]);
+        if (other.radius) {
+            this.radius = other.radius;
+            this.calculateCircle();
+        }
+        if (other.extents) {
+            this.extents = new Vec2().copy(other.extents);
+            this.calculateBox();
+        }
+        if (vertices) {
+            for (i = vertices.length; i--; ) {
+                vertex = this.vertices[i] || new Vec2();
+                vertex.copy(vertices[i]);
+            }
+            this.calculatePoly();
         }
         this.body.copy(other);
         return this;
@@ -9214,6 +9225,9 @@ define("core/components/rigidbody2d", [ "base/class", "base/time", "core/compone
         body.rotation = gameObject.rotation;
         body.R.setRotation(gameObject.rotation);
         body.calculateAABB();
+        this.listenTo(this.body, "collide", function() {
+            this.trigger("collide", this, Time.stamp());
+        });
     };
     RigidBody2D.prototype.update = function() {
         var body = this.body, gameObject = this.gameObject;
@@ -9345,7 +9359,7 @@ define("core/components/sprite2d", [ "base/class", "base/time", "core/components
         this.h = opts.h || this.image.height;
         /**
 	    * @property Object animations
-	    * @brief list of animations { "name": [ frame1 [ x, y, w, h, rate ], frame2, frame3... ] }
+	    * @brief list of animations { "name": [ frame1 [ x, y, w, h, frameTime in seconds ], frame2, frame3... ] }
 	    * @memberof Sprite2D
 	    */
         this.animations = opts.animations || {
@@ -9363,8 +9377,15 @@ define("core/components/sprite2d", [ "base/class", "base/time", "core/components
 	    * @memberof Sprite2D
 	    */
         this.mode = Sprite2D.LOOP;
+        /**
+	    * @property Number rate
+	    * @brief animation playback rate, defaults to 1
+	    * @memberof Sprite2D
+	    */
+        this.rate = void 0 !== opts.rate ? opts.rate : 1;
         this._last = 0;
         this._frame = 0;
+        this._order = 1;
         /**
 	    * @property Boolean playing
 	    * @brief is playing animation
@@ -9390,8 +9411,10 @@ define("core/components/sprite2d", [ "base/class", "base/time", "core/components
         }
         this.animation = this.animations.idle;
         this.mode = other.mode;
+        this.rate = other.rate;
         this._last = other._last;
         this._frame = other._frame;
+        this._order = other._order;
         this.playing = other.playing;
         return this;
     };
@@ -9402,9 +9425,10 @@ define("core/components/sprite2d", [ "base/class", "base/time", "core/components
 	 * @param String name
 	 * @param Enum mode
 	 */
-    Sprite2D.prototype.play = function(name, mode) {
-        if (this.animations[name]) {
+    Sprite2D.prototype.play = function(name, mode, rate) {
+        if (name !== this.animation && this.animations[name]) {
             this.animation = name;
+            this.rate = rate || this.rate;
             switch (mode) {
               case Sprite2D.LOOP:
               case "loop":
@@ -9425,7 +9449,8 @@ define("core/components/sprite2d", [ "base/class", "base/time", "core/components
                 this.mode = Sprite2D.LOOP;
             }
             this.playing = !0;
-        } else console.warn("Sprite2D.play: no animation with name " + name);
+            this.trigger("play", name);
+        }
     };
     /**
 	 * @method stop
@@ -9433,11 +9458,12 @@ define("core/components/sprite2d", [ "base/class", "base/time", "core/components
 	 * @brief stops animation
 	 */
     Sprite2D.prototype.stop = function() {
+        this.playing && this.trigger("stop");
         this.playing = !1;
     };
     Sprite2D.prototype.update = function() {
-        var currentFrame, animation = this.animations[this.animation], currentFrame = animation[this._frame], rate = currentFrame[4];
-        if (this.playing && this._last + rate / Time.scale <= Time.time) {
+        var currentFrame, animation = this.animations[this.animation], frame = this._frame, frames = animation.length - 1, order = this._order, currentFrame = animation[frame], frameTime = currentFrame[4];
+        if (this.playing && this._last + frameTime / Time.scale / this.rate <= Time.time) {
             this._last = Time.time;
             if (currentFrame) {
                 this.x = currentFrame[0];
@@ -9445,7 +9471,7 @@ define("core/components/sprite2d", [ "base/class", "base/time", "core/components
                 this.w = currentFrame[2];
                 this.h = currentFrame[3];
             }
-            this._frame >= animation.length - 1 ? this.mode === Sprite2D.loop ? this._frame = 0 : this.mode === Sprite2D.ONCE && this.stop() : this._frame++;
+            this.mode === Sprite2D.PINGPONG ? 1 === order ? frame >= frames ? this._order = -1 : this._frame++ : 0 >= frame ? this._order = 1 : this._frame-- : frame >= frames ? this.mode === Sprite2D.LOOP ? this._frame = 0 : this.mode === Sprite2D.ONCE && this.stop() : this._frame++;
         }
     };
     Sprite2D.prototype.toJSON = function() {
@@ -9519,7 +9545,7 @@ define("core/game/client", [ "base/class" ], function(Class) {
     /**
 	 * @class Client
 	 * @extends Class
-	 * @brief Client Information used by ServerGame
+	 * @brief client information used by ServerGame
 	 * @param Object opts sets Class properties from passed Object
 	 */
     function Client(opts) {
@@ -9543,12 +9569,6 @@ define("core/game/client", [ "base/class" ], function(Class) {
 	    * @memberof Client
 	    */
         this.connectTime = void 0 !== opts.connectTime ? opts.connectTime : 0;
-        /**
-	    * @property Number offset
-	    * @brief the clients time offset
-	    * @memberof Client
-	    */
-        this.offset = 0;
         /**
 	    * @property Scene scene
 	    * @brief clients active scene 
@@ -9714,7 +9734,7 @@ define("core/input/mouse", [ "base/class", "base/time", "math/vec2" ], function(
     };
     Mouse.prototype.handle_mousedown = function(e) {
         if (downNeedsUpdate) {
-            this.startTime = Time.time;
+            this.startTime = Time.stamp();
             this.getPosition(e);
             this.start.copy(this.position);
             this.delta.set(0, 0);
@@ -9752,7 +9772,7 @@ define("core/input/mouse", [ "base/class", "base/time", "math/vec2" ], function(
     };
     Mouse.prototype.handle_mouseup = function(e) {
         if (upNeedsUpdate) {
-            this.endTime = Time.time;
+            this.endTime = Time.stamp();
             this.deltaTime = this.endTime - this.startTime;
             this.getPosition(e);
             this.end.copy(this.position);
@@ -9779,7 +9799,7 @@ define("core/input/mouse", [ "base/class", "base/time", "math/vec2" ], function(
     };
     Mouse.prototype.handle_mouseout = function(e) {
         if (outNeedsUpdate) {
-            this.endTime = Time.time;
+            this.endTime = Time.stamp();
             this.deltaTime = this.endTime - this.startTime;
             this.getPosition(e);
             this.left = !1;
@@ -10023,7 +10043,7 @@ define("core/input/touches", [ "base/class", "base/time", "math/vec2", "core/inp
                 evtTouch = evtTouches[i];
                 touch = touches[i];
                 touch.identifier = evtTouch.identifier;
-                touch.startTime = Time.time;
+                touch.startTime = Time.stamp();
                 touch.getPosition(evtTouch);
                 if (touch._first) {
                     touch._downFrame = Time.frame;
@@ -10077,7 +10097,7 @@ define("core/input/touches", [ "base/class", "base/time", "math/vec2", "core/inp
                             touch._upFrame = Time.frame;
                             touch._first = !0;
                         }
-                        touch.endTime = Time.time;
+                        touch.endTime = Time.stamp();
                         touch.deltaTime = touch.endTime - touch.startTime;
                         touch.end.copy(touch.position);
                         touch.identifier = -1;
@@ -10093,7 +10113,7 @@ define("core/input/touches", [ "base/class", "base/time", "math/vec2", "core/inp
     };
     Touches.prototype.toJSON = function() {
         var json = this._JSON;
-        json.array = this.array;
+        json.array = this.getTouches();
         return json;
     };
     return new Touches();
@@ -10197,7 +10217,7 @@ define("core/input/keyboard", [ "base/class", "base/time", "core/input/key" ], f
             if (key.keyCode === e.keyCode) {
                 key.down = !0;
                 if (key._first) {
-                    key.downTime = Time.time;
+                    key.downTime = Time.stamp();
                     key._downFrame = Time.frame;
                     key._first = !1;
                 }
@@ -10212,7 +10232,7 @@ define("core/input/keyboard", [ "base/class", "base/time", "core/input/key" ], f
             if (key.keyCode === e.keyCode) {
                 key.down = !1;
                 if (!key._first) {
-                    key.endTime = Time.time;
+                    key.endTime = Time.stamp();
                     key._upFrame = Time.frame;
                     key._first = !0;
                 }
@@ -10628,7 +10648,7 @@ define("core/input/input", [ "base/class", "base/dom", "base/time", "core/input/
     var gesture = "", lastGesture = "", lastGestureTime = 0;
     Input.prototype.handleEvents = function(e) {
         e.preventDefault();
-        var timeStamp = (e.timeStamp - Time.startTime) / 1e3, type = e.type;
+        var timeStamp = e.timeStamp / 1e3, type = e.type;
         this._hold(type);
         this._tap(type, timeStamp);
         this._swipe(type);
@@ -10643,7 +10663,7 @@ define("core/input/input", [ "base/class", "base/dom", "base/time", "core/input/
             holdTimer = setTimeout(function() {
                 if ("hold" === gesture) {
                     lastGesture = "hold";
-                    lastGestureTime = Time.time;
+                    lastGestureTime = Time.stamp();
                     scope.trigger("hold", event);
                 }
             }, holdTimeout);
@@ -10662,12 +10682,12 @@ define("core/input/input", [ "base/class", "base/dom", "base/time", "core/input/
             if ("tap" === lastGesture && doubleTapInterval > timeStamp - lastGestureTime && doubleTapDistance > event.delta.lenSq()) {
                 gesture = "doubletap";
                 lastGesture = "doubletap";
-                lastGestureTime = Time.time;
+                lastGestureTime = Time.stamp();
                 this.trigger("doubletap", event);
             } else {
                 gesture = "tap";
                 lastGesture = "tap";
-                lastGestureTime = Time.time;
+                lastGestureTime = Time.stamp();
                 this.trigger("tap", event);
             }
         }
@@ -10679,7 +10699,7 @@ define("core/input/input", [ "base/class", "base/dom", "base/time", "core/input/
             if (Math.abs(delta.x * Time.delta) > swipeVelocity || Math.abs(delta.y * Time.delta) > swipeVelocity) {
                 gesture = "swipe";
                 lastGesture = "swipe";
-                lastGestureTime = Time.time;
+                lastGestureTime = Time.stamp();
                 this.trigger("swipe", event, Mathf.direction(delta.x, delta.y));
             }
         }
@@ -11098,7 +11118,7 @@ define("core/objects/transform2d", [ "base/class", "base/utils", "math/mathf", "
         this._SERVER_ID = json._SERVER_ID;
         for (i = children.length; i--; ) {
             jsonObject = children[i];
-            object = new objectTypes[jsonObject.type]();
+            object = new Class.types[jsonObject.type]();
             this.add(object.fromJSON(jsonObject));
         }
         this.position.fromJSON(json.position);
@@ -11112,7 +11132,7 @@ define("core/objects/transform2d", [ "base/class", "base/utils", "math/mathf", "
 
 if ("function" != typeof define) var define = require("amdefine")(module);
 
-define("core/objects/gameobject2d", [ "base/class", "core/objects/transform2d", "core/objects/camera2d", "core/components/box2d", "core/components/circle2d", "core/components/component", "core/components/poly2d", "core/components/renderable2d", "core/components/rigidbody2d", "core/components/sprite2d" ], function(Class, Transform2D, Camera2D, Box2D, Circle2D, Component, Poly2D, Renderable2D, RigidBody2D, Sprite2D) {
+define("core/objects/gameobject2d", [ "base/class", "core/objects/transform2d", "core/objects/camera2d", "core/components/box2d", "core/components/circle2d", "core/components/component", "core/components/poly2d", "core/components/renderable2d", "core/components/rigidbody2d", "core/components/sprite2d" ], function(Class, Transform2D, Camera2D, Box2D, Circle2D, Component) {
     /**
 	 * @class GameObject2D
 	 * @extends Transform2D
@@ -11162,18 +11182,6 @@ define("core/objects/gameobject2d", [ "base/class", "core/objects/transform2d", 
         this.addTag.apply(this, opts.tags);
         this.addComponent.apply(this, opts.components);
     }
-    var objectTypes = {
-        Transform2D: Transform2D,
-        GameObject2D: GameObject2D,
-        Camera2D: Camera2D,
-        Box2D: Box2D,
-        Circle2D: Circle2D,
-        Component: Component,
-        Poly2D: Poly2D,
-        Renderable2D: Renderable2D,
-        RigidBody2D: RigidBody2D,
-        Sprite2D: Sprite2D
-    };
     Class.extend(GameObject2D, Transform2D);
     /**
 	 * @method copy
@@ -11364,12 +11372,12 @@ define("core/objects/gameobject2d", [ "base/class", "core/objects/transform2d", 
         this._SERVER_ID = json._SERVER_ID;
         for (i = children.length; i--; ) {
             jsonObject = children[i];
-            object = new objectTypes[jsonObject.type]();
+            object = new Class.types[jsonObject.type]();
             this.add(object.fromJSON(jsonObject));
         }
         for (i in components) {
             jsonObject = components[i];
-            object = new objectTypes[jsonObject.type]();
+            object = new Class.types[jsonObject.type]();
             this.addComponent(object.fromJSON(jsonObject));
         }
         for (i = tags.length; i--; ) this.tags[i] = tags[i];
@@ -11555,12 +11563,12 @@ define("core/objects/camera2d", [ "base/class", "math/mathf", "math/vec2", "math
         this._SERVER_ID = json._SERVER_ID;
         for (i = children.length; i--; ) {
             jsonObject = children[i];
-            object = new objectTypes[jsonObject.type]();
+            object = new Class.types[jsonObject.type]();
             this.add(object.fromJSON(jsonObject));
         }
         for (i in components) {
             jsonObject = components[i];
-            object = new objectTypes[jsonObject.type]();
+            object = new Class.types[jsonObject.type]();
             this.addComponent(object.fromJSON(jsonObject));
         }
         for (i = tags.length; i--; ) this.tags[i] = tags[i];
@@ -11611,11 +11619,6 @@ define("core/scene/scene2d", [ "base/class", "base/utils", "core/scene/world2d",
         this.world = opts.world instanceof World2D ? opts.world : new World2D(opts);
         this.add.apply(this, opts.children);
     }
-    var objectTypes = {
-        Camera2D: Camera2D,
-        GameObject2D: GameObject2D,
-        Transform2D: Transform2D
-    };
     Class.extend(Scene2D, Class);
     /**
 	 * @method forEach
@@ -11805,7 +11808,7 @@ define("core/scene/scene2d", [ "base/class", "base/utils", "core/scene/world2d",
         this.clear();
         for (i = children.length; i--; ) {
             jsonObject = children[i];
-            object = new objectTypes[jsonObject.type]();
+            object = new Class.types[jsonObject.type]();
             this.add(object.fromJSON(jsonObject));
         }
         return this;
@@ -11970,7 +11973,7 @@ define("core/canvasrenderer2d", [ "base/class", "base/dom", "base/device", "base
 	    * @brief ratio of pixels/meter
 	    * @memberof CanvasRenderer2D
 	    */
-        this.pixelRatio = void 0 !== opts.pixelRatio ? opts.pixelRatio : 128;
+        this.pixelRatio = (void 0 !== opts.pixelRatio ? opts.pixelRatio : 128) * Device.pixelRatio;
         this._invPixelRatio = 1 / this.pixelRatio;
         /**
 	    * @property Canvas canvas
@@ -12070,7 +12073,7 @@ define("core/canvasrenderer2d", [ "base/class", "base/dom", "base/device", "base
         };
     }();
     CanvasRenderer2D.prototype.renderComponent = function() {
-        var modelViewProj = new Mat32(), mvp = modelViewProj.elements;
+        var model = new Mat32(), modelView = new Mat32(), modelViewProj = new Mat32(), mvp = modelViewProj.elements;
         return function(component, camera) {
             var sleepState, vertex, x, y, i, ctx = this.context, images = this._data.images, gameObject = component.gameObject, offset = component.offset, imageSrc = component.image, radius = component.radius, extents = component.extents, vertices = component.vertices, body = component.body, image = images[imageSrc];
             if (!image && imageSrc) if ("default" === imageSrc) image = images["default"]; else {
@@ -12078,8 +12081,9 @@ define("core/canvasrenderer2d", [ "base/class", "base/dom", "base/device", "base
                 image.src = imageSrc;
                 images[imageSrc] = image;
             }
-            gameObject.matrixModelView.mmul(gameObject.matrixWorld, camera.matrixWorldInverse);
-            modelViewProj.mmul(gameObject.matrixModelView, camera.matrixProjection);
+            model.copy(gameObject.matrixWorld);
+            modelView.mmul(model, camera.matrixWorldInverse);
+            modelViewProj.mmul(modelView, camera.matrixProjection);
             ctx.save();
             ctx.transform(mvp[0], -mvp[2], -mvp[1], mvp[3], mvp[4], mvp[5]);
             ctx.scale(1, -1);
@@ -12096,17 +12100,17 @@ define("core/canvasrenderer2d", [ "base/class", "base/dom", "base/device", "base
                 ctx.beginPath();
                 if (radius) {
                     component.body && ctx.lineTo(0, 0);
-                    ctx.arc(0, 0, radius, 0, TWO_PI);
+                    ctx.arc(offset.x, -offset.y, radius, 0, TWO_PI);
                 } else if (extents) {
-                    x = extents.x;
-                    y = extents.y;
+                    x = offset.x + extents.x;
+                    y = extents.y - offset.y;
                     ctx.lineTo(x, y);
                     ctx.lineTo(-x, y);
                     ctx.lineTo(-x, -y);
                     ctx.lineTo(x, -y);
                 } else if (vertices) for (i = vertices.length; i--; ) {
                     vertex = vertices[i];
-                    ctx.lineTo(vertex.x, vertex.y);
+                    ctx.lineTo(offset.x + vertex.x, vertex.y - offset.y);
                 }
                 ctx.closePath();
                 component.fill && ctx.fill();
@@ -12176,7 +12180,7 @@ define("core/webglrenderer2d", [ "base/class", "base/dom", "base/device", "base/
 	    * @brief ratio of pixels/meter
 	    * @memberof WebGLRenderer2D
 	    */
-        this.pixelRatio = void 0 !== opts.pixelRatio ? opts.pixelRatio : 128;
+        this.pixelRatio = (void 0 !== opts.pixelRatio ? opts.pixelRatio : 128) * Device.pixelRatio;
         this._invPixelRatio = 1 / this.pixelRatio;
         /**
 	    * @property Canvas canvas
@@ -12400,7 +12404,7 @@ define("core/webglrenderer2d", [ "base/class", "base/dom", "base/device", "base/
         var lastLineWidth = 1;
         return function(width) {
             if (width !== lastLineWidth) {
-                this.context.lineWidth(width);
+                this.context.lineWidth(width * this.pixelRatio);
                 lastLineWidth = width;
             }
         };
@@ -12451,18 +12455,19 @@ define("core/webglrenderer2d", [ "base/class", "base/dom", "base/device", "base/
         };
     }();
     WebGLRenderer2D.prototype.renderComponent = function() {
-        var modelView = new Mat4(), modelViewProj = new Mat4(), mvp = modelViewProj.elements;
+        var model32 = new Mat32(), modelView32 = new Mat32(), modelView4 = new Mat4(), modelViewProj4 = new Mat4(), mvp = modelViewProj4.elements;
         return function(component, camera) {
-            var sleepState, uniforms, attributes, w, h, gl = this.context, data = this._data, imageSrc = component.image, image = data.images[imageSrc], texture = data.textures[imageSrc], componentData = component._data, color = component.color, lineColor = component.lineColor, alpha = component.alpha, gameObject = component.gameObject, body = component.body, sprite = data.sprite, basic = data.basic;
+            var sleepState, uniforms, attributes, w, h, gl = this.context, data = this._data, imageSrc = component.image, image = data.images[imageSrc], texture = data.textures[imageSrc], componentData = component._data, offset = component.offset, color = component.color, lineColor = component.lineColor, alpha = component.alpha, gameObject = component.gameObject, body = component.body, sprite = data.sprite, basic = data.basic;
             if (!texture && imageSrc) {
                 this.createImage(imageSrc);
                 image = data.images["default"];
                 texture = data.textures["default"];
             }
             componentData.needsUpdate && this.setupBuffers(componentData);
-            gameObject.matrixModelView.mmul(gameObject.matrixWorld, camera.matrixWorldInverse);
-            modelView.fromMat32(gameObject.matrixModelView);
-            modelViewProj.mmul(camera._matrixProjection3D, modelView);
+            model32.copy(gameObject.matrixWorld).translate(offset);
+            modelView32.mmul(model32, camera.matrixWorldInverse);
+            modelView4.fromMat32(modelView32);
+            modelViewProj4.mmul(camera._matrixProjection3D, modelView4);
             if (componentData.uvBuffer) {
                 gl.useProgram(sprite.program);
                 w = 1 / image.width;
@@ -12806,7 +12811,7 @@ define("core/game/game", [ "base/class", "base/utils", "base/device", "base/dom"
 
 if ("function" != typeof define) var define = require("amdefine")(module);
 
-define("core/game/clientgame", [ "require", "base/class", "base/time", "base/device", "core/input/input", "core/input/mouse", "core/input/touches", "core/input/keyboard", "core/input/accelerometer", "core/input/orientation", "core/scene/scene2d", "core/game/game", "core/objects/camera2d", "core/objects/gameobject2d", "core/objects/transform2d" ], function(require, Class, Time, Device, Input, Mouse, Touches, Keyboard, Accelerometer, Orientation, Scene2D, Game, Camera2D, GameObject2D, Transform2D) {
+define("core/game/clientgame", [ "require", "base/class", "base/time", "base/device", "core/input/input", "core/input/mouse", "core/input/touches", "core/input/keyboard", "core/input/accelerometer", "core/input/orientation", "core/scene/scene2d", "core/game/game", "core/objects/camera2d", "core/objects/gameobject2d", "core/objects/transform2d" ], function(require, Class, Time, Device, Input, Mouse, Touches, Keyboard, Accelerometer, Orientation, Scene2D, Game) {
     /**
 	 * @class ClientGame
 	 * @extends Game
@@ -12845,16 +12850,13 @@ define("core/game/clientgame", [ "require", "base/class", "base/time", "base/dev
         });
         socket.on("connection", function(id, scenes) {
             self.id = id;
-            socket.emit("device", Device);
+            socket.emit("clientConnect", Device);
             for (i = scenes.length; i--; ) {
                 jsonObject = scenes[i];
-                object = new objectTypes[jsonObject.type]();
+                object = new Class.types[jsonObject.type]();
                 object.fromJSON(jsonObject);
                 self.addScene(object);
             }
-            socket.on("sync", function(timeStamp) {
-                socket.emit("clientOffset", Time.stamp() - timeStamp);
-            });
             socket.on("cameraZoom", function(scene, gameObject, zoom) {
                 scene = self.findSceneByServerId(scene);
                 if (scene) {
@@ -12900,7 +12902,7 @@ define("core/game/clientgame", [ "require", "base/class", "base/time", "base/dev
                 if (scene) {
                     gameObject = scene.findByServerId(gameObject);
                     if (gameObject) {
-                        object = new objectTypes[component.type]();
+                        object = new Class.types[component.type]();
                         object.fromJSON(component);
                         gameObject.addComponent(object);
                     }
@@ -12916,7 +12918,7 @@ define("core/game/clientgame", [ "require", "base/class", "base/time", "base/dev
             socket.on("addGameObject", function(scene, gameObject) {
                 scene = self.findSceneByServerId(scene);
                 if (scene) {
-                    object = new objectTypes[gameObject.type]();
+                    object = new Class.types[gameObject.type]();
                     object.fromJSON(gameObject);
                     scene.add(object);
                 }
@@ -12929,7 +12931,7 @@ define("core/game/clientgame", [ "require", "base/class", "base/time", "base/dev
                 }
             });
             socket.on("addScene", function(scene) {
-                object = new objectTypes[scene.type]();
+                object = new Class.types[scene.type]();
                 object.fromJSON(scene);
                 self.add(object);
             });
@@ -12989,12 +12991,6 @@ define("core/game/clientgame", [ "require", "base/class", "base/time", "base/dev
             });
         });
     }
-    var objectTypes = {
-        Scene2D: Scene2D,
-        Camera2D: Camera2D,
-        GameObject2D: GameObject2D,
-        Transform2D: Transform2D
-    };
     Class.extend(ClientGame, Game);
     return ClientGame;
 });
@@ -13069,18 +13065,10 @@ define("core/game/servergame", [ "require", "base/class", "base/time", "core/gam
             socket.on("error", function(error) {
                 console.log("ServerGame: Client id: " + id + " to error: " + error);
             });
-            socket.on("device", function(device) {
+            socket.on("clientConnect", function(device) {
                 client.device = device;
                 self.trigger("connection", id);
                 console.log("ServerGame: new Client id: " + id + " " + device.userAgent);
-            });
-            socket.on("clientOffset", function(offset) {
-                client.offset = offset;
-                if (offset > 10) {
-                    console.log("ServerGame: disconnected Client with id " + id + " due to slow connection");
-                    self.trigger("disconnect", id);
-                    socket.disconnect();
-                }
             });
             socket.on("accelerometer", function(accelerometer) {
                 client.trigger("accelerometer", accelerometer);
@@ -13097,13 +13085,13 @@ define("core/game/servergame", [ "require", "base/class", "base/time", "core/gam
             socket.on("keyup", function(key) {
                 client.trigger("keyup", key);
             });
-            socket.on("touchstart", function(touch) {
+            socket.on("touchstart", function(Touches, touch) {
                 client.trigger("touchstart", touch);
             });
-            socket.on("touchend", function(touch) {
+            socket.on("touchend", function(Touches, touch) {
                 client.trigger("touchend", touch);
             });
-            socket.on("touchmove", function(touch) {
+            socket.on("touchmove", function(Touches, touch) {
                 client.trigger("touchmove", touch);
             });
             socket.on("mousedown", function(Mouse) {
@@ -13179,7 +13167,7 @@ define("core/game/servergame", [ "require", "base/class", "base/time", "core/gam
         }
     };
     /**
-	 * @method addScene
+	 * @method removeScene
 	 * @memberof ServerGame
 	 * @brief removes all scenes in arguments from game
 	 */
@@ -13269,7 +13257,6 @@ define("core/game/servergame", [ "require", "base/class", "base/time", "core/gam
         Time.sinceStart = Time.now();
         Time.update();
         for (i = scenes.length; i--; ) scenes[i].update();
-        this.io.sockets.emit("sync", Time.stamp());
     };
     /**
 	 * @method animate

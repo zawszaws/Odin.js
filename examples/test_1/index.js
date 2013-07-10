@@ -24,6 +24,7 @@ require(
 	    
 	    sprite = new GameObject2D({
 		position: new Vec2( 0, 2 ),
+		z: 1,
 		components: [
 		    new Sprite2D({
 			offset: new Vec2( 0, 0.25 ),

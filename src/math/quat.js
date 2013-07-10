@@ -446,7 +446,7 @@ define([
         /**
 	 * @method setVec3s
 	 * @memberof Quat
-	 * @brief sets quat from to vectors
+	 * @brief sets quat from two vectors
 	 * @param Vec3 u
 	 * @param Vec3 v
 	 * @return Quat

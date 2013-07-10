@@ -510,7 +510,7 @@ define([
 	    return function( width ){
 		
 		if( width !== lastLineWidth ){
-		    this.context.lineWidth( width );
+		    this.context.lineWidth( width * this.pixelRatio );
 		    lastLineWidth = width;
 		}
 	    };

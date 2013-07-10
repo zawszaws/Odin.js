@@ -10,7 +10,8 @@ require(
 	Odin.globalize();
 	
 	game = new Game({
-	    debug: true
+	    debug: true,
+	    //forceCanvas: true
 	});
 	
 	game.on("init", function(){
@@ -18,8 +19,7 @@ require(
 	    
 	    scene = new Scene2D;
 	    camera = new Camera2D({
-		position: new Vec2( 0, 2 ),
-		zoom: 2
+		position: new Vec2( 0, 2 )
 	    });
 	    
 	    ground = new GameObject2D({
@@ -91,7 +91,6 @@ require(
 	    });
 	    
 	    scene.add( ground, wallLeft, wallRight, ceiling );
-	    
 	    
 	    for( var i = 256; i--; ){
 		var r = Mathf.randFloat( 0.1, 0.25 );

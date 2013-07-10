@@ -24,7 +24,7 @@ define([
         function RigidBody2D( opts ){
             opts || ( opts = {} );
 	    
-            Renderable2D.call( this );
+            Renderable2D.call( this, opts );
 	    
 	    /**
 	    * @property Number radius
@@ -102,16 +102,20 @@ define([
 	    
 	    Renderable2D.call( this, other );
 	    
-	    this.radius = other.radius;
-	    
+	    if( other.radius ){
+		this.radius = other.radius;
+		this.calculateCircle();
+	    }
 	    if( other.extents ){
 		this.extents = new Vec2().copy( other.extents );
+		this.calculateBox();
 	    }
 	    if( vertices ){
 		for( i = vertices.length; i--; ){
 		    vertex = this.vertices[i] || new Vec2;
 		    vertex.copy( vertices[i] );
 		}
+		this.calculatePoly();
 	    }
 	    this.body.copy( other );
 	    

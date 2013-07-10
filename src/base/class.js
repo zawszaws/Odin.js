@@ -134,7 +134,7 @@ define(
 	/**
 	 * @method listenTo
 	 * @memberof Class
-	 * @brief listen to anothers objects event
+	 * @brief listen to another objects event
 	 * @param Class obj object to listen to
 	 * @param String name name of the event
 	 * @param Function callback function to call on event
@@ -194,8 +194,8 @@ define(
 	};
 	
 	/**
-	* @property Object types
-	* @brief reference of all extended classes
+	* @property Object Class.types
+	* @brief holds reference to all extended classes
 	* @memberof Class
 	*/
 	Class.types = {
