@@ -8,12 +8,10 @@ define([
 	"math/aabb2",
 	"physics2d/body/pbody2d",
 	"physics2d/body/pparticle2d",
-	"physics2d/shape/pbox2d",
-	"physics2d/shape/pcircle2d",
-	"physics2d/shape/pconvex2d",
+	"physics2d/shape/prect2d",
 	"physics2d/shape/pshape2d",
     ],
-    function( Class, Vec2, Mat2, AABB2, PBody2D, PParticle2D, PBox2D, PCircle2D, PConvex2D, PShape2D ){
+    function( Class, Vec2, Mat2, AABB2, PBody2D, PParticle2D, PRect2D, PShape2D ){
         "use strict";
 	
 	var AWAKE = PParticle2D.AWAKE,
@@ -40,7 +38,7 @@ define([
 	    * @brief the shape of the body
 	    * @memberof PRigidBody2D
 	    */
-	    this.shape = opts.shape instanceof PShape2D ? opts.shape : new PBox2D;
+	    this.shape = opts.shape instanceof PShape2D ? opts.shape : new PRect2D;
 	    this.shape.body = this;
 	    
 	    /**

@@ -12,14 +12,10 @@ define([
 	"core/input/keyboard",
 	"core/input/accelerometer",
 	"core/input/orientation",
-	"core/scene/scene2d",
-	"core/game/game",
-	"core/objects/camera2d",
-	"core/objects/gameobject2d",
-	"core/objects/transform2d"
+	"core/game/game"
 	
     ],
-    function( require, Class, Time, Device, Input, Mouse, Touches, Keyboard, Accelerometer, Orientation, Scene2D, Game, Camera2D, GameObject2D, Transform2D ){
+    function( require, Class, Time, Device, Input, Mouse, Touches, Keyboard, Accelerometer, Orientation, Game ){
 	"use strict";
 	
 	/**

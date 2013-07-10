@@ -1,11 +1,6 @@
 if( typeof define !== "function" ){
     var define = require("amdefine")( module );
 }
-
-require.config({
-    name: "odin"
-});
-
 define([
 	"base/class",
 	"math/mathf",
@@ -25,7 +20,7 @@ define([
 	    min = Math.min,
 	    max = Math.max,
 	    
-	    BOX = PShape2D.BOX,
+	    RECT = PShape2D.RECT,
 	    CIRCLE = PShape2D.CIRCLE,
 	    CONVEX = PShape2D.CONVEX,
 	    
@@ -495,13 +490,13 @@ define([
 			    this.circleCircle( bi, bj, si, sj, xi, xj, contacts );
 			    break;
 			
-			case BOX:
+			case RECT:
 			case CONVEX:
 			    this.convexCircle( bj, bi, sj, si, xj, xi, Rj, contacts );
 			    break;
 		    }
 		}
-		else if( si.type === BOX || si.type === CONVEX ){
+		else if( si.type === RECT || si.type === CONVEX ){
 		    
 		    switch( sj.type ){
 			
@@ -509,7 +504,7 @@ define([
 			    this.convexCircle( bi, bj, si, sj, xi, xj, Ri, contacts );
 			    break;
 			
-			case BOX:
+			case RECT:
 			case CONVEX:
 			    this.convexConvex( bi, bj, si, sj, xi, xj, Ri, Rj, contacts );
 			    break;

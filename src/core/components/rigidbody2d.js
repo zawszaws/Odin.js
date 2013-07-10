@@ -9,10 +9,10 @@ define([
 	"physics2d/body/prigidbody2d",
 	"physics2d/shape/pshape2d",
 	"physics2d/shape/pcircle2d",
-	"physics2d/shape/pbox2d",
+	"physics2d/shape/prect2d",
 	"physics2d/shape/pconvex2d"
     ],
-    function( Class, Time, Renderable2D, PBody2D, PRigidBody2D, PShape2D, PCircle2D, PBox2D, PConvex2D ){
+    function( Class, Time, Renderable2D, PBody2D, PRigidBody2D, PShape2D, PCircle2D, PRect2D, PConvex2D ){
         "use strict";
 	
         /**
@@ -35,7 +35,7 @@ define([
 	    
 	    /**
 	    * @property Vec2 extents
-	    * @brief if passed shape will be a Box, half extents of the RigidBody
+	    * @brief if passed shape will be a Rect, half extents of the RigidBody
 	    * @memberof RigidBody2D
 	    */
 	    this.extents = undefined;
@@ -55,9 +55,9 @@ define([
 		this.calculateCircle();
 	    }
 	    if( opts.extents ){
-		shape = new PBox2D( opts.extents );
+		shape = new PRect2D( opts.extents );
 		this.extents = opts.extents || shape.extents;
-		this.calculateBox();
+		this.calculateRect();
 	    }
 	    if( opts.vertices ){
 		shape = new PConvex2D( opts.vertices );
@@ -108,7 +108,7 @@ define([
 	    }
 	    if( other.extents ){
 		this.extents = new Vec2().copy( other.extents );
-		this.calculateBox();
+		this.calculateRect();
 	    }
 	    if( vertices ){
 		for( i = vertices.length; i--; ){

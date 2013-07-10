@@ -3,17 +3,9 @@ if( typeof define !== "function" ){
 }
 define([
 	"base/class",
-	"core/objects/transform2d",
-	"core/objects/camera2d",
-	"core/components/box2d",
-	"core/components/circle2d",
-	"core/components/component",
-	"core/components/poly2d",
-	"core/components/renderable2d",
-	"core/components/rigidbody2d",
-	"core/components/sprite2d"
+	"core/objects/transform2d"
     ],
-    function( Class, Transform2D, Camera2D, Box2D, Circle2D, Component, Poly2D, Renderable2D, RigidBody2D, Sprite2D ){
+    function( Class, Transform2D ){
         "use strict";
 	
 	/**

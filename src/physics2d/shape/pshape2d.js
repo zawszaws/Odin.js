@@ -27,7 +27,7 @@ define([
 	    
 	    /**
 	    * @property Enum type
-	    * @brief shape type, 1 - BOX, 2 - CIRCLE, 3 - CONVEX
+	    * @brief shape type, 1 - RECT, 2 - CIRCLE, 3 - CONVEX
 	    * @memberof PShape2D
 	    */
 	    this.type = 0;
@@ -136,7 +136,7 @@ define([
 	};
 	
 	
-	PShape2D.BOX = 1;
+	PShape2D.RECT = 1;
 	PShape2D.CIRCLE = 2;
 	PShape2D.CONVEX = 3;
 	

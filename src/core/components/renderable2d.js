@@ -150,7 +150,7 @@ define([
 	};
         
 	
-	Renderable2D.prototype.calculateBox = function(){
+	Renderable2D.prototype.calculateRect = function(){
 	    var data = this._data,
 		extents = this.extents,
 		w = extents.x, h = extents.y,

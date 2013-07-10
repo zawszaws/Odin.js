@@ -4,19 +4,10 @@ if( typeof define !== "function" ){
 define([
 	"base/class",
 	"base/utils",
-	"core/scene/world2d",
-	"core/objects/camera2d",
-	"core/objects/gameobject2d",
-	"core/objects/transform2d"
+	"core/scene/world2d"
     ],
-    function( Class, Utils, World2D, Camera2D, GameObject2D, Transform2D ){
+    function( Class, Utils, World2D ){
         "use strict";
-	
-	var objectTypes = {
-		Camera2D: Camera2D,
-		GameObject2D: GameObject2D,
-		Transform2D: Transform2D
-	    };
 	
         /**
 	 * @class Scene2D

@@ -87,18 +87,18 @@ define(
 	Odin.PEquation2D = require("physics2d/constraints/pequation2d");
 	Odin.PFriction2D = require("physics2d/constraints/pfriction2d");
 	
-	Odin.PBox2D = require("physics2d/shape/pbox2d");
 	Odin.PCircle2D = require("physics2d/shape/pcircle2d");
 	Odin.PConvex2D = require("physics2d/shape/pconvex2d");
+	Odin.PRect2D = require("physics2d/shape/prect2d");
 	Odin.PShape2D = require("physics2d/shape/pshape2d");
 	
 	Odin.PSolver2D = require("physics2d/psolver2d");
 	Odin.PWorld2D = require("physics2d/pworld2d");
 	
-	Odin.Box2D = require("core/components/box2d");
 	Odin.Circle2D = require("core/components/circle2d");
 	Odin.Component = require("core/components/component");
 	Odin.Poly2D = require("core/components/poly2d");
+	Odin.Rect2D = require("core/components/rect2d");
 	Odin.Renderable2D = require("core/components/renderable2d");
 	Odin.RigidBody2D = require("core/components/rigidbody2d");
 	Odin.Sprite2D = require("core/components/sprite2d");

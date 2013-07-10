@@ -68,18 +68,18 @@ define(
 	Odin.PEquation2D = requirejs("physics2d/constraints/pequation2d");
 	Odin.PFriction2D = requirejs("physics2d/constraints/pfriction2d");
 	
-	Odin.PBox2D = requirejs("physics2d/shape/pbox2d");
 	Odin.PCircle2D = requirejs("physics2d/shape/pcircle2d");
 	Odin.PConvex2D = requirejs("physics2d/shape/pconvex2d");
+	Odin.PRect2D = require("physics2d/shape/prect2d");
 	Odin.PShape2D = requirejs("physics2d/shape/pshape2d");
 	
 	Odin.PSolver2D = requirejs("physics2d/psolver2d");
 	Odin.PWorld2D = requirejs("physics2d/pworld2d");
 	
-	Odin.Box2D = requirejs("core/components/box2d");
 	Odin.Circle2D = requirejs("core/components/circle2d");
 	Odin.Component = requirejs("core/components/component");
 	Odin.Poly2D = requirejs("core/components/poly2d");
+	Odin.Rect2D = requirejs("core/components/rect2d");
 	Odin.Renderable2D = requirejs("core/components/renderable2d");
 	Odin.RigidBody2D = requirejs("core/components/rigidbody2d");
 	Odin.Sprite2D = requirejs("core/components/sprite2d");
@@ -93,7 +93,6 @@ define(
 	
 	Odin.Scene2D = requirejs("core/scene/scene2d");
 	Odin.World2D = requirejs("core/scene/world2d");
-	
 	
 	return Odin;
     }

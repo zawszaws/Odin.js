@@ -7034,7 +7034,7 @@ define("physics2d/shape/pshape2d", [ "base/class", "math/vec2", "math/aabb2" ], 
         this.body = void 0;
         /**
 	    * @property Enum type
-	    * @brief shape type, 1 - BOX, 2 - CIRCLE, 3 - CONVEX
+	    * @brief shape type, 1 - RECT, 2 - CIRCLE, 3 - CONVEX
 	    * @memberof PShape2D
 	    */
         this.type = 0;
@@ -7121,7 +7121,7 @@ define("physics2d/shape/pshape2d", [ "base/class", "math/vec2", "math/aabb2" ], 
         this.boundingRadius = json.boundingRadius;
         return this;
     };
-    PShape2D.BOX = 1;
+    PShape2D.RECT = 1;
     PShape2D.CIRCLE = 2;
     PShape2D.CONVEX = 3;
     return PShape2D;
@@ -7273,51 +7273,51 @@ define("physics2d/shape/pconvex2d", [ "base/class", "math/vec2", "physics2d/shap
 
 if ("function" != typeof define) var define = require("amdefine")(module);
 
-define("physics2d/shape/pbox2d", [ "base/class", "math/vec2", "physics2d/shape/pshape2d", "physics2d/shape/pconvex2d" ], function(Class, Vec2, PShape2D, PConvex2D) {
+define("physics2d/shape/prect2d", [ "base/class", "math/vec2", "physics2d/shape/pshape2d", "physics2d/shape/pconvex2d" ], function(Class, Vec2, PShape2D, PConvex2D) {
     /**
-	 * @class PBox2D
+	 * @class PRect2D
 	 * @extends PConvex2D
-	 * @brief Box shape class
+	 * @brief Rectangle shape class
 	 * @param Vec2 extents
 	 */
-    function PBox2D(extents) {
+    function PRect2D(extents) {
         /**
 	    * @property Vec2 extents
 	    * @memberof PShape2D
-	    * @brief the half extents of box
+	    * @brief the half extents of rect
 	    */
         this.extents = extents instanceof Vec2 ? extents : new Vec2(.5, .5);
         var x = this.extents.x, y = this.extents.y, vertices = [ new Vec2(x, y), new Vec2(-x, y), new Vec2(-x, -y), new Vec2(x, -y) ];
         PConvex2D.call(this, vertices);
-        this.type = PShape2D.BOX;
+        this.type = PShape2D.RECT;
         this.calculateAABB();
         this.calculateBoundingRadius();
         this.calculateVolume();
     }
     var sqrt = Math.sqrt;
-    Class.extend(PBox2D, PConvex2D);
-    PBox2D.prototype.calculateAABB = function() {
+    Class.extend(PRect2D, PConvex2D);
+    PRect2D.prototype.calculateAABB = function() {
         var extents = this.extents, x = extents.x, y = extents.y, aabb = this.aabb, min = aabb.min, max = aabb.max;
         min.x = -x;
         min.y = -y;
         max.x = x;
         max.y = y;
     };
-    PBox2D.prototype.calculateInertia = function(mass) {
+    PRect2D.prototype.calculateInertia = function(mass) {
         var extents = this.extents, w = 2 * extents.x, h = 2 * extents.y;
         return mass * (w * w + h * h) / 12;
     };
-    PBox2D.prototype.calculateBoundingRadius = function() {
+    PRect2D.prototype.calculateBoundingRadius = function() {
         var extents = this.extents, x = extents.x, y = extents.y, l = x * x + y * y;
         this.boundingRadius = 0 !== l ? sqrt(l) : 0;
     };
-    PBox2D.prototype.calculateVolume = function() {
+    PRect2D.prototype.calculateVolume = function() {
         var extents = this.extents, w = 2 * extents.x, h = 2 * extents.y;
         this.volume = w * h;
     };
-    PBox2D.prototype.toJSON = function() {
+    PRect2D.prototype.toJSON = function() {
         var i, json = this._JSON, vertices = this.vertices, normals = this.normals;
-        json.type = "PBox2D";
+        json.type = "PRect2D";
         json._SERVER_ID = this._id;
         json.shapeType = this.type;
         json.aabb = this.aabb;
@@ -7330,7 +7330,7 @@ define("physics2d/shape/pbox2d", [ "base/class", "math/vec2", "physics2d/shape/p
         json.extents = this.extents;
         return json;
     };
-    PBox2D.prototype.fromJSON = function(json) {
+    PRect2D.prototype.fromJSON = function(json) {
         var i, vertices = json.vertices, normals = json.normals;
         this.type = json.shapeType;
         this._SERVER_ID = json._SERVER_ID;
@@ -7342,81 +7342,12 @@ define("physics2d/shape/pbox2d", [ "base/class", "math/vec2", "physics2d/shape/p
         this.extents = json.extents;
         return this;
     };
-    return PBox2D;
+    return PRect2D;
 });
 
 if ("function" != typeof define) var define = require("amdefine")(module);
 
-define("physics2d/shape/pcircle2d", [ "base/class", "math/vec2", "physics2d/shape/pshape2d" ], function(Class, Vec2, PShape2D) {
-    /**
-	 * @class PCircle2D
-	 * @extends PShape2D
-	 * @brief Circle shape class
-	 * @param Number radius
-	 */
-    function PCircle2D(radius) {
-        PShape2D.call(this);
-        this.type = PShape2D.CIRCLE;
-        /**
-	    * @property Number radius
-	    * @memberof PCircle2D
-	    */
-        this.radius = void 0 !== radius ? radius : .5;
-        this.calculateAABB();
-        this.calculateBoundingRadius();
-        this.calculateVolume();
-    }
-    var PI = Math.PI;
-    Class.extend(PCircle2D, PShape2D);
-    PCircle2D.prototype.calculateAABB = function() {
-        var r = this.radius, aabb = this.aabb, min = aabb.min, max = aabb.max;
-        min.x = min.y = -r;
-        max.x = max.y = r;
-    };
-    PCircle2D.prototype.calculateWorldAABB = function(position, R, aabb) {
-        var r = this.radius, min = aabb.min, max = aabb.max, x = position.x, y = position.y;
-        min.x = x - r;
-        min.y = y - r;
-        max.x = x + r;
-        max.y = r + y;
-    };
-    PCircle2D.prototype.calculateInertia = function(mass) {
-        var r = this.radius;
-        return .4 * mass * r * r;
-    };
-    PCircle2D.prototype.calculateBoundingRadius = function() {
-        this.boundingRadius = this.radius;
-    };
-    PCircle2D.prototype.calculateVolume = function() {
-        var r = this.radius;
-        this.volume = PI * r * r;
-    };
-    PCircle2D.prototype.toJSON = function() {
-        var json = this._JSON;
-        json.type = "PCircle2D";
-        json._SERVER_ID = this._id;
-        json.shapeType = this.type;
-        json.aabb = this.aabb;
-        json.volume = this.volume;
-        json.boundingRadius = this.boundingRadius;
-        json.radius = this.radius;
-        return json;
-    };
-    PCircle2D.prototype.fromJSON = function(json) {
-        this.type = json.shapeType;
-        this._SERVER_ID = json._SERVER_ID;
-        this.aabb.fromJSON(json.aabb);
-        this.volume = json.volume;
-        this.boundingRadius = json.boundingRadius;
-        this.radius = json.radius;
-        return this;
-    };
-    return PCircle2D;
-});
-
-if ("function" != typeof define) var define = require("amdefine")(module);
-
-define("physics2d/body/prigidbody2d", [ "base/class", "math/vec2", "math/mat2", "math/aabb2", "physics2d/body/pbody2d", "physics2d/body/pparticle2d", "physics2d/shape/pbox2d", "physics2d/shape/pcircle2d", "physics2d/shape/pconvex2d", "physics2d/shape/pshape2d" ], function(Class, Vec2, Mat2, AABB2, PBody2D, PParticle2D, PBox2D, PCircle2D, PConvex2D, PShape2D) {
+define("physics2d/body/prigidbody2d", [ "base/class", "math/vec2", "math/mat2", "math/aabb2", "physics2d/body/pbody2d", "physics2d/body/pparticle2d", "physics2d/shape/prect2d", "physics2d/shape/pshape2d" ], function(Class, Vec2, Mat2, AABB2, PBody2D, PParticle2D, PRect2D, PShape2D) {
     /**
 	 * @class PRigidBody2D
 	 * @extends PParticle2D
@@ -7431,7 +7362,7 @@ define("physics2d/body/prigidbody2d", [ "base/class", "math/vec2", "math/mat2", 
 	    * @brief the shape of the body
 	    * @memberof PRigidBody2D
 	    */
-        this.shape = opts.shape instanceof PShape2D ? opts.shape : new PBox2D();
+        this.shape = opts.shape instanceof PShape2D ? opts.shape : new PRect2D();
         this.shape.body = this;
         /**
 	    * @property Number rotation
@@ -7720,10 +7651,6 @@ define("physics2d/collision/pbroadphase2d", [ "base/class", "math/aabb2", "physi
 
 if ("function" != typeof define) var define = require("amdefine")(module);
 
-require.config({
-    name: "odin"
-});
-
 define("physics2d/collision/pnearphase2d", [ "base/class", "math/mathf", "math/vec2", "math/line2", "physics2d/shape/pshape2d" ], function(Class, Mathf, Vec2, Line2, PShape2D) {
     function createContact(bi, bj, contacts) {
         var c = contactPool.length ? contactPool.pop() : new PContact2D(bi, bj);
@@ -7825,7 +7752,7 @@ define("physics2d/collision/pnearphase2d", [ "base/class", "math/mathf", "math/v
         Class.call(this);
     }
     var EPSILON = Mathf.EPSILON, clamp01 = Mathf.clamp01, sqrt = (Mathf.equals, Math.abs, 
-    Math.sqrt), BOX = (Math.min, Math.max, PShape2D.BOX), CIRCLE = PShape2D.CIRCLE, CONVEX = PShape2D.CONVEX, contactPool = [];
+    Math.sqrt), RECT = (Math.min, Math.max, PShape2D.RECT), CIRCLE = PShape2D.CIRCLE, CONVEX = PShape2D.CONVEX, contactPool = [];
     Class.extend(PNearphase2D, Class);
     /**
 	 * @method collisions
@@ -8061,15 +7988,15 @@ define("physics2d/collision/pnearphase2d", [ "base/class", "math/mathf", "math/v
             this.circleCircle(bi, bj, si, sj, xi, xj, contacts);
             break;
 
-          case BOX:
+          case RECT:
           case CONVEX:
             this.convexCircle(bj, bi, sj, si, xj, xi, Rj, contacts);
-        } else if (si.type === BOX || si.type === CONVEX) switch (sj.type) {
+        } else if (si.type === RECT || si.type === CONVEX) switch (sj.type) {
           case CIRCLE:
             this.convexCircle(bi, bj, si, sj, xi, xj, Ri, contacts);
             break;
 
-          case BOX:
+          case RECT:
           case CONVEX:
             this.convexConvex(bi, bj, si, sj, xi, xj, Ri, Rj, contacts);
         }
@@ -8366,6 +8293,75 @@ define("physics2d/constraints/pfriction2d", [ "base/class", "math/vec2", "physic
         void 0 !== bj.wlambda && (bj.wlambda += (rj.x * lambday - rj.y * lambdax) * bj.invInertia * rjxt * rjxt);
     };
     return PFriction2D;
+});
+
+if ("function" != typeof define) var define = require("amdefine")(module);
+
+define("physics2d/shape/pcircle2d", [ "base/class", "math/vec2", "physics2d/shape/pshape2d" ], function(Class, Vec2, PShape2D) {
+    /**
+	 * @class PCircle2D
+	 * @extends PShape2D
+	 * @brief Circle shape class
+	 * @param Number radius
+	 */
+    function PCircle2D(radius) {
+        PShape2D.call(this);
+        this.type = PShape2D.CIRCLE;
+        /**
+	    * @property Number radius
+	    * @memberof PCircle2D
+	    */
+        this.radius = void 0 !== radius ? radius : .5;
+        this.calculateAABB();
+        this.calculateBoundingRadius();
+        this.calculateVolume();
+    }
+    var PI = Math.PI;
+    Class.extend(PCircle2D, PShape2D);
+    PCircle2D.prototype.calculateAABB = function() {
+        var r = this.radius, aabb = this.aabb, min = aabb.min, max = aabb.max;
+        min.x = min.y = -r;
+        max.x = max.y = r;
+    };
+    PCircle2D.prototype.calculateWorldAABB = function(position, R, aabb) {
+        var r = this.radius, min = aabb.min, max = aabb.max, x = position.x, y = position.y;
+        min.x = x - r;
+        min.y = y - r;
+        max.x = x + r;
+        max.y = r + y;
+    };
+    PCircle2D.prototype.calculateInertia = function(mass) {
+        var r = this.radius;
+        return .4 * mass * r * r;
+    };
+    PCircle2D.prototype.calculateBoundingRadius = function() {
+        this.boundingRadius = this.radius;
+    };
+    PCircle2D.prototype.calculateVolume = function() {
+        var r = this.radius;
+        this.volume = PI * r * r;
+    };
+    PCircle2D.prototype.toJSON = function() {
+        var json = this._JSON;
+        json.type = "PCircle2D";
+        json._SERVER_ID = this._id;
+        json.shapeType = this.type;
+        json.aabb = this.aabb;
+        json.volume = this.volume;
+        json.boundingRadius = this.boundingRadius;
+        json.radius = this.radius;
+        return json;
+    };
+    PCircle2D.prototype.fromJSON = function(json) {
+        this.type = json.shapeType;
+        this._SERVER_ID = json._SERVER_ID;
+        this.aabb.fromJSON(json.aabb);
+        this.volume = json.volume;
+        this.boundingRadius = json.boundingRadius;
+        this.radius = json.radius;
+        return this;
+    };
+    return PCircle2D;
 });
 
 if ("function" != typeof define) var define = require("amdefine")(module);
@@ -8885,7 +8881,7 @@ define("core/components/renderable2d", [ "base/class", "base/utils", "core/compo
         indices.push(0, 1, 2, 0, 2, 3);
         uvs.push(1, 0, 0, 0, 0, 1, 1, 1);
     };
-    Renderable2D.prototype.calculateBox = function() {
+    Renderable2D.prototype.calculateRect = function() {
         var data = this._data, extents = this.extents, w = extents.x, h = extents.y, vertices = data.vertices, indices = data.indices;
         vertices.length = indices.length = data.uvs.length = 0;
         data.vertexBuffer = data.indexBuffer = data.uvBuffer = void 0;
@@ -8941,64 +8937,6 @@ define("core/components/renderable2d", [ "base/class", "base/utils", "core/compo
         return this;
     };
     return Renderable2D;
-});
-
-if ("function" != typeof define) var define = require("amdefine")(module);
-
-define("core/components/box2d", [ "base/class", "math/vec2", "core/components/renderable2d" ], function(Class, Vec2, Renderable2D) {
-    /**
-	 * @class Box2D
-	 * @extends Renderable2D
-	 * @brief 2D Box Component
-	 * @param Object opts sets Class properties from passed Object
-	 */
-    function Box2D(opts) {
-        opts || (opts = {});
-        Renderable2D.call(this, opts);
-        /**
-	    * @property Vec2 extents
-	    * @brief half extents of the box
-	    * @memberof Box2D
-	    */
-        this.extents = opts.extents instanceof Vec2 ? opts.extents : new Vec2(.5, .5);
-        this.calculateBox();
-    }
-    Class.extend(Box2D, Renderable2D);
-    Box2D.prototype.copy = function(other) {
-        Renderable2D.call(this, other);
-        this.extents.copy(other.extents);
-        return this;
-    };
-    Box2D.prototype.toJSON = function() {
-        var json = this._JSON;
-        json.type = "Box2D";
-        json._SERVER_ID = this._id;
-        json.visible = this.visible;
-        json.offset = this.offset;
-        json.alpha = this.alpha;
-        json.fill = this.fill;
-        json.color = this.color;
-        json.line = this.line;
-        json.lineColor = this.lineColor;
-        json.lineWidth = this.lineWidth;
-        json.extents = this.extents;
-        return json;
-    };
-    Box2D.prototype.fromJSON = function(json) {
-        this._SERVER_ID = json._SERVER_ID;
-        this.visible = json.visible;
-        this.offset.fromJSON(json.offset);
-        this.alpha = json.alpha;
-        this.fill = json.fill;
-        this.color.fromJSON(json.color);
-        this.line = json.line;
-        this.lineColor.fromJSON(json.lineColor);
-        this.lineWidth = json.lineWidth;
-        this.extents.fromJSON(json.extents);
-        this.calculateBox();
-        return this;
-    };
-    return Box2D;
 });
 
 if ("function" != typeof define) var define = require("amdefine")(module);
@@ -9130,7 +9068,65 @@ define("core/components/poly2d", [ "base/class", "math/vec2", "core/components/r
 
 if ("function" != typeof define) var define = require("amdefine")(module);
 
-define("core/components/rigidbody2d", [ "base/class", "base/time", "core/components/renderable2d", "physics2d/body/pbody2d", "physics2d/body/prigidbody2d", "physics2d/shape/pshape2d", "physics2d/shape/pcircle2d", "physics2d/shape/pbox2d", "physics2d/shape/pconvex2d" ], function(Class, Time, Renderable2D, PBody2D, PRigidBody2D, PShape2D, PCircle2D, PBox2D, PConvex2D) {
+define("core/components/rect2d", [ "base/class", "math/vec2", "core/components/renderable2d" ], function(Class, Vec2, Renderable2D) {
+    /**
+	 * @class Rect2D
+	 * @extends Renderable2D
+	 * @brief 2D Rectangle Component
+	 * @param Object opts sets Class properties from passed Object
+	 */
+    function Rect2D(opts) {
+        opts || (opts = {});
+        Renderable2D.call(this, opts);
+        /**
+	    * @property Vec2 extents
+	    * @brief half extents of the rect
+	    * @memberof Rect2D
+	    */
+        this.extents = opts.extents instanceof Vec2 ? opts.extents : new Vec2(.5, .5);
+        this.calculateRect();
+    }
+    Class.extend(Rect2D, Renderable2D);
+    Rect2D.prototype.copy = function(other) {
+        Renderable2D.call(this, other);
+        this.extents.copy(other.extents);
+        return this;
+    };
+    Rect2D.prototype.toJSON = function() {
+        var json = this._JSON;
+        json.type = "Rect2D";
+        json._SERVER_ID = this._id;
+        json.visible = this.visible;
+        json.offset = this.offset;
+        json.alpha = this.alpha;
+        json.fill = this.fill;
+        json.color = this.color;
+        json.line = this.line;
+        json.lineColor = this.lineColor;
+        json.lineWidth = this.lineWidth;
+        json.extents = this.extents;
+        return json;
+    };
+    Rect2D.prototype.fromJSON = function(json) {
+        this._SERVER_ID = json._SERVER_ID;
+        this.visible = json.visible;
+        this.offset.fromJSON(json.offset);
+        this.alpha = json.alpha;
+        this.fill = json.fill;
+        this.color.fromJSON(json.color);
+        this.line = json.line;
+        this.lineColor.fromJSON(json.lineColor);
+        this.lineWidth = json.lineWidth;
+        this.extents.fromJSON(json.extents);
+        this.calculateBox();
+        return this;
+    };
+    return Rect2D;
+});
+
+if ("function" != typeof define) var define = require("amdefine")(module);
+
+define("core/components/rigidbody2d", [ "base/class", "base/time", "core/components/renderable2d", "physics2d/body/pbody2d", "physics2d/body/prigidbody2d", "physics2d/shape/pshape2d", "physics2d/shape/pcircle2d", "physics2d/shape/prect2d", "physics2d/shape/pconvex2d" ], function(Class, Time, Renderable2D, PBody2D, PRigidBody2D, PShape2D, PCircle2D, PRect2D, PConvex2D) {
     /**
 	 * @class RigidBody2D
 	 * @extends Renderable2D
@@ -9148,7 +9144,7 @@ define("core/components/rigidbody2d", [ "base/class", "base/time", "core/compone
         this.radius = void 0;
         /**
 	    * @property Vec2 extents
-	    * @brief if passed shape will be a Box, half extents of the RigidBody
+	    * @brief if passed shape will be a Rect, half extents of the RigidBody
 	    * @memberof RigidBody2D
 	    */
         this.extents = void 0;
@@ -9165,9 +9161,9 @@ define("core/components/rigidbody2d", [ "base/class", "base/time", "core/compone
             this.calculateCircle();
         }
         if (opts.extents) {
-            shape = new PBox2D(opts.extents);
+            shape = new PRect2D(opts.extents);
             this.extents = opts.extents || shape.extents;
-            this.calculateBox();
+            this.calculateRect();
         }
         if (opts.vertices) {
             shape = new PConvex2D(opts.vertices);
@@ -9207,7 +9203,7 @@ define("core/components/rigidbody2d", [ "base/class", "base/time", "core/compone
         }
         if (other.extents) {
             this.extents = new Vec2().copy(other.extents);
-            this.calculateBox();
+            this.calculateRect();
         }
         if (vertices) {
             for (i = vertices.length; i--; ) {
@@ -10831,762 +10827,7 @@ define("core/scene/world2d", [ "base/class", "base/time", "math/color", "math/ve
 
 if ("function" != typeof define) var define = require("amdefine")(module);
 
-define("core/objects/transform2d", [ "base/class", "base/utils", "math/mathf", "math/vec2", "math/mat32" ], function(Class, Utils, Mathf, Vec2, Mat32) {
-    /**
-	 * @class Transform2D
-	 * @extends Class
-	 * @brief 2d Transform info for Game Objects
-	 * @param Object opts sets Class properties from passed Object
-	 */
-    function Transform2D(opts) {
-        opts || (opts = {});
-        Class.call(this);
-        /**
-	    * @property Class root
-	    * @brief reference to root element
-	    * @memberof Transform2D
-	    */
-        this.root = this;
-        /**
-	    * @property Array children
-	    * @brief array of children attached to this object
-	    * @memberof Transform2D
-	    */
-        this.children = [];
-        /**
-	    * @property Mat32 matrix
-	    * @brief local matrix
-	    * @memberof Transform2D
-	    */
-        this.matrix = new Mat32();
-        /**
-	    * @property Mat32 matrixWorld
-	    * @brief world matrix
-	    * @memberof Transform2D
-	    */
-        this.matrixWorld = new Mat32();
-        /**
-	    * @property Mat32 matrixModelView
-	    * @brief model view matrix, calculated in renderer
-	    * @memberof Transform2D
-	    */
-        this.matrixModelView = new Mat32();
-        /**
-	    * @property Vec2 position
-	    * @brief local position
-	    * @memberof Transform2D
-	    */
-        this.position = opts.position instanceof Vec2 ? opts.position : new Vec2();
-        /**
-	    * @property Number rotation
-	    * @brief local rotation
-	    * @memberof Transform2D
-	    */
-        this.rotation = opts.rotation ? opts.rotation : 0;
-        /**
-	    * @property Vec2 scale
-	    * @brief local scale
-	    * @memberof Transform2D
-	    */
-        this.scale = opts.scale instanceof Vec2 ? opts.scale : new Vec2(1, 1);
-        this._position = this.position.clone();
-        this._rotation = this.rotation;
-        this._scale = this.scale.clone();
-        this.updateMatrices();
-    }
-    var isNumber = Utils.isNumber, EPSILON = Mathf.EPSILON;
-    Mathf.standardRadian;
-    Class.extend(Transform2D, Class);
-    /**
-	 * @method copy
-	 * @memberof Transform2D
-	 * @brief copies other object's properties
-	 * @param Transform2D other
-	 */
-    Transform2D.prototype.copy = function(other) {
-        var child, i, children = other.children;
-        this.children.length = 0;
-        for (i = children.length; i--; ) {
-            child = children[c];
-            child && this.add(child.clone());
-        }
-        this.root = other.root;
-        this.position.copy(other.position);
-        this.scale.copy(other.scale);
-        this.rotation = other.rotation;
-        this.updateMatrices();
-        return this;
-    };
-    /**
-	 * @method add
-	 * @memberof Transform2D
-	 * @brief adds all objects in arguments to children
-	 */
-    Transform2D.prototype.add = function() {
-        var child, index, root, i, children = this.children;
-        for (i = arguments.length; i--; ) {
-            child = arguments[i];
-            index = children.indexOf(child);
-            if (-1 === index && child instanceof Transform2D) {
-                child.parent && child.parent.remove(child);
-                child.parent = this;
-                children.push(child);
-                root = this;
-                for (;root.parent; ) root = root.parent;
-                child.root = root;
-                child.trigger("add");
-                this.trigger("addChild", child);
-            }
-        }
-        return this;
-    };
-    /**
-	 * @method remove
-	 * @memberof Transform2D
-	 * @brief removes all objects in arguments from children
-	 */
-    Transform2D.prototype.remove = function() {
-        var child, index, i, children = this.children;
-        for (i = arguments.length; i--; ) {
-            child = arguments[i];
-            index = children.indexOf(child);
-            if (-1 !== index) {
-                children.splice(index, 1);
-                child.parent = void 0;
-                root = this;
-                for (;root.parent; ) root = root.parent;
-                child.root = root;
-                child.trigger("remove");
-                this.trigger("removeChild", child);
-            }
-        }
-        return this;
-    };
-    /**
-	 * @method localToWorld
-	 * @memberof Transform2D
-	 * @brief converts vector from local to world coordinates
-	 * @param Vec2 v
-	 */
-    Transform2D.prototype.localToWorld = function(v) {
-        return v.applyMat32(this.matrixWorld);
-    };
-    /**
-	 * @method worldToLocal
-	 * @memberof Transform2D
-	 * @brief converts vector from world to local coordinates
-	 * @param Vec2 v
-	 */
-    Transform2D.prototype.worldToLocal = function() {
-        var mat = new Mat32();
-        return function(v) {
-            return v.applyMat32(mat.getInverse(this.matrixWorld));
-        };
-    }();
-    /**
-	 * @method applyMat32
-	 * @memberof Transform2D
-	 * @brief applies Mat32 to Transform
-	 * @param Mat32 matrix
-	 */
-    Transform2D.prototype.applyMat32 = function() {
-        new Mat32();
-        return function(matrix) {
-            this.matrix.mmul(matrix, this.matrix);
-            this.scale.getScaleMat32(this.matrix);
-            this.rotation = this.matrix.getRotation();
-            this.position.getPositionMat32(this.matrix);
-        };
-    }();
-    /**
-	 * @method translate
-	 * @memberof Transform2D
-	 * @brief translates Transform by translation relative to some object or if not set itself
-	 * @param Vec2 translation
-	 * @param Transform2D relativeTo
-	 */
-    Transform2D.prototype.translate = function() {
-        var vec = new Vec2(), mat = new Mat32();
-        return function(translation, relativeTo) {
-            vec.copy(translation);
-            relativeTo instanceof Transform2D ? mat.setRotation(relativeTo.rotation) : isNumber(relativeTo) && mat.setRotation(relativeTo);
-            relativeTo && vec.applyMat32(mat);
-            this.position.add(vec);
-        };
-    }();
-    /**
-	 * @method rotate
-	 * @memberof Transform2D
-	 * @brief rotates Transform by rotation relative to some object or if not set itself
-	 * @param Number rotation
-	 * @param Transform2D relativeTo
-	 */
-    Transform2D.prototype.rotate = function(angle, relativeTo) {
-        relativeTo instanceof Transform2D ? angle += relativeTo.rotation : isNumber(relativeTo) && (angle += relativeTo);
-        relativeTo && (angle += relativeTo.rotation);
-        this.rotation += angle;
-    };
-    /**
-	 * @method rotate
-	 * @memberof Transform2D
-	 * @brief scales Transform by scale relative to some object or if not set itself
-	 * @param Number scale
-	 * @param Transform2D relativeTo
-	 */
-    Transform2D.prototype.scale = function() {
-        var vec = new Vec2(), mat = new Mat32();
-        return function(scale, relativeTo) {
-            vec.copy(scale);
-            relativeTo instanceof Transform2D ? mat.setRotation(relativeTo.rotation) : isNumber(relativeTo) && mat.setRotation(relativeTo);
-            relativeTo && vec.applyMat32(mat);
-            this.scale.add(vec);
-        };
-    }();
-    /**
-	 * @method rotateAround
-	 * @memberof Transform2D
-	 * @brief rotates Transform around point
-	 * @param Vec2 point
-	 * @param Number angle
-	 */
-    Transform2D.prototype.rotateAround = function() {
-        new Vec2();
-        return function(point, angle) {
-            point.copy(point).sub(this.position);
-            this.translate(point);
-            this.rotate(angle);
-            this.translate(point.inverse(), angle);
-        };
-    }();
-    /**
-	 * @method lookAt
-	 * @memberof Transform2D
-	 * @brief makes Transform look at another Transform or point
-	 * @param Transform2D target
-	 */
-    Transform2D.prototype.lookAt = function() {
-        var vec = new Vec2(), mat = new Mat32();
-        return function(target) {
-            target instanceof Transform2D ? vec.copy(target.position) : vec.copy(target);
-            this.rotation = mat.lookAt(this.position, vec).getRotation();
-        };
-    }();
-    /**
-	 * @method follow
-	 * @memberof Transform2D
-	 * @brief makes Transform follow another Transform or point
-	 * @param Transform2D target
-	 * @param Number damping
-	 * @param Transform2D relativeTo
-	 */
-    Transform2D.prototype.follow = function() {
-        var vec = new Vec2();
-        return function(target, damping, relativeTo) {
-            damping = damping ? damping : 1;
-            target instanceof Transform2D ? vec.vsub(target.position, this.position) : target instanceof Vec2 && vec.vsub(target, this.position);
-            vec.lenSq() > EPSILON && this.translate(vec.smul(1 / damping), relativeTo);
-        };
-    }();
-    /**
-	 * @method updateMatrices
-	 * @memberof Transform2D
-	 * @brief update matrices
-	 */
-    Transform2D.prototype.updateMatrices = function() {
-        var scale = this.scale, matrix = this.matrix, matrixWorld = this.matrixWorld;
-        matrix.setRotation(this.rotation);
-        (1 !== scale.x || 1 !== scale.y) && matrix.scale(scale);
-        matrix.setTranslation(this.position);
-        this.root === this ? matrixWorld.copy(matrix) : matrixWorld.mmul(matrix, this.parent.matrixWorld);
-        this._position.equals(this.position) || this.trigger("moved");
-        this._scale.equals(scale) || this.trigger("scaled");
-        this._rotation !== this.rotation && this.trigger("rotated");
-    };
-    Transform2D.prototype.toJSON = function() {
-        var i, json = this._JSON, children = this.children;
-        json.type = "Transform2D";
-        json._SERVER_ID = this._id;
-        json.children = json.children || [];
-        for (i = children.length; i--; ) json.children[i] = children[i].toJSON();
-        json.position = this.position;
-        json.rotation = this.rotation;
-        json.scale = this.scale;
-        return json;
-    };
-    Transform2D.prototype.fromJSON = function(json) {
-        var jsonObject, object, i, children = json.children;
-        this._SERVER_ID = json._SERVER_ID;
-        for (i = children.length; i--; ) {
-            jsonObject = children[i];
-            object = new Class.types[jsonObject.type]();
-            this.add(object.fromJSON(jsonObject));
-        }
-        this.position.fromJSON(json.position);
-        this.rotation = json.rotation;
-        this.scale.fromJSON(json.scale);
-        this.updateMatrices();
-        return this;
-    };
-    return Transform2D;
-});
-
-if ("function" != typeof define) var define = require("amdefine")(module);
-
-define("core/objects/gameobject2d", [ "base/class", "core/objects/transform2d", "core/objects/camera2d", "core/components/box2d", "core/components/circle2d", "core/components/component", "core/components/poly2d", "core/components/renderable2d", "core/components/rigidbody2d", "core/components/sprite2d" ], function(Class, Transform2D, Camera2D, Box2D, Circle2D, Component) {
-    /**
-	 * @class GameObject2D
-	 * @extends Transform2D
-	 * @brief 2d GameObject
-	 * @param Object opts sets Class properties from passed Object
-	 */
-    function GameObject2D(opts) {
-        opts || (opts = {});
-        Transform2D.call(this, opts);
-        /**
-	    * @property String name
-	    * @brief name of this GameObject
-	    * @memberof GameObject2D
-	    */
-        this.name = opts.name || this._class + "-" + this._id;
-        /**
-	    * @property Number z
-	    * @brief determines renderering order smaller numbers render in back
-	    * @memberof GameObject2D
-	    */
-        this.z = void 0 !== opts.z ? opts.z : 0;
-        /**
-	    * @property Object userData
-	    * @brief any extra custom data added
-	    * @memberof GameObject2D
-	    */
-        this.userData = void 0 !== opts.userData ? opts.userData : {};
-        /**
-	    * @property Array tags
-	    * @brief array of string names
-	    * @memberof GameObject2D
-	    */
-        this.tags = [];
-        /**
-	    * @property Object components
-	    * @brief object holding components attached to GameObject
-	    * @memberof GameObject2D
-	    */
-        this.components = {};
-        /**
-	    * @property Scene2D scene
-	    * @brief reference to Scene this was added to
-	    * @memberof GameObject2D
-	    */
-        this.scene = void 0;
-        this.add.apply(this, opts.children);
-        this.addTag.apply(this, opts.tags);
-        this.addComponent.apply(this, opts.components);
-    }
-    Class.extend(GameObject2D, Transform2D);
-    /**
-	 * @method copy
-	 * @memberof GameObject2D
-	 * @brief copies other object's properties
-	 * @param GameObject2D other
-	 */
-    GameObject2D.prototype.copy = function(other) {
-        var name, component;
-        Transform2D.call(this, other);
-        this.name = this._class + this._id;
-        this.tags.length = 0;
-        this.addTag.apply(this, other.tags);
-        for (name in other.components) {
-            component = other.components[name];
-            this.addComponent(component.clone());
-        }
-        other.scene && other.scene.add(this);
-        return this;
-    };
-    /**
-	 * @method init
-	 * @memberof GameObject2D
-	 * @brief called when added to scene
-	 */
-    GameObject2D.prototype.init = function() {
-        var type, component, components = this.components;
-        for (type in components) {
-            component = components[type];
-            if (component) {
-                component.init();
-                component.trigger("init");
-            }
-        }
-        this.trigger("init");
-    };
-    /**
-	 * @method addTag
-	 * @memberof GameObject2D
-	 * @brief adds all strings in arguments to tags
-	 */
-    GameObject2D.prototype.addTag = function() {
-        var tag, index, i, il, tags = this.tags;
-        for (i = 0, il = arguments.length; il > i; i++) {
-            tag = arguments[i];
-            index = tags.indexOf(tag);
-            -1 === index && tags.push(tag);
-        }
-    };
-    /**
-	 * @method removeTag
-	 * @memberof GameObject2D
-	 * @brief removes all strings in arguments from tags
-	 */
-    GameObject2D.prototype.removeTag = function() {
-        var tag, index, i, il, tags = this.tags;
-        for (i = 0, il = arguments.length; il > i; i++) {
-            tag = arguments[a];
-            index = tags.indexOf(tag);
-            -1 !== index && tags.splice(index, 1);
-        }
-    };
-    /**
-	 * @method hasTag
-	 * @memberof GameObject2D
-	 * @brief checks if this GameObject has a tag
-	 * @param String tag
-	 */
-    GameObject2D.prototype.hasTag = function(tag) {
-        return -1 !== this.tags.indexOf(tag);
-    };
-    /**
-	 * @method addComponent
-	 * @memberof GameObject2D
-	 * @brief adds all components in arguments to components
-	 */
-    GameObject2D.prototype.addComponent = function() {
-        var component, i, components = this.components;
-        for (i = arguments.length; i--; ) {
-            component = arguments[i];
-            if (components[component._class]) console.warn("GameObject2D.addComponent: GameObject2D already has a " + component._class + " Component"); else if (component instanceof Component) {
-                component.gameObject && (component = component.clone());
-                components[component._class] = component;
-                component.gameObject = this;
-                this.trigger("addComponent", component);
-                component.trigger("add", this);
-            } else console.warn("GameObject2D.addComponent: " + component._class + " is not an instance of Component");
-        }
-    };
-    /**
-	 * @method removeComponent
-	 * @memberof GameObject2D
-	 * @brief removes all components in arguments from components
-	 */
-    GameObject2D.prototype.removeComponent = function() {
-        var component, i, components = this.components;
-        for (i = arguments.length; i--; ) {
-            component = arguments[i];
-            if (components[component._class]) {
-                component.gameObject = void 0;
-                components[component._class] = void 0;
-                this.trigger("removeComponent", component);
-                component.trigger("remove", this);
-            } else console.warn("GameObject2D.removeComponent: Component is not attached to GameObject2D");
-        }
-    };
-    /**
-	 * @method hasComponent
-	 * @memberof GameObject2D
-	 * @brief checks if this GameObject has a Component
-	 * @param String type
-	 */
-    GameObject2D.prototype.hasComponent = function(type) {
-        return !!this.components[type];
-    };
-    /**
-	 * @method getComponent
-	 * @memberof GameObject2D
-	 * @brief returns component with name
-	 * @param String type
-	 */
-    GameObject2D.prototype.getComponent = function(type) {
-        return this.components[type];
-    };
-    /**
-	 * @method getComponents
-	 * @memberof GameObject2D
-	 * @brief returns all components attached to this GameObject
-	 * @param Array results
-	 */
-    GameObject2D.prototype.getComponents = function(results) {
-        results = results || [];
-        var key;
-        for (key in this.components) results.push(this.components[key]);
-        return results;
-    };
-    /**
-	 * @method forEachComponent
-	 * @memberof GameObject2D
-	 * @brief for each component call a function
-	 * @param Function callback
-	 */
-    GameObject2D.prototype.forEachComponent = function(callback) {
-        var type, component, components = this.components;
-        for (type in components) {
-            component = components[type];
-            component && callback(component);
-        }
-    };
-    /**
-	 * @method update
-	 * @memberof GameObject2D
-	 * @brief called in Scence2D.update
-	 */
-    GameObject2D.prototype.update = function() {
-        var type, component, components = this.components;
-        this.trigger("update");
-        for (type in components) {
-            component = components[type];
-            component && component.update && component.update();
-        }
-        this.updateMatrices();
-        this.trigger("lateUpdate");
-    };
-    GameObject2D.prototype.toJSON = function() {
-        var component, i, json = this._JSON, children = this.children, components = this.components, tags = this.tags;
-        json.type = "GameObject2D";
-        json.name = this.name;
-        json._SERVER_ID = this._id;
-        json.children = json.children || [];
-        json.components = json.components || {};
-        json.tags = json.tags || [];
-        for (i = children.length; i--; ) json.children[i] = children[i].toJSON();
-        for (i in components) {
-            component = components[i];
-            "RigidBody2D" !== component._class && (json.components[i] = component.toJSON());
-        }
-        for (i = tags.length; i--; ) json.tags[i] = tags[i];
-        json.z = this.z;
-        json.position = this.position;
-        json.rotation = this.rotation;
-        json.scale = this.scale;
-        return json;
-    };
-    GameObject2D.prototype.fromJSON = function(json) {
-        var jsonObject, object, i, children = json.children, components = json.components, tags = json.tags;
-        this.name = json.name;
-        this._SERVER_ID = json._SERVER_ID;
-        for (i = children.length; i--; ) {
-            jsonObject = children[i];
-            object = new Class.types[jsonObject.type]();
-            this.add(object.fromJSON(jsonObject));
-        }
-        for (i in components) {
-            jsonObject = components[i];
-            object = new Class.types[jsonObject.type]();
-            this.addComponent(object.fromJSON(jsonObject));
-        }
-        for (i = tags.length; i--; ) this.tags[i] = tags[i];
-        this.z = json.z;
-        this.position.fromJSON(json.position);
-        this.rotation = json.rotation;
-        this.scale.fromJSON(json.scale);
-        this.updateMatrices();
-        return this;
-    };
-    return GameObject2D;
-});
-
-if ("function" != typeof define) var define = require("amdefine")(module);
-
-define("core/objects/camera2d", [ "base/class", "math/mathf", "math/vec2", "math/mat32", "math/mat4", "core/objects/gameobject2d" ], function(Class, Mathf, Vec2, Mat32, Mat4, GameObject2D) {
-    /**
-	 * @class Camera2D
-	 * @extends GameObject2D
-	 * @brief 2d Camera
-	 * @param Object opts sets Class properties from passed Object
-	 */
-    function Camera2D(opts) {
-        opts || (opts = {});
-        GameObject2D.call(this, opts);
-        /**
-	    * @property Number width
-	    * @brief width of camera
-	    * @memberof Camera2D
-	    */
-        this.width = 960;
-        /**
-	    * @property Number height
-	    * @brief height of camera
-	    * @memberof Camera2D
-	    */
-        this.height = 640;
-        /**
-	    * @property Number aspect
-	    * @brief width / height
-	    * @memberof Camera2D
-	    */
-        this.aspect = this.width / this.height;
-        /**
-	    * @property Number zoom
-	    * @brief zoom amount
-	    * @memberof Camera2D
-	    */
-        this.zoom = void 0 !== opts.zoom ? opts.zoom : 1;
-        this._matrixProjection3D = new Mat4();
-        /**
-	    * @property Mat32 matrixProjection
-	    * @brief projection matrix
-	    * @memberof Camera2D
-	    */
-        this.matrixProjection = new Mat32();
-        /**
-	    * @property Mat32 matrixProjectionInverse
-	    * @brief inverse projection matrix
-	    * @memberof Camera2D
-	    */
-        this.matrixProjectionInverse = new Mat32();
-        /**
-	    * @property Mat32 matrixWorldInverse
-	    * @brief inverse matrix world, calculated in renderer
-	    * @memberof Camera2D
-	    */
-        this.matrixWorldInverse = new Mat32();
-        /**
-	    * @property Mat32 matrixWorldInverse
-	    * @brief inverse matrix world, calculated in renderer
-	    * @memberof Camera2D
-	    */
-        this.needsUpdate = !0;
-    }
-    var clampBottom = Mathf.clampBottom;
-    Class.extend(Camera2D, GameObject2D);
-    /**
-	 * @method copy
-	 * @memberof Camera2D
-	 * @brief copies other object's properties
-	 * @param Camera2D other
-	 */
-    Camera2D.prototype.copy = function(other) {
-        GameObject2D.call(this, other);
-        this.width = other.width;
-        this.height = other.height;
-        this.aspect = other.aspect;
-        this.zoom = other.zoom;
-        this.matrixProjection.copy(other.matrixProjection);
-        this.matrixProjectionInverse.copy(other.matrixProjectionInverse);
-        this.matrixWorldInverse.copy(other.matrixWorldInverse);
-        this.needsUpdate = other.needsUpdate;
-        return this;
-    };
-    /**
-	 * @method setSize
-	 * @memberof Camera2D
-	 * @brief sets width and height of camera
-	 * @param Number width
-	 * @param Number height
-	 */
-    Camera2D.prototype.setSize = function(width, height) {
-        this.width = void 0 !== width ? width : this.width;
-        this.height = void 0 !== height ? height : this.height;
-        this.aspect = this.width / this.height;
-        this.needsUpdate = !0;
-    };
-    /**
-	 * @method setZoom
-	 * @memberof Camera2D
-	 * @brief sets zoom amount
-	 * @param Number zoom
-	 */
-    Camera2D.prototype.setZoom = function(zoom) {
-        this.zoom = void 0 !== zoom ? zoom : this.zoom;
-        this.trigger("zoom");
-        this.needsUpdate = !0;
-    };
-    /**
-	 * @method zoomBy
-	 * @memberof Camera2D
-	 * @brief zooms by some amount
-	 * @param Number zoom
-	 */
-    Camera2D.prototype.zoomBy = function(zoom) {
-        this.zoom += void 0 !== zoom ? zoom : 0;
-        this.trigger("zoom");
-        this.needsUpdate = !0;
-    };
-    /**
-	 * @method updateMatrixProjection
-	 * @memberof Camera2D
-	 * @brief updates matrix projection
-	 */
-    Camera2D.prototype.updateMatrixProjection = function() {
-        var zoom = clampBottom(this.zoom, .001), w = this.width, h = this.height, right = .5 * w * zoom, left = -right, top = .5 * h * zoom, bottom = -top;
-        this.matrixProjection.orthographic(left, right, top, bottom);
-        this.matrixProjectionInverse.minv(this.matrixProjection);
-        this._matrixProjection3D.orthographic(left, right, top, bottom, -1, 1);
-        this.needsUpdate = !1;
-    };
-    /**
-	 * @method update
-	 * @memberof Camera2D
-	 * @brief called in Scence2D.update
-	 */
-    Camera2D.prototype.update = function() {
-        var type, component, components = this.components;
-        this.trigger("update");
-        for (type in components) {
-            component = components[type];
-            component && component.update && component.update();
-        }
-        this.updateMatrices();
-        this.needsUpdate && this.updateMatrixProjection();
-        this.matrixWorldInverse.minv(this.matrixWorld);
-        this.trigger("lateUpdate");
-    };
-    Camera2D.prototype.toJSON = function() {
-        var i, json = this._JSON, children = this.children, components = this.components, tags = this.tags;
-        json.type = "Camera2D";
-        json.name = this.name;
-        json._SERVER_ID = this._id;
-        json.children = json.children || [];
-        json.components = json.components || [];
-        json.tags = json.tags || [];
-        for (i = children.length; i--; ) json.children[i] = children[i].toJSON();
-        for (i = components.length; i--; ) json.components[i] = components[i].toJSON();
-        for (i = tags.length; i--; ) json.tags[i] = tags[i];
-        json.z = this.z;
-        json.position = this.position;
-        json.rotation = this.rotation;
-        json.scale = this.scale;
-        json.width = this.width;
-        json.height = this.height;
-        json.zoom = this.zoom;
-        return json;
-    };
-    Camera2D.prototype.fromJSON = function(json) {
-        var jsonObject, object, i, children = json.children, components = json.components, tags = json.tags;
-        this.name = json.name;
-        this._SERVER_ID = json._SERVER_ID;
-        for (i = children.length; i--; ) {
-            jsonObject = children[i];
-            object = new Class.types[jsonObject.type]();
-            this.add(object.fromJSON(jsonObject));
-        }
-        for (i in components) {
-            jsonObject = components[i];
-            object = new Class.types[jsonObject.type]();
-            this.addComponent(object.fromJSON(jsonObject));
-        }
-        for (i = tags.length; i--; ) this.tags[i] = tags[i];
-        this.z = json.z;
-        this.position.fromJSON(json.position);
-        this.rotation = json.rotation;
-        this.scale.fromJSON(json.scale);
-        this.zoom = json.zoom;
-        this.setSize(json.width, json.height);
-        this.updateMatrices();
-        return this;
-    };
-    return Camera2D;
-});
-
-if ("function" != typeof define) var define = require("amdefine")(module);
-
-define("core/scene/scene2d", [ "base/class", "base/utils", "core/scene/world2d", "core/objects/camera2d", "core/objects/gameobject2d", "core/objects/transform2d" ], function(Class, Utils, World2D, Camera2D, GameObject2D, Transform2D) {
+define("core/scene/scene2d", [ "base/class", "base/utils", "core/scene/world2d" ], function(Class, Utils, World2D) {
     /**
 	 * @class Scene2D
 	 * @extends Class
@@ -12811,7 +12052,7 @@ define("core/game/game", [ "base/class", "base/utils", "base/device", "base/dom"
 
 if ("function" != typeof define) var define = require("amdefine")(module);
 
-define("core/game/clientgame", [ "require", "base/class", "base/time", "base/device", "core/input/input", "core/input/mouse", "core/input/touches", "core/input/keyboard", "core/input/accelerometer", "core/input/orientation", "core/scene/scene2d", "core/game/game", "core/objects/camera2d", "core/objects/gameobject2d", "core/objects/transform2d" ], function(require, Class, Time, Device, Input, Mouse, Touches, Keyboard, Accelerometer, Orientation, Scene2D, Game) {
+define("core/game/clientgame", [ "require", "base/class", "base/time", "base/device", "core/input/input", "core/input/mouse", "core/input/touches", "core/input/keyboard", "core/input/accelerometer", "core/input/orientation", "core/game/game" ], function(require, Class, Time, Device, Input, Mouse, Touches, Keyboard, Accelerometer, Orientation, Game) {
     /**
 	 * @class ClientGame
 	 * @extends Game
@@ -13320,7 +12561,762 @@ define("core/game/servergame", [ "require", "base/class", "base/time", "core/gam
 
 if ("function" != typeof define) var define = require("amdefine")(module);
 
-define("odindoc", [ "require", "base/class", "base/device", "base/dom", "base/objectpool", "base/time", "base/utils", "math/aabb2", "math/aabb3", "math/color", "math/line2", "math/mat2", "math/mat3", "math/mat32", "math/mat4", "math/mathf", "math/quat", "math/vec2", "math/vec3", "math/vec4", "physics2d/body/pbody2d", "physics2d/body/pparticle2d", "physics2d/body/prigidbody2d", "physics2d/collision/pbroadphase2d", "physics2d/collision/pnearphase2d", "physics2d/constraints/pconstraint2d", "physics2d/constraints/pcontact2d", "physics2d/constraints/pdistanceconstraint2d", "physics2d/constraints/pequation2d", "physics2d/constraints/pfriction2d", "physics2d/shape/pbox2d", "physics2d/shape/pcircle2d", "physics2d/shape/pconvex2d", "physics2d/shape/pshape2d", "physics2d/psolver2d", "physics2d/pworld2d", "core/components/box2d", "core/components/circle2d", "core/components/component", "core/components/poly2d", "core/components/renderable2d", "core/components/rigidbody2d", "core/components/sprite2d", "core/game/client", "core/game/clientgame", "core/game/game", "core/game/servergame", "core/input/accelerometer", "core/input/input", "core/input/key", "core/input/keyboard", "core/input/mouse", "core/input/orientation", "core/input/touch", "core/input/touches", "core/objects/camera2d", "core/objects/gameobject2d", "core/objects/transform2d", "core/scene/scene2d", "core/scene/world2d", "core/canvas", "core/canvasrenderer2d", "core/webglrenderer2d" ], function(require) {
+define("core/objects/transform2d", [ "base/class", "base/utils", "math/mathf", "math/vec2", "math/mat32" ], function(Class, Utils, Mathf, Vec2, Mat32) {
+    /**
+	 * @class Transform2D
+	 * @extends Class
+	 * @brief 2d Transform info for Game Objects
+	 * @param Object opts sets Class properties from passed Object
+	 */
+    function Transform2D(opts) {
+        opts || (opts = {});
+        Class.call(this);
+        /**
+	    * @property Class root
+	    * @brief reference to root element
+	    * @memberof Transform2D
+	    */
+        this.root = this;
+        /**
+	    * @property Array children
+	    * @brief array of children attached to this object
+	    * @memberof Transform2D
+	    */
+        this.children = [];
+        /**
+	    * @property Mat32 matrix
+	    * @brief local matrix
+	    * @memberof Transform2D
+	    */
+        this.matrix = new Mat32();
+        /**
+	    * @property Mat32 matrixWorld
+	    * @brief world matrix
+	    * @memberof Transform2D
+	    */
+        this.matrixWorld = new Mat32();
+        /**
+	    * @property Mat32 matrixModelView
+	    * @brief model view matrix, calculated in renderer
+	    * @memberof Transform2D
+	    */
+        this.matrixModelView = new Mat32();
+        /**
+	    * @property Vec2 position
+	    * @brief local position
+	    * @memberof Transform2D
+	    */
+        this.position = opts.position instanceof Vec2 ? opts.position : new Vec2();
+        /**
+	    * @property Number rotation
+	    * @brief local rotation
+	    * @memberof Transform2D
+	    */
+        this.rotation = opts.rotation ? opts.rotation : 0;
+        /**
+	    * @property Vec2 scale
+	    * @brief local scale
+	    * @memberof Transform2D
+	    */
+        this.scale = opts.scale instanceof Vec2 ? opts.scale : new Vec2(1, 1);
+        this._position = this.position.clone();
+        this._rotation = this.rotation;
+        this._scale = this.scale.clone();
+        this.updateMatrices();
+    }
+    var isNumber = Utils.isNumber, EPSILON = Mathf.EPSILON;
+    Mathf.standardRadian;
+    Class.extend(Transform2D, Class);
+    /**
+	 * @method copy
+	 * @memberof Transform2D
+	 * @brief copies other object's properties
+	 * @param Transform2D other
+	 */
+    Transform2D.prototype.copy = function(other) {
+        var child, i, children = other.children;
+        this.children.length = 0;
+        for (i = children.length; i--; ) {
+            child = children[c];
+            child && this.add(child.clone());
+        }
+        this.root = other.root;
+        this.position.copy(other.position);
+        this.scale.copy(other.scale);
+        this.rotation = other.rotation;
+        this.updateMatrices();
+        return this;
+    };
+    /**
+	 * @method add
+	 * @memberof Transform2D
+	 * @brief adds all objects in arguments to children
+	 */
+    Transform2D.prototype.add = function() {
+        var child, index, root, i, children = this.children;
+        for (i = arguments.length; i--; ) {
+            child = arguments[i];
+            index = children.indexOf(child);
+            if (-1 === index && child instanceof Transform2D) {
+                child.parent && child.parent.remove(child);
+                child.parent = this;
+                children.push(child);
+                root = this;
+                for (;root.parent; ) root = root.parent;
+                child.root = root;
+                child.trigger("add");
+                this.trigger("addChild", child);
+            }
+        }
+        return this;
+    };
+    /**
+	 * @method remove
+	 * @memberof Transform2D
+	 * @brief removes all objects in arguments from children
+	 */
+    Transform2D.prototype.remove = function() {
+        var child, index, i, children = this.children;
+        for (i = arguments.length; i--; ) {
+            child = arguments[i];
+            index = children.indexOf(child);
+            if (-1 !== index) {
+                children.splice(index, 1);
+                child.parent = void 0;
+                root = this;
+                for (;root.parent; ) root = root.parent;
+                child.root = root;
+                child.trigger("remove");
+                this.trigger("removeChild", child);
+            }
+        }
+        return this;
+    };
+    /**
+	 * @method localToWorld
+	 * @memberof Transform2D
+	 * @brief converts vector from local to world coordinates
+	 * @param Vec2 v
+	 */
+    Transform2D.prototype.localToWorld = function(v) {
+        return v.applyMat32(this.matrixWorld);
+    };
+    /**
+	 * @method worldToLocal
+	 * @memberof Transform2D
+	 * @brief converts vector from world to local coordinates
+	 * @param Vec2 v
+	 */
+    Transform2D.prototype.worldToLocal = function() {
+        var mat = new Mat32();
+        return function(v) {
+            return v.applyMat32(mat.getInverse(this.matrixWorld));
+        };
+    }();
+    /**
+	 * @method applyMat32
+	 * @memberof Transform2D
+	 * @brief applies Mat32 to Transform
+	 * @param Mat32 matrix
+	 */
+    Transform2D.prototype.applyMat32 = function() {
+        new Mat32();
+        return function(matrix) {
+            this.matrix.mmul(matrix, this.matrix);
+            this.scale.getScaleMat32(this.matrix);
+            this.rotation = this.matrix.getRotation();
+            this.position.getPositionMat32(this.matrix);
+        };
+    }();
+    /**
+	 * @method translate
+	 * @memberof Transform2D
+	 * @brief translates Transform by translation relative to some object or if not set itself
+	 * @param Vec2 translation
+	 * @param Transform2D relativeTo
+	 */
+    Transform2D.prototype.translate = function() {
+        var vec = new Vec2(), mat = new Mat32();
+        return function(translation, relativeTo) {
+            vec.copy(translation);
+            relativeTo instanceof Transform2D ? mat.setRotation(relativeTo.rotation) : isNumber(relativeTo) && mat.setRotation(relativeTo);
+            relativeTo && vec.applyMat32(mat);
+            this.position.add(vec);
+        };
+    }();
+    /**
+	 * @method rotate
+	 * @memberof Transform2D
+	 * @brief rotates Transform by rotation relative to some object or if not set itself
+	 * @param Number rotation
+	 * @param Transform2D relativeTo
+	 */
+    Transform2D.prototype.rotate = function(angle, relativeTo) {
+        relativeTo instanceof Transform2D ? angle += relativeTo.rotation : isNumber(relativeTo) && (angle += relativeTo);
+        relativeTo && (angle += relativeTo.rotation);
+        this.rotation += angle;
+    };
+    /**
+	 * @method rotate
+	 * @memberof Transform2D
+	 * @brief scales Transform by scale relative to some object or if not set itself
+	 * @param Number scale
+	 * @param Transform2D relativeTo
+	 */
+    Transform2D.prototype.scale = function() {
+        var vec = new Vec2(), mat = new Mat32();
+        return function(scale, relativeTo) {
+            vec.copy(scale);
+            relativeTo instanceof Transform2D ? mat.setRotation(relativeTo.rotation) : isNumber(relativeTo) && mat.setRotation(relativeTo);
+            relativeTo && vec.applyMat32(mat);
+            this.scale.add(vec);
+        };
+    }();
+    /**
+	 * @method rotateAround
+	 * @memberof Transform2D
+	 * @brief rotates Transform around point
+	 * @param Vec2 point
+	 * @param Number angle
+	 */
+    Transform2D.prototype.rotateAround = function() {
+        new Vec2();
+        return function(point, angle) {
+            point.copy(point).sub(this.position);
+            this.translate(point);
+            this.rotate(angle);
+            this.translate(point.inverse(), angle);
+        };
+    }();
+    /**
+	 * @method lookAt
+	 * @memberof Transform2D
+	 * @brief makes Transform look at another Transform or point
+	 * @param Transform2D target
+	 */
+    Transform2D.prototype.lookAt = function() {
+        var vec = new Vec2(), mat = new Mat32();
+        return function(target) {
+            target instanceof Transform2D ? vec.copy(target.position) : vec.copy(target);
+            this.rotation = mat.lookAt(this.position, vec).getRotation();
+        };
+    }();
+    /**
+	 * @method follow
+	 * @memberof Transform2D
+	 * @brief makes Transform follow another Transform or point
+	 * @param Transform2D target
+	 * @param Number damping
+	 * @param Transform2D relativeTo
+	 */
+    Transform2D.prototype.follow = function() {
+        var vec = new Vec2();
+        return function(target, damping, relativeTo) {
+            damping = damping ? damping : 1;
+            target instanceof Transform2D ? vec.vsub(target.position, this.position) : target instanceof Vec2 && vec.vsub(target, this.position);
+            vec.lenSq() > EPSILON && this.translate(vec.smul(1 / damping), relativeTo);
+        };
+    }();
+    /**
+	 * @method updateMatrices
+	 * @memberof Transform2D
+	 * @brief update matrices
+	 */
+    Transform2D.prototype.updateMatrices = function() {
+        var scale = this.scale, matrix = this.matrix, matrixWorld = this.matrixWorld;
+        matrix.setRotation(this.rotation);
+        (1 !== scale.x || 1 !== scale.y) && matrix.scale(scale);
+        matrix.setTranslation(this.position);
+        this.root === this ? matrixWorld.copy(matrix) : matrixWorld.mmul(matrix, this.parent.matrixWorld);
+        this._position.equals(this.position) || this.trigger("moved");
+        this._scale.equals(scale) || this.trigger("scaled");
+        this._rotation !== this.rotation && this.trigger("rotated");
+    };
+    Transform2D.prototype.toJSON = function() {
+        var i, json = this._JSON, children = this.children;
+        json.type = "Transform2D";
+        json._SERVER_ID = this._id;
+        json.children = json.children || [];
+        for (i = children.length; i--; ) json.children[i] = children[i].toJSON();
+        json.position = this.position;
+        json.rotation = this.rotation;
+        json.scale = this.scale;
+        return json;
+    };
+    Transform2D.prototype.fromJSON = function(json) {
+        var jsonObject, object, i, children = json.children;
+        this._SERVER_ID = json._SERVER_ID;
+        for (i = children.length; i--; ) {
+            jsonObject = children[i];
+            object = new Class.types[jsonObject.type]();
+            this.add(object.fromJSON(jsonObject));
+        }
+        this.position.fromJSON(json.position);
+        this.rotation = json.rotation;
+        this.scale.fromJSON(json.scale);
+        this.updateMatrices();
+        return this;
+    };
+    return Transform2D;
+});
+
+if ("function" != typeof define) var define = require("amdefine")(module);
+
+define("core/objects/gameobject2d", [ "base/class", "core/objects/transform2d" ], function(Class, Transform2D) {
+    /**
+	 * @class GameObject2D
+	 * @extends Transform2D
+	 * @brief 2d GameObject
+	 * @param Object opts sets Class properties from passed Object
+	 */
+    function GameObject2D(opts) {
+        opts || (opts = {});
+        Transform2D.call(this, opts);
+        /**
+	    * @property String name
+	    * @brief name of this GameObject
+	    * @memberof GameObject2D
+	    */
+        this.name = opts.name || this._class + "-" + this._id;
+        /**
+	    * @property Number z
+	    * @brief determines renderering order smaller numbers render in back
+	    * @memberof GameObject2D
+	    */
+        this.z = void 0 !== opts.z ? opts.z : 0;
+        /**
+	    * @property Object userData
+	    * @brief any extra custom data added
+	    * @memberof GameObject2D
+	    */
+        this.userData = void 0 !== opts.userData ? opts.userData : {};
+        /**
+	    * @property Array tags
+	    * @brief array of string names
+	    * @memberof GameObject2D
+	    */
+        this.tags = [];
+        /**
+	    * @property Object components
+	    * @brief object holding components attached to GameObject
+	    * @memberof GameObject2D
+	    */
+        this.components = {};
+        /**
+	    * @property Scene2D scene
+	    * @brief reference to Scene this was added to
+	    * @memberof GameObject2D
+	    */
+        this.scene = void 0;
+        this.add.apply(this, opts.children);
+        this.addTag.apply(this, opts.tags);
+        this.addComponent.apply(this, opts.components);
+    }
+    Class.extend(GameObject2D, Transform2D);
+    /**
+	 * @method copy
+	 * @memberof GameObject2D
+	 * @brief copies other object's properties
+	 * @param GameObject2D other
+	 */
+    GameObject2D.prototype.copy = function(other) {
+        var name, component;
+        Transform2D.call(this, other);
+        this.name = this._class + this._id;
+        this.tags.length = 0;
+        this.addTag.apply(this, other.tags);
+        for (name in other.components) {
+            component = other.components[name];
+            this.addComponent(component.clone());
+        }
+        other.scene && other.scene.add(this);
+        return this;
+    };
+    /**
+	 * @method init
+	 * @memberof GameObject2D
+	 * @brief called when added to scene
+	 */
+    GameObject2D.prototype.init = function() {
+        var type, component, components = this.components;
+        for (type in components) {
+            component = components[type];
+            if (component) {
+                component.init();
+                component.trigger("init");
+            }
+        }
+        this.trigger("init");
+    };
+    /**
+	 * @method addTag
+	 * @memberof GameObject2D
+	 * @brief adds all strings in arguments to tags
+	 */
+    GameObject2D.prototype.addTag = function() {
+        var tag, index, i, il, tags = this.tags;
+        for (i = 0, il = arguments.length; il > i; i++) {
+            tag = arguments[i];
+            index = tags.indexOf(tag);
+            -1 === index && tags.push(tag);
+        }
+    };
+    /**
+	 * @method removeTag
+	 * @memberof GameObject2D
+	 * @brief removes all strings in arguments from tags
+	 */
+    GameObject2D.prototype.removeTag = function() {
+        var tag, index, i, il, tags = this.tags;
+        for (i = 0, il = arguments.length; il > i; i++) {
+            tag = arguments[a];
+            index = tags.indexOf(tag);
+            -1 !== index && tags.splice(index, 1);
+        }
+    };
+    /**
+	 * @method hasTag
+	 * @memberof GameObject2D
+	 * @brief checks if this GameObject has a tag
+	 * @param String tag
+	 */
+    GameObject2D.prototype.hasTag = function(tag) {
+        return -1 !== this.tags.indexOf(tag);
+    };
+    /**
+	 * @method addComponent
+	 * @memberof GameObject2D
+	 * @brief adds all components in arguments to components
+	 */
+    GameObject2D.prototype.addComponent = function() {
+        var component, i, components = this.components;
+        for (i = arguments.length; i--; ) {
+            component = arguments[i];
+            if (components[component._class]) console.warn("GameObject2D.addComponent: GameObject2D already has a " + component._class + " Component"); else if (component instanceof Component) {
+                component.gameObject && (component = component.clone());
+                components[component._class] = component;
+                component.gameObject = this;
+                this.trigger("addComponent", component);
+                component.trigger("add", this);
+            } else console.warn("GameObject2D.addComponent: " + component._class + " is not an instance of Component");
+        }
+    };
+    /**
+	 * @method removeComponent
+	 * @memberof GameObject2D
+	 * @brief removes all components in arguments from components
+	 */
+    GameObject2D.prototype.removeComponent = function() {
+        var component, i, components = this.components;
+        for (i = arguments.length; i--; ) {
+            component = arguments[i];
+            if (components[component._class]) {
+                component.gameObject = void 0;
+                components[component._class] = void 0;
+                this.trigger("removeComponent", component);
+                component.trigger("remove", this);
+            } else console.warn("GameObject2D.removeComponent: Component is not attached to GameObject2D");
+        }
+    };
+    /**
+	 * @method hasComponent
+	 * @memberof GameObject2D
+	 * @brief checks if this GameObject has a Component
+	 * @param String type
+	 */
+    GameObject2D.prototype.hasComponent = function(type) {
+        return !!this.components[type];
+    };
+    /**
+	 * @method getComponent
+	 * @memberof GameObject2D
+	 * @brief returns component with name
+	 * @param String type
+	 */
+    GameObject2D.prototype.getComponent = function(type) {
+        return this.components[type];
+    };
+    /**
+	 * @method getComponents
+	 * @memberof GameObject2D
+	 * @brief returns all components attached to this GameObject
+	 * @param Array results
+	 */
+    GameObject2D.prototype.getComponents = function(results) {
+        results = results || [];
+        var key;
+        for (key in this.components) results.push(this.components[key]);
+        return results;
+    };
+    /**
+	 * @method forEachComponent
+	 * @memberof GameObject2D
+	 * @brief for each component call a function
+	 * @param Function callback
+	 */
+    GameObject2D.prototype.forEachComponent = function(callback) {
+        var type, component, components = this.components;
+        for (type in components) {
+            component = components[type];
+            component && callback(component);
+        }
+    };
+    /**
+	 * @method update
+	 * @memberof GameObject2D
+	 * @brief called in Scence2D.update
+	 */
+    GameObject2D.prototype.update = function() {
+        var type, component, components = this.components;
+        this.trigger("update");
+        for (type in components) {
+            component = components[type];
+            component && component.update && component.update();
+        }
+        this.updateMatrices();
+        this.trigger("lateUpdate");
+    };
+    GameObject2D.prototype.toJSON = function() {
+        var component, i, json = this._JSON, children = this.children, components = this.components, tags = this.tags;
+        json.type = "GameObject2D";
+        json.name = this.name;
+        json._SERVER_ID = this._id;
+        json.children = json.children || [];
+        json.components = json.components || {};
+        json.tags = json.tags || [];
+        for (i = children.length; i--; ) json.children[i] = children[i].toJSON();
+        for (i in components) {
+            component = components[i];
+            "RigidBody2D" !== component._class && (json.components[i] = component.toJSON());
+        }
+        for (i = tags.length; i--; ) json.tags[i] = tags[i];
+        json.z = this.z;
+        json.position = this.position;
+        json.rotation = this.rotation;
+        json.scale = this.scale;
+        return json;
+    };
+    GameObject2D.prototype.fromJSON = function(json) {
+        var jsonObject, object, i, children = json.children, components = json.components, tags = json.tags;
+        this.name = json.name;
+        this._SERVER_ID = json._SERVER_ID;
+        for (i = children.length; i--; ) {
+            jsonObject = children[i];
+            object = new Class.types[jsonObject.type]();
+            this.add(object.fromJSON(jsonObject));
+        }
+        for (i in components) {
+            jsonObject = components[i];
+            object = new Class.types[jsonObject.type]();
+            this.addComponent(object.fromJSON(jsonObject));
+        }
+        for (i = tags.length; i--; ) this.tags[i] = tags[i];
+        this.z = json.z;
+        this.position.fromJSON(json.position);
+        this.rotation = json.rotation;
+        this.scale.fromJSON(json.scale);
+        this.updateMatrices();
+        return this;
+    };
+    return GameObject2D;
+});
+
+if ("function" != typeof define) var define = require("amdefine")(module);
+
+define("core/objects/camera2d", [ "base/class", "math/mathf", "math/vec2", "math/mat32", "math/mat4", "core/objects/gameobject2d" ], function(Class, Mathf, Vec2, Mat32, Mat4, GameObject2D) {
+    /**
+	 * @class Camera2D
+	 * @extends GameObject2D
+	 * @brief 2d Camera
+	 * @param Object opts sets Class properties from passed Object
+	 */
+    function Camera2D(opts) {
+        opts || (opts = {});
+        GameObject2D.call(this, opts);
+        /**
+	    * @property Number width
+	    * @brief width of camera
+	    * @memberof Camera2D
+	    */
+        this.width = 960;
+        /**
+	    * @property Number height
+	    * @brief height of camera
+	    * @memberof Camera2D
+	    */
+        this.height = 640;
+        /**
+	    * @property Number aspect
+	    * @brief width / height
+	    * @memberof Camera2D
+	    */
+        this.aspect = this.width / this.height;
+        /**
+	    * @property Number zoom
+	    * @brief zoom amount
+	    * @memberof Camera2D
+	    */
+        this.zoom = void 0 !== opts.zoom ? opts.zoom : 1;
+        this._matrixProjection3D = new Mat4();
+        /**
+	    * @property Mat32 matrixProjection
+	    * @brief projection matrix
+	    * @memberof Camera2D
+	    */
+        this.matrixProjection = new Mat32();
+        /**
+	    * @property Mat32 matrixProjectionInverse
+	    * @brief inverse projection matrix
+	    * @memberof Camera2D
+	    */
+        this.matrixProjectionInverse = new Mat32();
+        /**
+	    * @property Mat32 matrixWorldInverse
+	    * @brief inverse matrix world, calculated in renderer
+	    * @memberof Camera2D
+	    */
+        this.matrixWorldInverse = new Mat32();
+        /**
+	    * @property Mat32 matrixWorldInverse
+	    * @brief inverse matrix world, calculated in renderer
+	    * @memberof Camera2D
+	    */
+        this.needsUpdate = !0;
+    }
+    var clampBottom = Mathf.clampBottom;
+    Class.extend(Camera2D, GameObject2D);
+    /**
+	 * @method copy
+	 * @memberof Camera2D
+	 * @brief copies other object's properties
+	 * @param Camera2D other
+	 */
+    Camera2D.prototype.copy = function(other) {
+        GameObject2D.call(this, other);
+        this.width = other.width;
+        this.height = other.height;
+        this.aspect = other.aspect;
+        this.zoom = other.zoom;
+        this.matrixProjection.copy(other.matrixProjection);
+        this.matrixProjectionInverse.copy(other.matrixProjectionInverse);
+        this.matrixWorldInverse.copy(other.matrixWorldInverse);
+        this.needsUpdate = other.needsUpdate;
+        return this;
+    };
+    /**
+	 * @method setSize
+	 * @memberof Camera2D
+	 * @brief sets width and height of camera
+	 * @param Number width
+	 * @param Number height
+	 */
+    Camera2D.prototype.setSize = function(width, height) {
+        this.width = void 0 !== width ? width : this.width;
+        this.height = void 0 !== height ? height : this.height;
+        this.aspect = this.width / this.height;
+        this.needsUpdate = !0;
+    };
+    /**
+	 * @method setZoom
+	 * @memberof Camera2D
+	 * @brief sets zoom amount
+	 * @param Number zoom
+	 */
+    Camera2D.prototype.setZoom = function(zoom) {
+        this.zoom = void 0 !== zoom ? zoom : this.zoom;
+        this.trigger("zoom");
+        this.needsUpdate = !0;
+    };
+    /**
+	 * @method zoomBy
+	 * @memberof Camera2D
+	 * @brief zooms by some amount
+	 * @param Number zoom
+	 */
+    Camera2D.prototype.zoomBy = function(zoom) {
+        this.zoom += void 0 !== zoom ? zoom : 0;
+        this.trigger("zoom");
+        this.needsUpdate = !0;
+    };
+    /**
+	 * @method updateMatrixProjection
+	 * @memberof Camera2D
+	 * @brief updates matrix projection
+	 */
+    Camera2D.prototype.updateMatrixProjection = function() {
+        var zoom = clampBottom(this.zoom, .001), w = this.width, h = this.height, right = .5 * w * zoom, left = -right, top = .5 * h * zoom, bottom = -top;
+        this.matrixProjection.orthographic(left, right, top, bottom);
+        this.matrixProjectionInverse.minv(this.matrixProjection);
+        this._matrixProjection3D.orthographic(left, right, top, bottom, -1, 1);
+        this.needsUpdate = !1;
+    };
+    /**
+	 * @method update
+	 * @memberof Camera2D
+	 * @brief called in Scence2D.update
+	 */
+    Camera2D.prototype.update = function() {
+        var type, component, components = this.components;
+        this.trigger("update");
+        for (type in components) {
+            component = components[type];
+            component && component.update && component.update();
+        }
+        this.updateMatrices();
+        this.needsUpdate && this.updateMatrixProjection();
+        this.matrixWorldInverse.minv(this.matrixWorld);
+        this.trigger("lateUpdate");
+    };
+    Camera2D.prototype.toJSON = function() {
+        var i, json = this._JSON, children = this.children, components = this.components, tags = this.tags;
+        json.type = "Camera2D";
+        json.name = this.name;
+        json._SERVER_ID = this._id;
+        json.children = json.children || [];
+        json.components = json.components || [];
+        json.tags = json.tags || [];
+        for (i = children.length; i--; ) json.children[i] = children[i].toJSON();
+        for (i = components.length; i--; ) json.components[i] = components[i].toJSON();
+        for (i = tags.length; i--; ) json.tags[i] = tags[i];
+        json.z = this.z;
+        json.position = this.position;
+        json.rotation = this.rotation;
+        json.scale = this.scale;
+        json.width = this.width;
+        json.height = this.height;
+        json.zoom = this.zoom;
+        return json;
+    };
+    Camera2D.prototype.fromJSON = function(json) {
+        var jsonObject, object, i, children = json.children, components = json.components, tags = json.tags;
+        this.name = json.name;
+        this._SERVER_ID = json._SERVER_ID;
+        for (i = children.length; i--; ) {
+            jsonObject = children[i];
+            object = new Class.types[jsonObject.type]();
+            this.add(object.fromJSON(jsonObject));
+        }
+        for (i in components) {
+            jsonObject = components[i];
+            object = new Class.types[jsonObject.type]();
+            this.addComponent(object.fromJSON(jsonObject));
+        }
+        for (i = tags.length; i--; ) this.tags[i] = tags[i];
+        this.z = json.z;
+        this.position.fromJSON(json.position);
+        this.rotation = json.rotation;
+        this.scale.fromJSON(json.scale);
+        this.zoom = json.zoom;
+        this.setSize(json.width, json.height);
+        this.updateMatrices();
+        return this;
+    };
+    return Camera2D;
+});
+
+if ("function" != typeof define) var define = require("amdefine")(module);
+
+define("odindoc", [ "require", "base/class", "base/device", "base/dom", "base/objectpool", "base/time", "base/utils", "math/aabb2", "math/aabb3", "math/color", "math/line2", "math/mat2", "math/mat3", "math/mat32", "math/mat4", "math/mathf", "math/quat", "math/vec2", "math/vec3", "math/vec4", "physics2d/body/pbody2d", "physics2d/body/pparticle2d", "physics2d/body/prigidbody2d", "physics2d/collision/pbroadphase2d", "physics2d/collision/pnearphase2d", "physics2d/constraints/pconstraint2d", "physics2d/constraints/pcontact2d", "physics2d/constraints/pdistanceconstraint2d", "physics2d/constraints/pequation2d", "physics2d/constraints/pfriction2d", "physics2d/shape/pcircle2d", "physics2d/shape/pconvex2d", "physics2d/shape/prect2d", "physics2d/shape/pshape2d", "physics2d/psolver2d", "physics2d/pworld2d", "core/components/circle2d", "core/components/component", "core/components/poly2d", "core/components/rect2d", "core/components/renderable2d", "core/components/rigidbody2d", "core/components/sprite2d", "core/game/client", "core/game/clientgame", "core/game/game", "core/game/servergame", "core/input/accelerometer", "core/input/input", "core/input/key", "core/input/keyboard", "core/input/mouse", "core/input/orientation", "core/input/touch", "core/input/touches", "core/objects/camera2d", "core/objects/gameobject2d", "core/objects/transform2d", "core/scene/scene2d", "core/scene/world2d", "core/canvas", "core/canvasrenderer2d", "core/webglrenderer2d" ], function(require) {
     /**
 	* @library Odin.js
 	* @version 0.0.12
@@ -13385,16 +13381,16 @@ define("odindoc", [ "require", "base/class", "base/device", "base/dom", "base/ob
     Odin.PDistanceConstraint2D = require("physics2d/constraints/pdistanceconstraint2d");
     Odin.PEquation2D = require("physics2d/constraints/pequation2d");
     Odin.PFriction2D = require("physics2d/constraints/pfriction2d");
-    Odin.PBox2D = require("physics2d/shape/pbox2d");
     Odin.PCircle2D = require("physics2d/shape/pcircle2d");
     Odin.PConvex2D = require("physics2d/shape/pconvex2d");
+    Odin.PRect2D = require("physics2d/shape/prect2d");
     Odin.PShape2D = require("physics2d/shape/pshape2d");
     Odin.PSolver2D = require("physics2d/psolver2d");
     Odin.PWorld2D = require("physics2d/pworld2d");
-    Odin.Box2D = require("core/components/box2d");
     Odin.Circle2D = require("core/components/circle2d");
     Odin.Component = require("core/components/component");
     Odin.Poly2D = require("core/components/poly2d");
+    Odin.Rect2D = require("core/components/rect2d");
     Odin.Renderable2D = require("core/components/renderable2d");
     Odin.RigidBody2D = require("core/components/rigidbody2d");
     Odin.Sprite2D = require("core/components/sprite2d");
