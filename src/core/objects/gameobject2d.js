@@ -16,19 +16,6 @@ define([
     function( Class, Transform2D, Camera2D, Box2D, Circle2D, Component, Poly2D, Renderable2D, RigidBody2D, Sprite2D ){
         "use strict";
 	
-	var objectTypes = {
-		Transform2D: Transform2D,
-		GameObject2D: GameObject2D,
-		Camera2D: Camera2D,
-		Box2D: Box2D,
-		Circle2D: Circle2D,
-		Component: Component,
-		Poly2D: Poly2D,
-		Renderable2D: Renderable2D,
-		RigidBody2D: RigidBody2D,
-		Sprite2D: Sprite2D
-	    };
-	
 	/**
 	 * @class GameObject2D
 	 * @extends Transform2D
@@ -382,12 +369,12 @@ define([
 	    
 	    for( i = children.length; i--; ){
 		jsonObject = children[i];
-		object = new objectTypes[ jsonObject.type ];
+		object = new Class.types[ jsonObject.type ];
 		this.add( object.fromJSON( jsonObject ) );
 	    }
 	    for( i in components ){
 		jsonObject = components[i];
-		object = new objectTypes[ jsonObject.type ];
+		object = new Class.types[ jsonObject.type ];
 		this.addComponent( object.fromJSON( jsonObject ) )
 	    }
 	    for( i = tags.length; i--; ){

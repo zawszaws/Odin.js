@@ -22,13 +22,6 @@ define([
     function( require, Class, Time, Device, Input, Mouse, Touches, Keyboard, Accelerometer, Orientation, Scene2D, Game, Camera2D, GameObject2D, Transform2D ){
 	"use strict";
 	
-	var objectTypes = {
-		Scene2D: Scene2D,
-		Camera2D: Camera2D,
-		GameObject2D: GameObject2D,
-		Transform2D: Transform2D
-	    };
-	
 	/**
 	 * @class ClientGame
 	 * @extends Game
@@ -74,11 +67,11 @@ define([
 	    socket.on("connection", function( id, scenes ){
 		
 		self.id = id;
-		socket.emit("device", Device );
+		socket.emit("clientConnect", Device );
 		
 		for( i = scenes.length; i--; ){
 		    jsonObject = scenes[i];
-		    object = new objectTypes[ jsonObject.type ];
+		    object = new Class.types[ jsonObject.type ];
 		    object.fromJSON( jsonObject );
 		    self.addScene( object );
 		}
@@ -136,7 +129,7 @@ define([
 		    gameObject = scene.findByServerId( gameObject );
 		    if( !gameObject ) return;
 		    
-		    object = new objectTypes[ component.type ];
+		    object = new Class.types[ component.type ];
 		    object.fromJSON( component );
 		    gameObject.addComponent( object );
 		});
@@ -157,7 +150,7 @@ define([
 		    scene = self.findSceneByServerId( scene );
 		    if( !scene ) return;
 		    
-		    object = new objectTypes[ gameObject.type ];
+		    object = new Class.types[ gameObject.type ];
 		    object.fromJSON( gameObject );
 		    scene.add( object );
 		});
@@ -175,7 +168,7 @@ define([
 		
 		
 		socket.on("addScene", function( scene ){
-		    object = new objectTypes[ scene.type ];
+		    object = new Class.types[ scene.type ];
 		    object.fromJSON( scene );
 		    self.add( object );
 		});
@@ -206,12 +199,12 @@ define([
 		Orientation.on("orientation", function( orientation ){ socket.emit("orientation", orientation ); });
 		Orientation.on("orientationchange", function( mode, orientation ){ socket.emit("orientationchange", mode, orientation ); });
 		
-		Keyboard.on("keydown", function( key ){ socket.emit("keydown", Keyboard, key ); });
-		Keyboard.on("keyup", function( key ){ socket.emit("keyup", Keyboard, key ); });
+		Keyboard.on("keydown", function( key ){ socket.emit("keydown", key ); });
+		Keyboard.on("keyup", function( key ){ socket.emit("keyup", key ); });
 		
-		Touches.on("start", function( touch ){ socket.emit("touchstart", Touches, touch ); });
-		Touches.on("end", function( touch ){ socket.emit("touchend", Touches, touch ); });
-		Touches.on("move", function( touch ){ socket.emit("touchmove", Touches, touch ); });
+		Touches.on("start", function( touch ){ socket.emit("touchstart", touch ); });
+		Touches.on("end", function( touch ){ socket.emit("touchend", touch ); });
+		Touches.on("move", function( touch ){ socket.emit("touchmove", touch ); });
 		
 		Mouse.on("down", function(){ socket.emit("mousedown", Mouse ); });
 		Mouse.on("up", function(){ socket.emit("mouseup", Mouse ); });

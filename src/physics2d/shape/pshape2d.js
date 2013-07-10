@@ -9,10 +9,6 @@ define([
     function( Class, Vec2, AABB2 ){
         "use strict";
 	
-	PShape2D.BOX = 1;
-	PShape2D.CIRCLE = 2;
-	PShape2D.CONVEX = 3;
-	
         /**
 	 * @class PShape2D
 	 * @extends Class

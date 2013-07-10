@@ -16,13 +16,7 @@ define([
     function( Class, Vec2, Mat2, AABB2, PBody2D, PParticle2D, PBox2D, PCircle2D, PConvex2D, PShape2D ){
         "use strict";
 	
-	var objectTypes = {
-		PBox2D: PBox2D,
-		PCircle2D: PCircle2D,
-		PConvex2D: PConvex2D,
-		PShape2D: PShape2D
-	    },
-	    AWAKE = PParticle2D.AWAKE,
+	var AWAKE = PParticle2D.AWAKE,
 	    SLEEPY = PParticle2D.SLEEPY,
 	    SLEEPING = PParticle2D.SLEEPING,
 	    
@@ -244,7 +238,7 @@ define([
 	PRigidBody2D.prototype.toJSON = function(){
 	    var json = this._JSON;
 	    
-	    json.type = "PRigidbody2D";
+	    json.type = "PRigidBody2D";
 	    json._SERVER_ID = this._id;
 	    json.filterGroup = this.filterGroup;
 	    
@@ -304,7 +298,7 @@ define([
 	    
 	    this.allowSleep = json.allowSleep;
 	    
-	    this.shape = new objectTypes[ json.shape.type ];
+	    this.shape = new Class.types[ json.shape.type ];
 	    this.shape.fromJSON( json.shape );
 	    this.shape.body = this;
 	    

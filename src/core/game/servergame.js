@@ -83,8 +83,7 @@ define([
 			socket: socket,
 			connectTime: Time.stamp()
 		    }),
-		    id = socket.id,
-		    i;
+		    id = socket.id, i;
 		
 		scenesList.length = 0;
 		
@@ -104,7 +103,7 @@ define([
 		    console.log("ServerGame: Client id: "+ id +" to error: "+ error );
 		});
 		
-		socket.on("device", function( device ){
+		socket.on("clientConnect", function( device ){
 		    client.device = device;
 		    self.trigger("connection", id );
 		    console.log("ServerGame: new Client id: "+ id +" "+ device.userAgent );

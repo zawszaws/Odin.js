@@ -12,7 +12,7 @@ define([
 	/**
 	 * @class Client
 	 * @extends Class
-	 * @brief Client Information used by ServerGame
+	 * @brief client information used by ServerGame
 	 * @param Object opts sets Class properties from passed Object
 	 */
 	function Client( opts ){
@@ -68,48 +68,6 @@ define([
 	    * @memberof Client
 	    */
 	    this.device = undefined;
-	    
-	    /**
-	    * @property Object input
-	    * @memberof Client
-	    */
-	    this.input = undefined;
-	    
-	    /**
-	    * @property Object keyboard
-	    * @memberof Client
-	    */
-	    this.keyboard = undefined;
-	    
-	    /**
-	    * @property Object mouse
-	    * @memberof Client
-	    */
-	    this.mouse = undefined;
-	    
-	    /**
-	    * @property Object touches
-	    * @memberof Client
-	    */
-	    this.touches = undefined;
-	    
-	    /**
-	    * @property Object accelerometer
-	    * @memberof Client
-	    */
-	    this.accelerometer = undefined;
-	    
-	    /**
-	    * @property Object orientation
-	    * @memberof Client
-	    */
-	    this.orientation = undefined;
-	    
-	    /**
-	    * @property String mode
-	    * @memberof Client
-	    */
-	    this.mode = undefined;
 	}
         
 	Class.extend( Client, Class );

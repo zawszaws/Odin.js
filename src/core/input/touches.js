@@ -169,7 +169,7 @@ define([
                         
                         touch.identifier = evtTouch.identifier;
                         
-			touch.startTime = Time.time;
+			touch.startTime = Time.stamp();
 			
                         touch.getPosition( evtTouch );
 			
@@ -257,7 +257,7 @@ define([
 				touch._first = true;
 			    }
                             
-			    touch.endTime = Time.time;
+			    touch.endTime = Time.stamp();
 			    touch.deltaTime = touch.endTime - touch.startTime;
 			    
                             touch.end.copy( touch.position );

@@ -6,6 +6,7 @@ define(
         "use strict";
 	
 	var LOW = 0.000001, HIGH = 0.1;
+	    
 	
         /**
 	 * @class Time
@@ -95,7 +96,7 @@ define(
 		    now: function(){
 			return Date.now() - startTime;
 		    }
-		};
+		}
 	    
 	    return function(){
 		

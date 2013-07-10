@@ -209,7 +209,7 @@ define([
         
         Input.prototype.handleEvents = function( e ){
             e.preventDefault();
-            var timeStamp = ( e.timeStamp - Time.startTime ) / 1000,
+            var timeStamp = e.timeStamp / 1000,
                 type = e.type;
             
             this._hold( type );
@@ -232,7 +232,7 @@ define([
 		holdTimer = setTimeout(function(){
 		    if( gesture === "hold"){
 			lastGesture = "hold";
-			lastGestureTime = Time.time;
+			lastGestureTime = Time.stamp();
 			scope.trigger("hold", event );
 		    }
 		}, holdTimeout );
@@ -273,13 +273,13 @@ define([
                 ){
                     gesture = "doubletap";
                     lastGesture = "doubletap";
-                    lastGestureTime = Time.time;
+                    lastGestureTime = Time.stamp();
                     this.trigger("doubletap", event );
                 }
                 else{
                     gesture = "tap";
                     lastGesture = "tap";
-                    lastGestureTime = Time.time;
+                    lastGestureTime = Time.stamp();
                     this.trigger("tap", event );
                 }
             }
@@ -299,7 +299,7 @@ define([
                 ){
                     gesture = "swipe";
                     lastGesture = "swipe";
-                    lastGestureTime = Time.time;
+                    lastGestureTime = Time.stamp();
                     this.trigger("swipe", event, Mathf.direction( delta.x, delta.y ) );
                 }
             }

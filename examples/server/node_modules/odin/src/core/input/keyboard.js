@@ -60,7 +60,7 @@ define([
 		    key.down = true;
                     
                     if( key._first ){
-			key.downTime = Time.time;
+			key.downTime = Time.stamp();
                         key._downFrame = Time.frame;
                         key._first = false;
                     }
@@ -82,7 +82,7 @@ define([
 		    key.down = false;
                     
                     if( !key._first ){
-			key.endTime = Time.time;
+			key.endTime = Time.stamp();
                         key._upFrame = Time.frame;
                         key._first = true;
                     }

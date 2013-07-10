@@ -119,7 +119,7 @@ requirejs(
                 scene.add( player, camera );
                 
                 userData.player = player;
-                userData.speed = 100;
+                userData.speed = 1;
                 
                 client.on("keydown", function( key ){
                     var body = this.userData.player.components.RigidBody2D.body,
@@ -127,10 +127,10 @@ requirejs(
                         speed = this.userData.speed,
                         name = key.name;
                     
-                    if( name === "up" ) velocity.y += speed * Time.delta;
-                    if( name === "down" ) velocity.y -= speed * Time.delta;
-                    if( name === "right" ) velocity.x += speed * Time.delta;
-                    if( name === "left") velocity.x -= speed * Time.delta;
+                    if( name === "up" ) velocity.y += speed;
+                    if( name === "down" ) velocity.y -= speed;
+                    if( name === "right" ) velocity.x += speed;
+                    if( name === "left") velocity.x -= speed;
                 });
                 
                 client.on("mousemove", function( mouse ){

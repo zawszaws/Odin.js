@@ -17,12 +17,7 @@ define([
     function( Class, Mathf, Vec2, PSolver2D, PFriction2D, PBroadphase2D, PNearphase2D, PShape2D, PParticle2D, PBody2D, PRigidbody2D ){
         "use strict";
 	
-	var objectTypes = {
-		PParticle2D: PParticle2D,
-		PBody2D: PBody2D,
-		PRigidbody2D: PRigidbody2D
-	    },
-	    pow = Math.pow,
+	var pow = Math.pow,
 	    min = Math.min,
 	    clamp = Mathf.clamp,
 	    
@@ -49,7 +44,7 @@ define([
 		    now: function(){
 			return Date.now() - startTime;
 		    }
-		};
+		}
 	    
 	    return function(){
 		
@@ -430,7 +425,7 @@ define([
 	    
 	    for( i = bodies.length; i--; ){
 		jsonObject = bodies[i];
-		object = new objectTypes[ jsonObject.type ];
+		object = new Class.types[ jsonObject.type ];
 		this.add( object.fromJSON( jsonObject ) );
 	    }
 	    

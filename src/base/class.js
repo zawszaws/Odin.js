@@ -194,7 +194,16 @@ define(
 	};
 	
 	/**
-	 * @method extend
+	* @property Object types
+	* @brief reference of all extended classes
+	* @memberof Class
+	*/
+	Class.types = {
+	    Class: Class
+	};
+	
+	/**
+	 * @method Class.extend
 	 * @memberof Class
 	 * @brief makes child inherit parent
 	 */
@@ -207,8 +216,8 @@ define(
 		childProto[ key ] = parentProto[ key ];
 	    }
 	    
-	    childProto._super = parent;
 	    childProto.constructor = child;
+	    Class.types[ childProto.constructor.name ] = childProto.constructor;
         };
 	
 	

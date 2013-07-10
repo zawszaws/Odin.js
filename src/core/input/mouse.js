@@ -173,7 +173,7 @@ define([
             
             if( downNeedsUpdate ){
                 
-		this.startTime = Time.time;
+		this.startTime = Time.stamp();
 		
                 this.getPosition( e );
                 
@@ -228,7 +228,7 @@ define([
             
             if( upNeedsUpdate ){
                 
-		this.endTime = Time.time;
+		this.endTime = Time.stamp();
 		this.deltaTime = this.endTime - this.startTime;
 		
                 this.getPosition( e );
@@ -264,7 +264,7 @@ define([
             
             if( outNeedsUpdate ){
                 
-		this.endTime = Time.time;
+		this.endTime = Time.stamp();
 		this.deltaTime = this.endTime - this.startTime;
 		
                 this.getPosition( e );

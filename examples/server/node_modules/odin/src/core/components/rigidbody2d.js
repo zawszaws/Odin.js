@@ -73,10 +73,6 @@ define([
 	    opts.shape = shape instanceof PShape2D ? shape : undefined;
 	    this.body = new PRigidBody2D( opts );
 	    
-	    this.listenTo( this.body, "collide", function( pbody2d ){
-		this.trigger("collide", pbody2d.userData, Time.time );
-	    }, this );
-	    
 	    this.line = true;
 	    this.alpha = 0.25;
 	    this.visible = false
@@ -131,6 +127,10 @@ define([
 	    body.rotation = gameObject.rotation;
 	    body.R.setRotation( gameObject.rotation );
 	    body.calculateAABB();
+	    
+	    this.listenTo( this.body, "collide", function( rigidbody ){
+		this.trigger("collide", this, Time.stamp() );
+	    });
 	};
 	
 	

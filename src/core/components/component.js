@@ -26,8 +26,18 @@ define([
         
 	Class.extend( Component, Class );
         
-        
+        /**
+	 * @method init
+	 * @memberof Component
+	 * @brief called when add to a GameObject
+	 */
         Component.prototype.init = function(){};
+	
+	/**
+	 * @method update
+	 * @memberof Component
+	 * @brief called before GameObject updates
+	 */
         Component.prototype.update = function(){};
         
         

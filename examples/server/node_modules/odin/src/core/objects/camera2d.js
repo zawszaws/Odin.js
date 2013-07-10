@@ -260,12 +260,12 @@ define([
 	    
 	    for( i = children.length; i--; ){
 		jsonObject = children[i];
-		object = new objectTypes[ jsonObject.type ];
+		object = new Class.types[ jsonObject.type ];
 		this.add( object.fromJSON( jsonObject ) );
 	    }
 	    for( i in components ){
 		jsonObject = components[i];
-		object = new objectTypes[ jsonObject.type ];
+		object = new Class.types[ jsonObject.type ];
 		this.addComponent( object.fromJSON( jsonObject ) )
 	    }
 	    for( i = tags.length; i--; ){
