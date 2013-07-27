@@ -25,7 +25,7 @@ requirejs(
         
         var game = new ServerGame({
             debug: true,
-            host: "192.168.1.197"
+            host: "192.168.1.194"
         });
         
         game.on("init", function(){

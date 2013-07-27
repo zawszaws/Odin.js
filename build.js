@@ -5,7 +5,7 @@
     optimize: "uglify2",
     uglify2: {
 	warnings: true,
-	mangle: true
+	mangle: false
     },
     
     out: "./build/odin.js",

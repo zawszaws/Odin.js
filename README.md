@@ -88,7 +88,7 @@ requirejs(
                 var client = this.clients[ id ],
                     userData = client.userData,
                     
-                    position = new Vec2( Mathf.randFloat( -5, 5 ), Mathf.randFloat( 0, 5 ) ),
+                    position = new Vec2( Mathf.randFloat( -5, 5 ), Mathf.randFloat( -5, 5 ) ),
                     camera = new GameObject({
                         components: [
                             new Transform2D({

@@ -127,8 +127,14 @@ define([
 	 * @param Function callback
 	 */
 	Assets.prototype.load = function( callback ){
+	    if( this.total <= 0 ){
+		if( callback ) callback();
+		return;
+	    }
+	    
 	    var self = this, assets = this.assets,
 		asset, key, startTime = now();
+	    
 	    
 	    self.trigger("load");
 	    this.loading = true;

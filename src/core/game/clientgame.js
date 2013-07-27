@@ -41,16 +41,27 @@ define([
 	    */
 	    this.lag = 0;
 	    
-	    
-	    var self = this,
-		socket, time,
-		asset, serverObject,
-		i;
 	    /**
 	    * @property Object socket
 	    * @brief reference to client's socket
 	    * @memberof ClientGame
 	    */
+	    this.socket = undefined;
+	}
+        
+	Class.extend( ClientGame, Game );
+	
+	/**
+	 * @method connect
+	 * @memberof ClientGame
+	 * @brief connects and syncs game with server
+	 */
+	ClientGame.prototype.connect = function(){
+	    var self = this,
+		socket, time,
+		asset, serverObject,
+		i;
+	    
 	    this.socket = socket = io.connect("http://"+ Config.host, { port: Config.port });
 	    
 	    socket.on("server_connection", function( id, assets ){
@@ -66,7 +77,10 @@ define([
 		    }
 		    
 		    socket.emit("client_syncScenes");
-		    self.init();
+		    
+		    Assets.load(function(){
+			self.trigger("connect");
+		    });
 		});
 		
 		
@@ -139,9 +153,7 @@ define([
 		    if( self.scene ) self.scene.clientSync( sync );
 		});
 	    });
-	}
-        
-	Class.extend( ClientGame, Game );
+	};
 	
 	/**
 	 * @method findByServerId

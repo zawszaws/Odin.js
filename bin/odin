@@ -59,7 +59,14 @@ function createClientIndexjs(){
 	'        ',
 	'        game.on("init", function(){',
 	'            // Client Game goes here',
+	'            this.connect();',
 	'        });',
+	'        ',
+	'        game.on("connect", function(){',
+	'            // Client Game after connecting to server goes here',
+	'        });',
+	'        ',
+	'        game.init();',
 	'    }',
 	');'
     ].join("\n");
