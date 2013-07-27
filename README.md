@@ -44,6 +44,16 @@ require(
             host: "127.0.0.1",
             port: 3000
         });
+        
+        game.on("init", function(){
+            this.connect();
+        });
+        
+        game.on("connect", function(){
+            
+        });
+        
+        game.init();
     }
 );
 ```
@@ -64,15 +74,15 @@ requirejs(
         
         
         Assets.add(
-	    new ImageAsset({
-		name: "img_player",
-		src: "../assets/player.png"
-	    }),
-	    new SpriteSheetAsset({
-		name: "anim_player",
-		src: "../assets/player.json"
-	    })
-	);
+            new ImageAsset({
+                name: "img_player",
+                src: "../assets/player.png"
+            }),
+            new SpriteSheetAsset({
+                name: "anim_player",
+                src: "../assets/player.json"
+            })
+        );
         
         
         var game = new ServerGame({
