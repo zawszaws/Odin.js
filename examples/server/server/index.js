@@ -98,15 +98,22 @@ requirejs(
                     var wheel = client.axis("mouseWheel"),
                         mouseX = client.axis("mouseX"),
                         mouseY = client.axis("mouseY"),
+                        touch = client.touch(0),
                         camera2d = this.camera2d,
                         position = this.transform2d.position,
-                        dt = Time.delta;
+                        dt = Time.delta,
+                        speed;
                     
                     camera2d.zoom -= wheel * dt;
+                    speed = camera2d.zoom * 0.25;
                     
                     if( client.mouseButton(0) ){
                         position.x -= mouseX * dt;
                         position.y += mouseY * dt;
+                    }
+                    if( touch ){
+                        position.x -= touch.delta.x * speed * dt;
+                        position.y += touch.delta.y * speed * dt;
                     }
                 });
                 

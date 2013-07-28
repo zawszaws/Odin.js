@@ -94,6 +94,7 @@ define([
 		mousePosition: new Vec2,
 		mouseDelta: new Vec2,
 		mouseWheel: 0,
+		touches: [],
 		axes: {}
 	    };
 	    
@@ -175,6 +176,18 @@ define([
 	    var axis = this.Input.axes[ axisName ];
 	    
 	    return ( axis && axis.value ) || 0;
+        };
+	
+	/**
+	 * @method touch
+	 * @memberof Client
+	 * @brief returns object representing status of a specific touch, if no touch returns undefined
+	 * @param Number num
+	 */
+        Client.prototype.touch = function( num ){
+	    var touch = this.Input.touches[ num ];
+	    
+	    return touch;
         };
 	
 	/**

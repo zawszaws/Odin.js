@@ -260,6 +260,17 @@ define([
         };
 	
 	/**
+	 * @method touch
+	 * @memberof Input
+	 * @brief returns object representing status of a specific touch, if no touch returns undefined
+	 * @param Number num
+	 */
+        Input.prototype.touch = function( num ){
+	    
+	    return this.touches[ num ];
+        };
+	
+	/**
 	 * @method mouseButton
 	 * @memberof Input
 	 * @brief returns whether the given mouse button is held down
