@@ -120,7 +120,7 @@ define([
 			self.trigger("client_init", id );
 		    });
 		    
-		    socket.on("client_update", function( Input, timeStamp ){
+		    socket.on("client_syncInput", function( Input, timeStamp ){
 			var clientInput = client.Input;
 			
 			client.lag = stamp() - timeStamp;
@@ -129,6 +129,8 @@ define([
 			clientInput.mousePosition.copy( Input.mousePosition );
 			clientInput.mouseDelta.copy( Input.mouseDelta );
 			clientInput.mouseWheel = Input.mouseWheel;
+			
+			clientInput.touches = Input.touches;
 		    });
 		});
 	    });
@@ -170,7 +172,7 @@ define([
 	 */
 	ServerGame.prototype.animate = function(){
 	    var frameCount = 0, last = 0, time = 0, delta = 0,
-		lastUpdate = 0;
+		lastUpdate = 0, timeStamp = 0;
 		
 	    return function(){
 		var sockets = this.io.sockets,
@@ -189,13 +191,15 @@ define([
 		Time.time = time * Time.scale;
 		Time.sinceStart = time;
 		
-		if( lastUpdate + 0.05 <= time ){
-		    sockets.emit("server_update", stamp() );
+		if( lastUpdate + 0.1 <= time ){
+		    timeStamp = stamp();
+		    
+		    sockets.emit("server_syncInput", timeStamp );
 		    lastUpdate = time;
 		    
 		    for( i in clients ){
 			client = clients[i];
-			if( client.scene ) client.socket.emit("server_sync", client.scene.serverSync() );
+			if( client.scene ) client.socket.emit("server_syncScene", client.scene.serverSync(), timeStamp );
 		    }
 		}
 		

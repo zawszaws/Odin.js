@@ -39,7 +39,7 @@ define([
 	    * @property Number lag
 	    * @memberof ClientGame
 	    */
-	    this.lag = 0;
+	    this.lag = 0.1;
 	    
 	    /**
 	    * @property Object socket
@@ -47,6 +47,11 @@ define([
 	    * @memberof ClientGame
 	    */
 	    this.socket = undefined;
+	    
+	    
+	    this._lerpTerm = 0;
+	    this._state0 = {};
+	    this._state = {};
 	}
         
 	Class.extend( ClientGame, Game );
@@ -58,7 +63,8 @@ define([
 	 */
 	ClientGame.prototype.connect = function(){
 	    var self = this,
-		socket, time,
+		states = this.states,
+		socket, time, length,
 		asset, serverObject,
 		i;
 	    
@@ -141,18 +147,39 @@ define([
 		    self.setCamera( self.scene.findByServerId( camera_id ) );
 		});
 		
-		socket.on("server_update", function( timeStamp ){
-		    time = stamp();
+		socket.on("server_syncInput", function(){
 		    
-		    self.lag = time - timeStamp;
-		    socket.emit("client_update", Input, time );
+		    socket.emit("client_syncInput", Input );
 		});
 		
-		socket.on("server_sync", function( sync ){
+		socket.on("server_syncScene", function( sync, timeStamp ){
+		    
+		    self._state0 = self._state || sync;
+		    self._state = sync;
+		    
+		    self.lag = stamp() - timeStamp;
+		    self._lerpTerm = 0;
 		    
 		    if( self.scene ) self.scene.clientSync( sync );
 		});
 	    });
+	};
+	
+	/**
+	 * @method update
+	 * @memberof ClientGame
+	 * @brief called every frame
+	 */
+	ClientGame.prototype.update = function(){
+	    var scene = this.scene;
+	    
+	    if( scene ){
+		Time.sinceSceneStart = now() - Time.sceneStart;
+		
+		this._lerpTerm += 10 * Time.delta;
+		scene.predict( this._state0, this._state, this._lerpTerm );
+		scene.update();
+	    }
 	};
 	
 	/**

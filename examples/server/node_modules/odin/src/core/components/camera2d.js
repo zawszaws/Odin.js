@@ -11,7 +11,8 @@ define([
     function( Class, Mathf, Mat32, Mat4, SharedComponent ){
         "use strict";
 	
-	var EPSILON = Mathf.EPSILON;
+	var EPSILON = Mathf.EPSILON,
+	    lerp = Mathf.lerp;
 	
         /**
 	 * @class Camera2D
@@ -224,6 +225,19 @@ define([
 	    }
 	};
 	
+	/**
+	 * @method predict
+	 * @memberof Camera2D
+	 * @brief called every frame, only in ClientGame
+	 * @param Object state0
+	 * @param Object state
+	 * @param Number t
+	 */
+	Camera2D.prototype.predict = function( state0, state, t ){
+	    
+	    this.zoom = lerp( state0.zoom, state.zoom, t );
+	};
+	
 	
 	Camera2D.prototype.serverSync = function(){
 	    var sync = this._SYNC;
@@ -238,8 +252,6 @@ define([
 	
 	
 	Camera2D.prototype.clientSync = function( sync ){
-	    
-	    this._SERVER_ID = sync._SERVER_ID;
 	    
 	    this.zoom = sync.zoom;
 	    

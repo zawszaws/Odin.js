@@ -3,6 +3,7 @@ if( typeof define !== "function" ){
 }
 define([
 	"base/class",
+	"base/objectpool",
 	"base/dom",
 	"base/time",
 	"math/mathf",
@@ -10,11 +11,12 @@ define([
 	"math/vec3",
 	"core/sharedobject",
 	"core/input/axis",
-	"core/input/buttons"
+	"core/input/buttons",
+	"core/input/touch"
     ],
-    function( Class, Dom, Time, Mathf, Vec2, Vec3, SharedObject, Axis, Buttons ){
+    function( Class, ObjectPool, Dom, Time, Mathf, Vec2, Vec3, SharedObject, Axis, Buttons, Touch ){
 	"use strict";
-        
+	
 	
         var min = Math.min,
 	    max = Math.max,
@@ -23,6 +25,8 @@ define([
 	    sign = Mathf.sign,
 	    clamp = Mathf.clamp,
 	    equals = Mathf.equals,
+	    
+	    touchPool = new ObjectPool( Touch ),
 	    
 	    addEvent = Dom.addEvent,
 	    removeEvent = Dom.removeEvent;
@@ -63,6 +67,13 @@ define([
 	    * @memberof Input
 	    */
 	    this.mouseDelta = new Vec2;
+	    
+	    /**
+	    * @property Array touches
+	    * @brief array of active touches
+	    * @memberof Input
+	    */
+	    this.touches = [];
 	    
 	    /**
 	    * @property Object axes
@@ -140,6 +151,7 @@ define([
 	    
 	    addEvent( element, "mousedown mouseup mousemove mouseout mousewheel DOMMouseScroll", handleMouse, this );
 	    addEvent( top, "keydown keyup", handleKeys, this );
+            addEvent( element, "touchstart touchmove touchend touchcancel", handleTouches, this );
         };
 	
 	/**
@@ -154,6 +166,7 @@ define([
 	    if( element ){
 		removeEvent( element, "mousedown mouseup mousemove mouseout mousewheel DOMMouseScroll", handleMouse, this );
 		removeEvent( top, "keydown keyup", handleKeys, this );
+		removeEvent( element, "touchstart touchmove touchend touchcancel", handleTouches, this );
 	    }
 	    
             this.element = undefined;
@@ -170,6 +183,7 @@ define([
 		dt = Time.delta;
 	    
 	    mouseMoveNeedsUpdate = true;
+	    touchesMoveNeedsUpdate = true;
 	    
 	    for( name in axes ){
 		axis = axes[ name ];
@@ -329,7 +343,76 @@ define([
 	    json.mouseDelta = this.mouseDelta;
 	    json.mouseWheel = mouseWheel;
 	    
+	    json.touches = this.touches;
+	    
 	    return json;
+        };
+	
+	
+	var touchesMoveNeedsUpdate = false;
+	
+        function handleTouches( e ){
+	    e.preventDefault();
+	    
+	    var touches = this.touches, touch,
+		evtTouches = e.touches, changedTouches = e.changedTouches, evtTouch,
+		i;
+	    
+	    switch( e.type ){
+		
+		case "touchstart":
+		    
+		    for( i = evtTouches.length; i--; ){
+			evtTouch = evtTouches[i];
+			touch = touchPool.create();
+			
+			touch.id = evtTouch.identifier;
+			touch._first = true;
+			
+			touch.getPosition( evtTouch );
+			
+			touches.push( touch );
+		    }
+		    
+		    break;
+		
+		case "touchend":
+		    
+		    for( i = changedTouches.length; i--; ){
+			evtTouch = changedTouches[i];
+			touch = touches[i];
+			
+			touch.clear();
+			touchPool.remove( touch );
+			touches.splice( i, 1 );
+		    }
+		    
+		    break;
+		
+		case "touchcancel":
+		    
+		    touchPool.clear();
+		    this.touches.length = 0;
+		    
+		    break;
+		
+		case "touchmove":
+		    
+		    if( touchesMoveNeedsUpdate ){
+			
+			for( i = changedTouches.length; i--; ){
+			    evtTouch = changedTouches[i];
+			    touch = touches[i];
+			    
+			    touch._first = false;
+			    touch.getPosition( evtTouch );
+			}
+			
+			touchesMoveNeedsUpdate = false;
+		    }
+		    
+		    break;
+	    }
         };
 	
 	

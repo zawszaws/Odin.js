@@ -12,7 +12,8 @@ define([
     function( Class, Mathf, Vec2, Mat32, Mat4, SharedComponent ){
         "use strict";
 	
-	var EPSILON = Mathf.EPSILON;
+	var EPSILON = Mathf.EPSILON,
+	    lerp = Mathf.lerp;
 	
 	
         /**
@@ -122,6 +123,21 @@ define([
             }
 	    
 	    this._modelViewNeedsUpdate = true;
+	};
+	
+	/**
+	 * @method predict
+	 * @memberof Transform2D
+	 * @brief called every frame, only in ClientGame
+	 * @param Object state0
+	 * @param Object state
+	 * @param Number t
+	 */
+	Transform2D.prototype.predict = function( state0, state, t ){
+	    
+	    this.position.vlerp( state0.position, state.position, t );
+	    this.scale.vlerp( state0.scale, state.scale, t );
+	    this.rotation = lerp( state0.rotation, state.rotation, t );
 	};
 	
 	/**

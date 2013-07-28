@@ -230,6 +230,46 @@ define([
 	};
 	
 	/**
+	 * @method findComponentById
+	 * @memberof GameObject
+	 * @brief finds Component by id
+	 * @param String type
+	 * @returns Component
+	 */
+	GameObject.prototype.findComponentById = function( id ){
+	    var components = this.components, component,
+		key;
+	    
+	    for( key in components ){
+		component = components[ key ];
+		
+		if( component._id == id ) return component;
+	    }
+	    
+	    return undefined;
+	};
+	
+	/**
+	 * @method findComponentByServerId
+	 * @memberof GameObject
+	 * @brief finds Component by server id
+	 * @param String type
+	 * @returns Component
+	 */
+	GameObject.prototype.findComponentByServerId = function( id ){
+	    var components = this.components, component,
+		key;
+	    
+	    for( key in components ){
+		component = components[ key ];
+		
+		if( component._SERVER_ID == id ) return component;
+	    }
+	    
+	    return undefined;
+	};
+	
+	/**
 	 * @method addTags
 	 * @memberof GameObject
 	 * @brief adds all tags in arguments to GameObject

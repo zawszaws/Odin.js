@@ -215,7 +215,7 @@ define(
 	 */
 	Mathf.prototype.lerp = function( a, b, t ){
 	    
-	    return a + ( b - a ) * clamp01( t );
+	    return a + ( b - a ) * t;
 	};
 	
 	/**

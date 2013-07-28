@@ -124,6 +124,31 @@ define([
 	};
 	
 	/**
+	 * @method predict
+	 * @memberof Scene
+	 * @brief called every frame, only in ClientGame
+	 * @param Object state0
+	 * @param Object state
+	 * @param Number t
+	 */
+	Scene.prototype.predict = function( state0, state, t ){
+	    var transform2d0 = state0.transform2d, transform2d = state.transform2d,
+		camera2d0 = state0.camera2d, camera2d = state.camera2d,
+		component,
+		i;
+	    
+	    for( i in transform2d0 ){
+		component = this.findComponentByServerId("transform2d", i );
+		if( component ) component.predict( transform2d0[i], transform2d[i], t );
+	    }
+	    
+	    for( i in camera2d0 ){
+		component = this.findComponentByServerId("camera2d", i );
+		if( component ) component.predict( camera2d0[i], camera2d[i], t );
+	    }
+	};
+	
+	/**
 	 * @method destroy
 	 * @memberof Scene
 	 * @brief removes this from Game
@@ -428,20 +453,19 @@ define([
 	
 	
 	Scene.prototype.clientSync = function( sync ){
-	    var transform2d = sync.transform2d, transform, t,
-		camera2d = sync.camera2d, camera, c,
+	    var transform2d = sync.transform2d,
+		camera2d = sync.camera2d,
+		component,
 		i;
 	    
 	    for( i in transform2d ){
-		transform = transform2d[i];
-		t = this.findComponentByServerId("transform2d", i );
-		if( t ) t.clientSync( transform );
+		component = this.findComponentByServerId("transform2d", i );
+		if( component ) component.clientSync( transform2d[i] );
 	    }
 	    
 	    for( i in camera2d ){
-		camera = camera2d[i];
-		c = this.findComponentByServerId("camera2d", i );
-		if( c ) c.clientSync( camera );
+		component = this.findComponentByServerId("camera2d", i );
+		if( component ) component.clientSync( camera2d[i] );
 	    }
 	};
 	
